@@ -336,12 +336,13 @@ export interface components {
       phone: string;
     };
     PhoneCodeResponse: {
+      codeRequired: boolean;
       codeLength: number;
       resendAfterSeconds: number;
     };
     SignInRequest: {
       phone: string;
-      code: string;
+      code?: null | string;
       name?: null | string;
     };
     SignInResponse: {

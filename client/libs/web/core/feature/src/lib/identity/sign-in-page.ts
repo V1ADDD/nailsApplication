@@ -15,7 +15,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { formatCountdown, formatPhone, formatPhoneInput } from '@nails/shared/common/util';
-import { IdentityApi, SessionStore, toProblem } from '@nails/shared/core/data-access';
+import { IdentityApi, SessionStore, toProblem, type Schemas } from '@nails/shared/core/data-access';
 import { Toasts } from '@nails/web/common/overlays';
 import { appPaths } from '../bootstrap/app-paths';
 import { frameSlots, injectFrameActionRunner } from '../modules/frame';
@@ -250,10 +250,16 @@ export class SignInPage {
     if (!this.phoneComplete()) {
       return;
     }
-    if (await this.sendCode()) {
-      this.step.set('code');
-      this.focusStep();
+    const response = await this.sendCode();
+    if (response === null) {
+      return;
     }
+    if (!response.codeRequired) {
+      await this.signIn(null);
+      return;
+    }
+    this.step.set('code');
+    this.focusStep();
   }
 
   protected async resend(): Promise<void> {
@@ -282,17 +288,17 @@ export class SignInPage {
     await this.signIn(name);
   }
 
-  private async sendCode(): Promise<boolean> {
+  private async sendCode(): Promise<Schemas['PhoneCodeResponse'] | null> {
     this.busy.set(true);
     this.error.set(null);
     try {
       const response = await this.identity.requestCode({ phone: this.phone() });
       this.codeLength.set(response.codeLength);
       this.resendAt.set(Date.now() + response.resendAfterSeconds * millisecondsPerSecond);
-      return true;
+      return response;
     } catch (error) {
       this.error.set(toProblem(error).title);
-      return false;
+      return null;
     } finally {
       this.busy.set(false);
     }
@@ -302,7 +308,7 @@ export class SignInPage {
     this.busy.set(true);
     this.error.set(null);
     try {
-      const response = await this.session.signIn({ phone: this.phone(), code: this.code(), name });
+      const response = await this.session.signIn({ phone: this.phone(), code: this.code() || null, name });
       if (response.nameRequired) {
         this.busy.set(false);
         this.step.set('name');

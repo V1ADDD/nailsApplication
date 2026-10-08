@@ -534,11 +534,15 @@
       },
       "PhoneCodeResponse": {
         "required": [
+          "codeRequired",
           "codeLength",
           "resendAfterSeconds"
         ],
         "type": "object",
         "properties": {
+          "codeRequired": {
+            "type": "boolean"
+          },
           "codeLength": {
             "type": "integer",
             "format": "int32"
@@ -551,8 +555,7 @@
       },
       "SignInRequest": {
         "required": [
-          "phone",
-          "code"
+          "phone"
         ],
         "type": "object",
         "properties": {
@@ -562,7 +565,10 @@
           },
           "code": {
             "maxLength": 8,
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "maxLength": 200,

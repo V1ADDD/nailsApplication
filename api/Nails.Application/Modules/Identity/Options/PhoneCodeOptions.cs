@@ -6,6 +6,8 @@ public sealed class PhoneCodeOptions
 {
     public const string SectionName = "Modules:Identity:PhoneCode";
 
+    public bool VerificationRequired { get; set; } = true;
+
     [Range(4, 8)]
     public int Length { get; set; }
 

@@ -134,3 +134,9 @@ Buttons have the old app's sizes and weights (44 px bold 14 px buttons, the 56 p
 - **FR-031**: Every icon inside a button MUST be centred; a bottom sheet on phones MUST close when its grip or header is dragged down beyond 80 px and spring back otherwise.
 - **FR-032**: Secondary actions of the sign-in card MUST be text links in the brand colour, centred under the code; the countdown MUST replace the resend link until it ends.
 - **FR-033**: On phones the help MUST show the search and a «Разделы» button in one row, and each article MUST start with «Все статьи».
+
+### Session 2026-10-08 (fourth round)
+
+- Q: Why does the SMS not reach the phone, and can it be tested for free? → A: There is no SMS gateway yet; every SMS goes to Mailpit as an email. Real SMS cannot be sent for free without the user registering with a provider (Twilio trial, Firebase on a paid plan, Belarusian gateways by contract). Instead a setting switches the code off for development (FR-034).
+
+- **FR-034**: `Modules:Identity:PhoneCode:VerificationRequired` MUST control the code: when `false`, requesting a code sends nothing and answers `codeRequired: false`, the sign-in page skips the code step, and sign-in by phone alone succeeds (a new phone still gives a name); every such sign-in logs a warning. It is `false` in Development and Docker and `true` in Production.

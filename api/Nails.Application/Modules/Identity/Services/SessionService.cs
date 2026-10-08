@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nails.Application.Common.Exceptions;
 using Nails.Application.Modules.Identity.Contracts;
@@ -14,7 +15,7 @@ using Nails.Infrastructure.Persistence.Contracts;
 
 namespace Nails.Application.Modules.Identity.Services;
 
-public sealed class SessionService(
+public sealed partial class SessionService(
     UserManager<ApplicationUser> users,
     SignInManager<ApplicationUser> signIn,
     ICurrentUser currentUser,
@@ -23,7 +24,8 @@ public sealed class SessionService(
     ISmsSender sms,
     UserFactory userFactory,
     TimeProvider clock,
-    IOptions<PhoneCodeOptions> options) : ISessionService
+    IOptions<PhoneCodeOptions> options,
+    ILogger<SessionService> logger) : ISessionService
 {
     private const int DecimalBase = 10;
 
@@ -34,6 +36,13 @@ public sealed class SessionService(
         var phone = BelarusPhone.Normalize(request.Phone) ?? throw IdentityErrors.PhoneInvalid();
         var settings = options.Value;
         var now = clock.GetUtcNow();
+
+        if (!settings.VerificationRequired)
+        {
+            LogVerificationOff(logger);
+            return new PhoneCodeResponse(CodeRequired: false, settings.Length, ResendAfterSeconds: 0);
+        }
+
         var entry = await codes.FindAsync(phone, cancellationToken);
 
         if (entry is null)
@@ -60,26 +69,13 @@ public sealed class SessionService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await sms.SendAsync(phone, $"Код для входа в «Мастера рядом»: {code}. Никому его не сообщайте.", cancellationToken);
 
-        return new PhoneCodeResponse(settings.Length, WholeSeconds(settings.ResendInterval));
+        return new PhoneCodeResponse(CodeRequired: true, settings.Length, WholeSeconds(settings.ResendInterval));
     }
 
     public async Task<SignInResponse> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
     {
         var phone = BelarusPhone.Normalize(request.Phone) ?? throw IdentityErrors.PhoneInvalid();
-        var settings = options.Value;
-        var entry = await codes.FindAsync(phone, cancellationToken);
-
-        if (entry is null || !PhoneCodeState.IsUsable(entry.ExpiresAt, entry.Attempts, settings.MaxAttempts, clock.GetUtcNow()))
-        {
-            throw IdentityErrors.CodeExpired();
-        }
-
-        if (Hasher.VerifyHashedPassword(entry, entry.CodeHash, request.Code.Trim()) == PasswordVerificationResult.Failed)
-        {
-            entry.Attempts++;
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            throw entry.Attempts >= settings.MaxAttempts ? IdentityErrors.CodeExpired() : IdentityErrors.CodeInvalid();
-        }
+        var entry = await VerifyCodeAsync(phone, request.Code, cancellationToken);
 
         var user = await users.FindByNameAsync(phone);
 
@@ -100,8 +96,12 @@ public sealed class SessionService(
             user = await userFactory.CreateAsync(name, phone, cancellationToken);
         }
 
-        codes.Remove(entry);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (entry is not null)
+        {
+            codes.Remove(entry);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
         await signIn.SignInAsync(user, isPersistent: true);
 
         return new SignInResponse(NameRequired: false);
@@ -119,6 +119,32 @@ public sealed class SessionService(
         return new MeResponse(user.Id, user.DisplayName, user.PhoneNumber);
     }
 
+    private async Task<PhoneCode?> VerifyCodeAsync(string phone, string? code, CancellationToken cancellationToken)
+    {
+        var settings = options.Value;
+
+        if (!settings.VerificationRequired)
+        {
+            return null;
+        }
+
+        var entry = await codes.FindAsync(phone, cancellationToken);
+
+        if (entry is null || !PhoneCodeState.IsUsable(entry.ExpiresAt, entry.Attempts, settings.MaxAttempts, clock.GetUtcNow()))
+        {
+            throw IdentityErrors.CodeExpired();
+        }
+
+        if (code is null || Hasher.VerifyHashedPassword(entry, entry.CodeHash, code.Trim()) == PasswordVerificationResult.Failed)
+        {
+            entry.Attempts++;
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            throw entry.Attempts >= settings.MaxAttempts ? IdentityErrors.CodeExpired() : IdentityErrors.CodeInvalid();
+        }
+
+        return entry;
+    }
+
     private static string Generate(int length)
     {
         var upper = (int)Math.Pow(DecimalBase, length);
@@ -126,4 +152,7 @@ public sealed class SessionService(
     }
 
     private static int WholeSeconds(TimeSpan duration) => (int)Math.Ceiling(duration.TotalSeconds);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Phone verification is switched off: signing in without an SMS code.")]
+    private static partial void LogVerificationOff(ILogger logger);
 }

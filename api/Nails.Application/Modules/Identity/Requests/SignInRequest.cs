@@ -14,9 +14,8 @@ public sealed class SignInRequest
     [MaxLength(BelarusPhone.MaxInputLength)]
     public required string Phone { get; init; }
 
-    [Required]
     [MaxLength(CodeMaxLength)]
-    public required string Code { get; init; }
+    public string? Code { get; init; }
 
     [MaxLength(ApplicationUser.DisplayNameMaxLength)]
     public string? Name { get; init; }
