@@ -116,7 +116,7 @@ public sealed partial class SessionService(
         var user = await users.FindByIdAsync(currentUser.UserId.ToString())
             ?? throw new UnauthorizedException(ErrorCodes.SessionEnded, "Сеанс завершён. Войдите снова.");
 
-        return new MeResponse(user.Id, user.DisplayName, user.PhoneNumber);
+        return new MeResponse(user.Id, user.DisplayName, user.PhoneNumber, user.MasterId);
     }
 
     private async Task<PhoneCode?> VerifyCodeAsync(string phone, string? code, CancellationToken cancellationToken)

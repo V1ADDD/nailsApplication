@@ -26,7 +26,7 @@ import { iconPaths, type IconName } from './icon-paths';
   template: `
     <svg
       viewBox="0 0 24 24"
-      fill="none"
+      [attr.fill]="filled() ? 'currentColor' : 'none'"
       stroke="currentColor"
       stroke-width="2"
       stroke-linecap="round"
@@ -38,6 +38,7 @@ import { iconPaths, type IconName } from './icon-paths';
 })
 export class Icon {
   readonly name = input.required<IconName>();
+  readonly filled = input(false);
   readonly label = input<string>();
   readonly size = input(24);
   private readonly sanitizer = inject(DomSanitizer);

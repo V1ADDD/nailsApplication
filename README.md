@@ -2,7 +2,7 @@
 
 Nails is «Мастера рядом», a web marketplace where beauty masters in Belarus (nails, brows, lashes, cosmetology, makeup, depilation) publish their services and exact prices, and clients find and compare them. Every account is a client and can also become a master.
 
-It is a modular monolith: a core (personal accounts, sign-in, the app shell and the help center) plus feature modules that plug into it and can be switched off by configuration. The whole user interface, every message the API shows and the help are in Russian; code and docs are in English. Product rules (locale `ru-BY`, BYN prices, `Europe/Minsk`, Russian plurals, phones) are in the constitution, principle I.
+It is a modular monolith: a core (personal accounts, sign-in, the service catalog, the app shell and the help center) plus feature modules that plug into it and can be switched off by configuration. The whole user interface, every message the API shows and the help are in Russian; code and docs are in English. Product rules (locale `ru-BY`, BYN prices, `Europe/Minsk`, Russian plurals, phones) are in the constitution, principle I.
 
 ## Stack
 
@@ -41,7 +41,9 @@ nails/
 
 | Module | Switch | API | Client |
 |---|---|---|---|
-| `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in by phone and SMS code (a new phone gets an account), the account page `/profile` with «Выйти из аккаунта» (in `core`) |
+| `Identity` | always on | users with a personal tenant each, cookie sessions, presence (`last_seen_at`, `IPresence`), the account's master profile (`/me.masterId`); `/api/identity/*` | sign-in by phone and SMS code (a new phone gets an account), the account page `/profile` with «Выйти из аккаунта» (in `core`) |
+| `Catalog` | always on | the fixed service catalog as code (7 categories, services, add-ons, synonyms) and typo-tolerant text search; `GET /api/catalog`, `GET /api/catalog/suggestions?q=`; `ICatalog` for other modules | `CatalogStore` (in `core`) |
+| `Masters` | `Modules:Masters:Enabled` | the marketplace in schema `masters`: master profiles, services, courses, portfolio, favourites, schedules, slots, bookings, reviews; `GET /api/masters/search` (filters, ranking, pages and map pins), `GET /api/masters/{id}/card`, `PUT`/`DELETE /api/masters/{id}/favorite`, `GET /api/masters/favorites/ids` | the map page at `/` (Leaflet, own clustering, search with suggestions, filter chips and sheet, sort, list) and the «Карта» tab; when off, `/` opens «Профиль» |
 | `Help` | `Modules:Help:Enabled` | Russian articles in sections with blocks and pictures from `Content/ru/`; `GET /api/help/content`, `GET /api/help/images/{language}/{articleId}/{fileName}` | `/help`, `/help/:articleId`: section cards, search, articles; a side list from 1024 px, the «Разделы справки» sheet below |
 | `Support` | `Modules:Support:Enabled` | support tickets in `support.tickets`; `POST /api/support/tickets` (anonymous, rate-limited per address by `Modules:Support:RateLimit`) | the «Напишите нам» sheet, opened from the frame |
 
@@ -51,7 +53,7 @@ nails/
 
 ```text
 api/Nails.Infrastructure/Modules/<Module>/   Entities/, Configurations/, Contracts/ (repository interfaces), Repositories/, Models/, Options/
-api/Nails.Application/Modules/<Module>/      <Module>Module.cs, Contracts/ (service interfaces), Services/, Requests/, Responses/, Options/, Rules/ (pure business rules)
+api/Nails.Application/Modules/<Module>/      <Module>Module.cs, Contracts/ (service interfaces), Services/, Requests/, Responses/, Options/, Rules/ (pure business rules), Seed/ (Development demo data)
 api/Nails.Api/Modules/<Module>/              Controllers/ (one [ApiController] per resource, route /api/<module> from the namespace), Content/
 client/libs/shared/<module>/data-access/       API calls and state, typed by the generated schema
 client/libs/web/<module>/feature/              pages, routes and the module manifest
@@ -65,7 +67,7 @@ client/libs/web/<module>/feature/              pages, routes and the module mani
 4. In `client/`: `npx nx run shared-core-data-access:api-types`.
 5. Help: `api/Nails.Api/Modules/Help/Content/ru/articles/<module>.json` with `"module": "<module>"`.
 
-A module uses another module only through the contracts of the always-on modules: today `Identity` (`ICurrentUser`); the constitution also reserves this for `Catalog` once it exists. Their client code lives in `core`. The first spec that needs events or extension points between modules builds that mechanism.
+A module uses another module only through the contracts of the always-on modules: `Identity` (`ICurrentUser`, `IPresence`) and `Catalog` (`ICatalog`). Their client code lives in `core`. The first spec that needs events or extension points between modules builds that mechanism.
 
 ### Help content
 
@@ -84,9 +86,10 @@ A module uses another module only through the contracts of the always-on modules
 - Tenancy: registration gives every account its own tenant. Every `ITenantEntity` (private data) is filtered by the signed-in user's tenant through a named EF Core query filter and stamped on insert by `TenantInterceptor`; writing another tenant's row throws.
 - Rules: business rules are pure functions in `Modules/<Module>/Rules/`; the server enforces them and every permission.
 - Russian messages: `AppException` titles are Russian; `RussianValidationMetadataProvider` gives data annotations Russian messages, `ProblemTitles` covers framework errors, `RussianIdentityErrorDescriber` covers Identity.
-- Client formatting: the locale (`appLocale`), `formatPhone` / `formatPhoneInput` and `formatCountdown` live in `client/libs/shared/common/util`; the price, date and plural helpers join them with their first feature.
+- Client formatting: the locale (`appLocale`), `formatPhone` / `formatPhoneInput`, `formatCountdown`, `formatPrice` / `formatAmount`, `formatDistance`, `formatDecimal`, `plural` and `NBSP` live in `client/libs/shared/common/util`; the date helpers join them with their first feature.
+- Time: the business time zone is Minsk (UTC+3 all year); `Nails.Application/Common/Time/MinskTime` turns instants into Minsk dates and Minsk wall-clock times into UTC instants.
 - Design tokens: every color, spacing step, radius, type size, shadow, layout size, duration and layer is a `--app-*` custom property in `client/apps/web/src/styles/_tokens.scss` (values from the old app); Angular Material is themed from them in `styles/_material.scss`; components use tokens and never raw hex. Breakpoints 480, 768, 1024, 1280 px are the `up()` / `down()` mixins of `styles/_breakpoints.scss`, usable in component styles (`@use 'breakpoints' as bp`). The app is light only.
-- The frame: below 1024 px a bottom tab bar, from 1024 px a sticky top bar (`client/libs/web/core/feature/src/lib/layout/`). A module plugs into it through optional slots of its manifest: `frameItem` (a tab, ordered; «Профиль» at order 30 is the core's), `accountLink` (top bar and account page, e.g. «Справка») and `frameAction` (a button that opens something, e.g. «Напишите нам»). Shared blocks: `@nails/web/common/ui` (logo, icons, avatar, skeleton, states, `Viewport`) and `@nails/web/common/overlays` (`Sheets`, `SheetLayout`, `Toasts`; a separate library so Material dialog and snack bar stay out of the initial bundle).
+- The frame: below 1024 px a bottom tab bar, from 1024 px a sticky top bar (`client/libs/web/core/feature/src/lib/layout/`). A module plugs into it through optional slots of its manifest: `frameItem` (a tab, ordered; «Профиль» at order 30 is the core's), `accountLink` (top bar and account page, e.g. «Справка») and `frameAction` (a button that opens something, e.g. «Напишите нам»; a full-screen page such as the map shows the actions as a right-edge tab with `FrameEdgeTab`). Module public routes come before the core's `/` → «Профиль» redirect, so a module may own `/`. Shared blocks: `@nails/web/common/ui` (logo, icons, avatar with photo and online dot, rating, skeleton, states, `Viewport`) and `@nails/web/common/overlays` (`Sheets`, `SheetLayout`, `Toasts`; a separate library so Material dialog and snack bar stay out of the initial bundle).
 - Data: one PostgreSQL database, one `AppDbContext`, one schema per module, UUID v7 keys, snake_case names, `IAuditable` timestamps, `IVersioned` for optimistic concurrency. Migrations are additive.
 
 ## Security
@@ -95,7 +98,7 @@ A module uses another module only through the contracts of the always-on modules
 - SMS go through `ISmsSender`; today `EmailSmsSender` delivers each SMS as an email to `<digits>@<Modules:Identity:Sms:RecipientDomain>` (Mailpit locally: http://localhost:8025). A production SMS gateway replaces it behind the same interface (spec 012).
 - `Modules:Identity:PhoneCode:VerificationRequired` (`false` in Development and Docker, `true` in Production): when `false`, no SMS is sent, the sign-in page skips the code step and any Belarusian number signs in (a new one still gives a name). The API logs a warning on every such sign-in. Never switch it off where real people sign in.
 - Session: an `HttpOnly`, `SameSite=Strict` cookie, `Secure` when `Security:SecureCookies` is on; no tokens in JavaScript. Changes need the antiforgery header that Angular's `HttpClient` sends from the `XSRF-TOKEN` cookie. The browser always talks to one origin: the dev server and nginx proxy `/api`.
-- Rate limits per client address on the anonymous endpoints (`Modules:Identity:RateLimit`, `Modules:Support:RateLimit`; one helper in `Nails.Application/Common/RateLimiting`); `nosniff`, `no-referrer`, a locked-down `Permissions-Policy`, CSP and `no-store` on the API; a strict CSP on the web app.
+- Rate limits per client address on the anonymous endpoints (`Modules:Identity:RateLimit`, `Modules:Support:RateLimit`; one helper in `Nails.Application/Common/RateLimiting`); `nosniff`, `no-referrer`, a locked-down `Permissions-Policy`, CSP and `no-store` on the API; a strict CSP on the web app (pictures only from itself, the OpenStreetMap tiles and the demo photo host; geolocation for the page itself only).
 - Data protection keys live in PostgreSQL. Behind a reverse proxy, enable `Security:ForwardedHeaders` with its addresses.
 - Secrets never enter git: `.env` (git-ignored) and user secrets locally, the environment or a secret store in production.
 
@@ -113,6 +116,16 @@ cd client && npx nx run web:serve
 ```
 
 `docker compose up -d` starts PostgreSQL and Mailpit (emails at http://localhost:8025). The API listens on http://localhost:5200 (OpenAPI reference at `/scalar`), the web app on http://localhost:4200. Sign in with any Belarusian number: the SMS code arrives in Mailpit.
+
+### Demo world
+
+With `Demo:Enabled` (`true` only in Development) the API fills the database once, on start, with the old app's demo world: 26 masters across Belarus with services, schedules, 14 days of slots, bookings, reviews and photos (`Demo:PhotoUrlFormat`), six clients and Анна Новикова (+375 (29) 123-45-67), a client with favourites and a master at the same time. Demo master accounts have the phones +375 (44) 700-00-01 … 700-00-25. Each module seeds its own tables through an `IDemoSeeder` in `Modules/<Module>/Seed/`; ids come from `DemoIds` (stable per slug), and online masters stay online. Reset and reseed, then exit:
+
+```bash
+cd api && dotnet run --project Nails.Api -- seed --reset
+```
+
+The API refuses to seed in Production.
 
 The whole stack in containers, with the `Docker` settings: `docker compose --profile app up -d --build`, then open http://localhost:8080.
 

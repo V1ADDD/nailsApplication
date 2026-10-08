@@ -24,6 +24,7 @@ public static class ControllerExtensions
                 options.Conventions.Add(new ModuleControllerConvention());
                 options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
                 options.ModelMetadataDetailsProviders.Add(new RussianValidationMetadataProvider());
+                UseRussianBindingMessages(options.ModelBindingMessageProvider);
                 options.Filters.Add(new ProducesAttribute(JsonContentType));
                 options.Filters.Add(new ConsumesAttribute(JsonContentType));
             })
@@ -57,6 +58,17 @@ public static class ControllerExtensions
         services.ConfigureHttpJsonOptions(options => ConfigureJson(options.SerializerOptions));
 
         return services;
+    }
+
+    private static void UseRussianBindingMessages(DefaultModelBindingMessageProvider messages)
+    {
+        messages.SetAttemptedValueIsInvalidAccessor((_, _) => ValidationMessages.InvalidValue);
+        messages.SetNonPropertyAttemptedValueIsInvalidAccessor(_ => ValidationMessages.InvalidValue);
+        messages.SetUnknownValueIsInvalidAccessor(_ => ValidationMessages.InvalidValue);
+        messages.SetNonPropertyUnknownValueIsInvalidAccessor(() => ValidationMessages.InvalidValue);
+        messages.SetValueIsInvalidAccessor(_ => ValidationMessages.InvalidValue);
+        messages.SetValueMustBeANumberAccessor(_ => ValidationMessages.InvalidValue);
+        messages.SetNonPropertyValueMustBeANumberAccessor(() => ValidationMessages.InvalidValue);
     }
 
     private static void ConfigureJson(JsonSerializerOptions options)

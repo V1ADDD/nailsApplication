@@ -22,12 +22,14 @@
     "paths": {
       "@nails/shared/common/util": ["./libs/shared/common/util/src/index.ts"],
       "@nails/shared/core/data-access": ["./libs/shared/core/data-access/src/index.ts"],
+      "@nails/shared/masters/data-access": ["./libs/shared/masters/data-access/src/index.ts"],
       "@nails/shared/help/data-access": ["./libs/shared/help/data-access/src/index.ts"],
       "@nails/shared/support/data-access": ["./libs/shared/support/data-access/src/index.ts"],
       "@nails/web/common/overlays": ["./libs/web/common/overlays/src/index.ts"],
       "@nails/web/common/ui": ["./libs/web/common/ui/src/index.ts"],
       "@nails/web/core/feature": ["./libs/web/core/feature/src/index.ts"],
       "@nails/web/help/feature": ["./libs/web/help/feature/src/index.ts"],
+      "@nails/web/masters/feature": ["./libs/web/masters/feature/src/index.ts"],
       "@nails/web/support/feature": ["./libs/web/support/feature/src/index.ts"]
     }
   },

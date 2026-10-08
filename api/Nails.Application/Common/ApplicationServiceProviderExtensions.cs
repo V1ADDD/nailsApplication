@@ -5,7 +5,7 @@ namespace Nails.Application.Common;
 
 public static class ApplicationServiceProviderExtensions
 {
-    public static async Task PrepareApplicationAsync(this IServiceProvider services, CancellationToken cancellationToken)
+    public static async Task PrepareApplicationAsync(this IServiceProvider services, bool seedDemo, bool resetDemo, CancellationToken cancellationToken)
     {
         if (BuildContext.IsGeneratingOpenApiDocument)
         {
@@ -13,5 +13,6 @@ public static class ApplicationServiceProviderExtensions
         }
 
         await services.MigrateDatabaseAsync(cancellationToken);
+        await services.SeedDemoAsync(seedDemo, resetDemo, cancellationToken);
     }
 }

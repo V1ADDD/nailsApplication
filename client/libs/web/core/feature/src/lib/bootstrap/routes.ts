@@ -16,13 +16,13 @@ export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
       component: AppLayout,
       providers: [{ provide: frameSlots, useValue: buildFrameSlots(manifests) }],
       children: [
+        ...manifests.flatMap((manifest) => manifest.publicRoutes),
         { path: '', pathMatch: 'full', redirectTo: appPaths.profile },
         {
           path: appPaths.signIn,
           loadComponent: () => import('../identity/sign-in-page').then((m) => m.SignInPage),
           title: 'Вход'
         },
-        ...manifests.flatMap((manifest) => manifest.publicRoutes),
         {
           path: '',
           canActivateChild: [requireSession],
