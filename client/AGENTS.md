@@ -4,13 +4,13 @@ Client rules on top of the root `AGENTS.md` and the constitution. Stack: Nx 23, 
 
 - `apps/<platform>/` is thin: `web` today (`main.ts`, `modules.ts`, `styles.scss`, `proxy.conf.json`); `mobile` when it comes.
 - `libs/<scope>/<module>/<type>/`. Scopes: `shared` (every platform), `web`, `mobile`. Types: `data-access` (HTTP, state, resources), `feature` (routed pages, the module manifest), `ui` (presentational components), `contracts` (what other modules may import), `util` (pure functions).
-- `core` is the shell (session, HTTP setup, locale, routing, layout, public home page, identity pages) and the client of the always-on `Catalog` (`CatalogStore`); `common` is shared code used by several modules, including `libs/shared/common/util` (`formatPrice`, `formatPhone`, `formatDuration`, `plural`, `appLocale`).
+- `core` is the shell (session, HTTP setup, locale, routing, layout, public home page, identity pages); `common` is shared code used by several modules, including `libs/shared/common/util` (today `appLocale`; the price, phone, date and plural helpers go there).
 - Tags `scope:*`, `type:*` and `name:*` are enforced by `@nx/enforce-module-boundaries`: `shared` depends only on `shared`; `web` and `mobile` on themselves and `shared`, never on each other.
 - `libs/shared` has no DOM globals, Angular Material, CDK, router or forms; ESLint fails on them.
 
 ## Rules
 
-- Every user-facing string is Russian and written directly in the template (labels, buttons, titles, empty and error states with «Повторить», aria labels, toasts). Prices, phones, durations and counts only through the helpers in `libs/shared/common/util`; never format them by hand.
+- Every user-facing string is Russian and written directly in the template (labels, buttons, titles, empty and error states with «Повторить», aria labels, toasts). Prices, phones, dates, durations and counts only through the helpers in `libs/shared/common/util`; never format them by hand.
 - Mobile-first: no horizontal overflow at 360 px, breakpoints 480, 768, 1024, 1280 px, `minmax(0, 1fr)` columns; spacing and radii from the `--app-*` tokens, colors from `--mat-sys-*`, no hex colors in components.
 - Keep the initial bundle small: put code used by one module in that module, not in `common`, because a barrel import pulls its Material dependencies into the main chunk.
 - Standalone components, `ChangeDetectionStrategy.OnPush`, zoneless; signals, `computed`, `input()`, `output()`, `httpResource()`; built-in control flow; `inject()`.

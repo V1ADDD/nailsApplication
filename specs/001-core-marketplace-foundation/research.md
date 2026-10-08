@@ -14,8 +14,8 @@
 
 ## Client locale and formatting
 
-- **Decision**: register `@angular/common/locales/ru-BY` and provide `LOCALE_ID = 'ru-BY'`; `lang="ru"`. Prices, phones, plurals and the NBSP constant live in `libs/shared/common/util` as pure functions; `web/common/ui` wraps them in `price` and `phone` pipes. Prices use `Intl.NumberFormat('ru-BY')` with no decimals for whole amounts and two otherwise.
-- **Rationale**: one formatter for every platform; pipes keep templates simple.
+- **Decision**: register `@angular/common/locales/ru-BY` and provide `LOCALE_ID = 'ru-BY'`; `lang="ru"`. The locale constant lives in `libs/shared/common/util`; the price, phone, plural and date helpers join it with the first feature that needs them.
+- **Rationale**: one place for locale-dependent formatting on every platform.
 - **Alternatives considered**: `CurrencyPipe` (prints «BYN» or «Br», not «р»).
 
 ## Theme
@@ -26,22 +26,10 @@
 
 ## Tenancy for a marketplace
 
-- **Decision**: registration creates a personal tenant named after the person; the organization field disappears. Catalog and masters data are not tenant-owned and carry the owner's user id.
+- **Decision**: registration creates a personal tenant named after the person; the organization field disappears.
 - **Rationale**: keeps the template's tenancy for future private data (client notes, bookings stats) while letting every visitor read the marketplace.
 - **Alternatives considered**: removing tenancy (large core change, needed later anyway); one shared tenant (breaks the invariant that a tenant is a private space).
 
-## Catalog as an always-on module
+## Removed with the scope change
 
-- **Decision**: `Catalog` is always on like `Identity`; its `Contracts` may be used by other modules; its client code lives in `core`.
-- **Rationale**: every marketplace module (masters, search, bookings, statistics) refers to services and cities; a switchable catalog would break them.
-- **Alternatives considered**: catalog inside Masters (bookings and search would then depend on Masters); JSON files like Help (no relational use for later search queries).
-
-## Headline price and ordering
-
-- **Decision**: with a chosen service, the headline is that offer's price and the list is ordered by it ascending, then newest first; otherwise the headline is the lowest non-free price of the matching offers shown as «от», or «Бесплатно» if all are free, ordered newest first. Free prices are stored as 0, so ordering by price puts free first.
-- **Rationale**: "compare exact prices" needs one comparable number per master for one service.
-
-## Phone
-
-- **Decision**: accept `+375 (29) 123-45-67`, `375291234567`, `80291234567` and similar; normalize to `+375` plus nine digits whose first two are a Belarusian code (15, 16, 17, 21, 22, 23, 25, 29, 33, 44).
-- **Rationale**: covers mobile operators and regional landlines without a phone library.
+The first version also decided the catalog as an always-on module, the headline price and ordering of masters, and the Belarusian phone rule. They left this spec with the Catalog and Masters code; the requests in `specs_requests/` decide them again from the terms of reference and the earlier prototype.

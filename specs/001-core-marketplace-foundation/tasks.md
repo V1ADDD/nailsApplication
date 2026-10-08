@@ -118,3 +118,14 @@ description: "Task list for the marketplace foundation"
 - Setup → Foundational → US1 → US2 → US3 → US4 → Polish
 - US3 needs the Catalog contracts of US2; US4 needs the entities and rules of US3.
 - [P] tasks touch different files and can run together inside their phase.
+
+---
+
+## Phase 8: Scope change (2026-10-08)
+
+The tasks of Phases 4 to 6 (T019–T039) were built and then removed at the user's request; see the scope change in `spec.md`.
+
+- [X] T045 Revert the local database to `Initial` and remove the migration `AddCatalogAndMasters`
+- [X] T046 Remove `Catalog` and `Masters` from `api/` (modules, controllers, `ModuleCatalog.cs`, `DatabaseSchemas.cs`, error codes, exception overloads, settings, help articles `catalog.json` and `masters.json`)
+- [X] T047 Remove `libs/shared/masters`, `libs/web/masters`, `CatalogStore`, the unused formatters and the catalog section of the home page from `client/`; regenerate `openapi.json` and `schema.ts`
+- [X] T048 Update `README.md`, `client/AGENTS.md`, `spec.md`, `plan.md`, `research.md`, `data-model.md` and `contracts/` to the bare foundation; run every check

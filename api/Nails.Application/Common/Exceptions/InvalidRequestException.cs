@@ -8,7 +8,4 @@ public sealed class InvalidRequestException(string code, string title, IReadOnly
     public const string DefaultTitle = "Проверьте введённые данные.";
 
     public override IReadOnlyDictionary<string, string[]>? Errors { get; } = errors;
-
-    public static InvalidRequestException ForField(string field, string message) =>
-        new(ErrorCodes.InvalidRequest, DefaultTitle, new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [message] });
 }

@@ -1,6 +1,5 @@
 export const apiPaths = {
   modules: '/api/modules',
-  catalog: '/api/catalog',
   me: '/api/identity/me',
   signIn: '/api/identity/sign-in',
   signOut: '/api/identity/sign-out',

@@ -16,8 +16,4 @@ public static class ErrorCodes
     public const string RegistrationClosed = "registration-closed";
     public const string LinkInvalid = "link-invalid";
     public const string SessionEnded = "session-ended";
-    public const string MasterProfileMissing = "master-profile-missing";
-    public const string MasterProfileRequired = "master-profile-required";
-    public const string MasterProfileExists = "master-profile-exists";
-    public const string OfferExists = "offer-exists";
 }

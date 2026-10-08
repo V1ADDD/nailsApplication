@@ -2,7 +2,7 @@
 
 Nails is «Мастера рядом», a web marketplace where beauty masters in Belarus (nails, brows, lashes, cosmetology, makeup, depilation) publish their services and exact prices, and clients find and compare them. Every account is a client and can also become a master.
 
-It is a modular monolith: a core (personal accounts, sign-in, the service catalog, the app shell and the help center) plus feature modules that plug into it and can be switched off by configuration. The whole user interface, every message the API shows and the help are in Russian; code and docs are in English. Product rules (locale `ru-BY`, BYN prices, `Europe/Minsk`, Russian plurals, phones) are in the constitution, principle I.
+It is a modular monolith: a core (personal accounts, sign-in, the app shell and the help center) plus feature modules that plug into it and can be switched off by configuration. The whole user interface, every message the API shows and the help are in Russian; code and docs are in English. Product rules (locale `ru-BY`, BYN prices, `Europe/Minsk`, Russian plurals, phones) are in the constitution, principle I.
 
 ## Stack
 
@@ -42,9 +42,7 @@ nails/
 | Module | Switch | API | Client |
 |---|---|---|---|
 | `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in, registration, email confirmation, password reset, account menu (in `core`) |
-| `Catalog` | always on | categories, services and cities as seeded reference data with slug ids; `GET /api/catalog` | the services on the home page, `CatalogStore` (in `core`) |
 | `Help` | `Modules:Help:Enabled` | Russian articles from JSON files in `Content/ru/`; `GET /api/help/content` | `/help`, `/help/:articleId` |
-| `Masters` | `Modules:Masters:Enabled` | one master profile per account, a price list (exact, from, free prices), search with headline prices; `/api/masters`, `/api/masters/{id}`, `/api/masters/me`, `/api/masters/me/offers` | `/masters`, `/masters/:id`, `/master` (the master cabinet) |
 
 `GET /api/modules` returns the enabled modules; the client downloads only their code.
 
@@ -66,7 +64,7 @@ client/libs/web/<module>/feature/              pages, routes and the module mani
 4. In `client/`: `npx nx run shared-core-data-access:api-types`.
 5. Help: `api/Nails.Api/Modules/Help/Content/ru/articles/<module>.json` with `"module": "<module>"`.
 
-A module uses another module only through the contracts of the always-on modules: `Identity` (`ICurrentUser`) and `Catalog` (`ICatalogService`, `CatalogDirectory`). Their client code lives in `core`. The first spec that needs events or extension points between modules builds that mechanism.
+A module uses another module only through the contracts of the always-on modules: today `Identity` (`ICurrentUser`); the constitution also reserves this for `Catalog` once it exists. Their client code lives in `core`. The first spec that needs events or extension points between modules builds that mechanism.
 
 ### Adding a mobile app
 
@@ -76,10 +74,10 @@ A module uses another module only through the contracts of the always-on modules
 
 - Controllers are thin: bind the request, call one service, return its response. `ModuleControllerConvention` prefixes every controller in `Nails.Api.Modules.<Module>` with `/api/<module>` and requires sign-in unless an action says `[AllowAnonymous]`; `ModuleControllerFeatureProvider` drops the controllers of a disabled module. Services hold the logic; repositories hold the queries; `IUnitOfWork` saves.
 - Errors: services throw an `AppException` subclass (`InvalidRequestException`, `UnauthorizedException`, `ForbiddenException`, `NotFoundException`, `ConflictException`, `TooManyRequestsException`); `ExceptionMiddleware` turns it into problem details with `code` and `traceId`. Validation failures, unknown routes and authentication failures use the same shape.
-- Tenancy: registration gives every account its own tenant. Every `ITenantEntity` (private data) is filtered by the signed-in user's tenant through a named EF Core query filter and stamped on insert by `TenantInterceptor`; writing another tenant's row throws. Marketplace data every visitor sees (catalog, master profiles, price lists) is not tenant-owned: it carries the owner's user id and services check ownership.
-- Rules: business rules are pure functions in `Modules/<Module>/Rules/` (for example `OfferPrice`, `HeadlinePrice`, `BelarusPhone`, `MasterMatch`); the server enforces them and every permission. The `has a master profile` level is checked by the Masters services.
+- Tenancy: registration gives every account its own tenant. Every `ITenantEntity` (private data) is filtered by the signed-in user's tenant through a named EF Core query filter and stamped on insert by `TenantInterceptor`; writing another tenant's row throws.
+- Rules: business rules are pure functions in `Modules/<Module>/Rules/`; the server enforces them and every permission.
 - Russian messages: `AppException` titles are Russian; `RussianValidationMetadataProvider` gives data annotations Russian messages, `ProblemTitles` covers framework errors, `RussianIdentityErrorDescriber` covers Identity.
-- Client formatting: prices, phones, durations, plurals and the locale only through `client/libs/shared/common/util`.
+- Client formatting: the locale (`appLocale`) and, as features add them, the price, phone, date and plural helpers live only in `client/libs/shared/common/util`.
 - Data: one PostgreSQL database, one `AppDbContext`, one schema per module, UUID v7 keys, snake_case names, `IAuditable` timestamps, `IVersioned` for optimistic concurrency. Migrations are additive.
 
 ## Security

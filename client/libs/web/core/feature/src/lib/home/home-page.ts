@@ -1,16 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { RouterLink } from '@angular/router';
-import { CatalogStore, SessionStore } from '@nails/shared/core/data-access';
-import { EmptyState, ErrorState, LoadingState } from '@nails/web/common/ui';
+import { SessionStore } from '@nails/shared/core/data-access';
 import { appPaths } from '../bootstrap/app-paths';
 import { navigationItems } from '../modules/navigation';
 
 @Component({
   selector: 'app-home-page',
-  imports: [MatButtonModule, MatCardModule, MatChipsModule, RouterLink, EmptyState, ErrorState, LoadingState],
+  imports: [MatButtonModule, MatCardModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     .hero {
@@ -35,7 +33,7 @@ import { navigationItems } from '../modules/navigation';
       padding: var(--app-space-4);
       box-sizing: border-box;
     }
-    h3 {
+    h2 {
       font: var(--mat-sys-title-medium);
       margin: 0 0 var(--app-space-2);
     }
@@ -70,42 +68,17 @@ import { navigationItems } from '../modules/navigation';
         @for (item of navigation; track item.path) {
           <a [routerLink]="item.path">
             <mat-card appearance="outlined">
-              <h3>{{ item.label }}</h3>
+              <h2>{{ item.label }}</h2>
               <p>{{ item.description }}</p>
             </mat-card>
           </a>
         }
       </div>
     }
-
-    <h2>Услуги</h2>
-    @if (catalog.hasValue()) {
-      @if (catalog.value().categories.length === 0) {
-        <app-empty-state title="Каталог услуг пока пуст." />
-      } @else {
-        <div class="grid">
-          @for (category of catalog.value().categories; track category.id) {
-            <mat-card appearance="outlined">
-              <h3>{{ category.name }}</h3>
-              <mat-chip-set [attr.aria-label]="category.name">
-                @for (service of category.services; track service.id) {
-                  <mat-chip>{{ service.name }}</mat-chip>
-                }
-              </mat-chip-set>
-            </mat-card>
-          }
-        </div>
-      }
-    } @else if (catalog.error()) {
-      <app-error-state title="Не удалось загрузить каталог услуг." (retry)="catalog.reload()" />
-    } @else {
-      <app-loading-state />
-    }
   `
 })
 export class HomePage {
   protected readonly session = inject(SessionStore);
   protected readonly navigation = inject(navigationItems);
-  protected readonly catalog = inject(CatalogStore).catalog;
   protected readonly paths = appPaths;
 }
