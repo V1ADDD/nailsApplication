@@ -1,5 +1,6 @@
 using Serilog;
 using Nails.Api.Host.Extensions;
+using Nails.Api.Host;
 using Nails.Api.Host.Middleware;
 using Nails.Application.Common;
 
@@ -17,7 +18,17 @@ builder.Services.AddNailsHealthChecks();
 
 var app = builder.Build();
 
-await app.Services.PrepareApplicationAsync(app.Lifetime.ApplicationStopping);
+var seedCommand = args.Contains(SeedCommand.Name, StringComparer.Ordinal);
+
+await app.Services.PrepareApplicationAsync(
+    seedCommand,
+    seedCommand && args.Contains(SeedCommand.Reset, StringComparer.Ordinal),
+    app.Lifetime.ApplicationStopping);
+
+if (seedCommand)
+{
+    return;
+}
 
 app.UseNailsSecurity();
 app.UseSerilogRequestLogging();
@@ -27,6 +38,7 @@ app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseMiddleware<TenantMiddleware>();
+app.UseMiddleware<PresenceMiddleware>();
 app.UseMiddleware<AntiforgeryMiddleware>();
 app.UseAuthorization();
 app.UseNailsOpenApi();

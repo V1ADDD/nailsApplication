@@ -59,6 +59,284 @@
         }
       }
     },
+    "/api/masters/{id}/favorite": {
+      "put": {
+        "tags": [
+          "Favorites"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Favorites"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/masters/favorites/ids": {
+      "get": {
+        "tags": [
+          "Favorites"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/search": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "maxLength": 40,
+              "type": "string"
+            }
+          },
+          {
+            "name": "subcategoryId",
+            "in": "query",
+            "schema": {
+              "maxLength": 40,
+              "type": "string"
+            }
+          },
+          {
+            "name": "priceFrom",
+            "in": "query",
+            "schema": {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "priceTo",
+            "in": "query",
+            "schema": {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "maxDistanceKm",
+            "in": "query",
+            "schema": {
+              "maximum": 1000,
+              "minimum": 0.1,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "minRating",
+            "in": "query",
+            "schema": {
+              "maximum": 5,
+              "minimum": 1,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "online",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "verified",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SearchWindow"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "maxLength": 60,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SearchSort"
+            }
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterSearchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/{id}/card": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterCardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/identity/sign-in/code": {
       "post": {
         "tags": [
@@ -223,10 +501,114 @@
           }
         }
       }
+    },
+    "/api/catalog": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/suggestions": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SuggestionResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CardServiceResponse": {
+        "required": [
+          "subcategoryId",
+          "name",
+          "price",
+          "durationMin"
+        ],
+        "type": "object",
+        "properties": {
+          "subcategoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceResponse"
+          },
+          "durationMin": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CategoryResponse": {
+        "required": [
+          "id",
+          "name",
+          "specialty",
+          "subcategories"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "subcategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubcategoryResponse"
+            }
+          }
+        }
+      },
       "CreateSupportTicketRequest": {
         "required": [
           "text"
@@ -483,11 +865,187 @@
           }
         }
       },
+      "MapPinResponse": {
+        "required": [
+          "id",
+          "lat",
+          "lng",
+          "price",
+          "specialty",
+          "online"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "price": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PriceResponse"
+              }
+            ]
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "online": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MasterCardResponse": {
+        "required": [
+          "id",
+          "name",
+          "photoUrl",
+          "specialty",
+          "rating",
+          "reviewsCount",
+          "experienceYears",
+          "distanceKm",
+          "online",
+          "verified",
+          "isFavorite",
+          "isOwn",
+          "headlinePrice",
+          "narrowed",
+          "preselectSubcategoryId",
+          "services",
+          "nextFreeSlotAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "rating": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "reviewsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "experienceYears": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "distanceKm": {
+            "type": "number",
+            "format": "double"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "isOwn": {
+            "type": "boolean"
+          },
+          "headlinePrice": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PriceResponse"
+              }
+            ]
+          },
+          "narrowed": {
+            "type": "boolean"
+          },
+          "preselectSubcategoryId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CardServiceResponse"
+            }
+          },
+          "nextFreeSlotAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "MasterSearchResponse": {
+        "required": [
+          "total",
+          "onlineCount",
+          "items",
+          "pins"
+        ],
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "onlineCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MasterCardResponse"
+            }
+          },
+          "pins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MapPinResponse"
+            }
+          }
+        }
+      },
       "MeResponse": {
         "required": [
           "id",
           "name",
-          "phone"
+          "phone",
+          "masterId"
         ],
         "type": "object",
         "properties": {
@@ -503,6 +1061,13 @@
               "null",
               "string"
             ]
+          },
+          "masterId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -553,6 +1118,49 @@
           }
         }
       },
+      "PriceKind": {
+        "enum": [
+          "exact",
+          "from",
+          "free"
+        ]
+      },
+      "PriceResponse": {
+        "required": [
+          "kind",
+          "amount"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PriceKind"
+          },
+          "amount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "SearchSort": {
+        "enum": [
+          "distance",
+          "rating",
+          "price",
+          "nextSlot",
+          "popular"
+        ]
+      },
+      "SearchWindow": {
+        "enum": [
+          "today",
+          "tomorrow",
+          "weekend",
+          null
+        ]
+      },
       "SignInRequest": {
         "required": [
           "phone"
@@ -589,6 +1197,58 @@
             "type": "boolean"
           }
         }
+      },
+      "SubcategoryResponse": {
+        "required": [
+          "id",
+          "name",
+          "addon"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "addon": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SuggestionKind": {
+        "enum": [
+          "category",
+          "subcategory"
+        ]
+      },
+      "SuggestionResponse": {
+        "required": [
+          "kind",
+          "id",
+          "name",
+          "categoryId",
+          "categoryName"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/SuggestionKind"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "categoryName": {
+            "type": "string"
+          }
+        }
       }
     }
   },
@@ -600,10 +1260,19 @@
       "name": "Tickets"
     },
     {
+      "name": "Favorites"
+    },
+    {
+      "name": "Masters"
+    },
+    {
       "name": "Session"
     },
     {
       "name": "Help"
+    },
+    {
+      "name": "Catalog"
     }
   ]
 }

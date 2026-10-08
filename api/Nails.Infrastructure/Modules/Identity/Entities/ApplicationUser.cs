@@ -13,4 +13,8 @@ public sealed class ApplicationUser : IdentityUser<Guid>
     public TenantRole Role { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    public DateTimeOffset? LastSeenAt { get; set; }
+
+    public Guid? MasterId { get; set; }
 }

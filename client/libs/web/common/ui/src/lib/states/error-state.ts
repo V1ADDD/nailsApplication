@@ -14,13 +14,26 @@ import { MatButtonModule } from '@angular/material/button';
       text-align: center;
       color: var(--app-color-text-secondary);
     }
+    p {
+      margin: 0;
+    }
+    .title {
+      font-weight: var(--app-font-weight-bold);
+      color: var(--app-color-text);
+    }
   `,
   template: `
-    <p role="alert">{{ title() }}</p>
+    <div role="alert">
+      <p class="title">{{ title() }}</p>
+      @if (message()) {
+        <p>{{ message() }}</p>
+      }
+    </div>
     <button mat-stroked-button type="button" (click)="retry.emit()">Повторить</button>
   `
 })
 export class ErrorState {
   readonly title = input.required<string>();
+  readonly message = input<string | null>(null);
   readonly retry = output();
 }

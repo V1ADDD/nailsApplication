@@ -4,7 +4,7 @@ Client rules on top of the root `AGENTS.md` and the constitution. Stack: Nx 23, 
 
 - `apps/<platform>/` is thin: `web` today (`main.ts`, `modules.ts`, `styles.scss`, `proxy.conf.json`); `mobile` when it comes.
 - `libs/<scope>/<module>/<type>/`. Scopes: `shared` (every platform), `web`, `mobile`. Types: `data-access` (HTTP, state, resources), `feature` (routed pages, the module manifest), `ui` (presentational components), `contracts` (what other modules may import), `util` (pure functions).
-- `core` is the shell (session, HTTP setup, locale, routing, layout, sign-in and account pages; the root path redirects to `/profile`); `common` is shared code used by several modules, including `libs/shared/common/util` (today `appLocale`; the price, phone, date and plural helpers go there).
+- `core` is the shell (session, HTTP setup, locale, routing, layout, sign-in and account pages; the root path redirects to `/profile` unless an enabled module owns it, as `masters` does with the map); `common` is shared code used by several modules, including `libs/shared/common/util` (today `appLocale`; the price, phone, date and plural helpers go there).
 - Tags `scope:*`, `type:*` and `name:*` are enforced by `@nx/enforce-module-boundaries`: `shared` depends only on `shared`; `web` and `mobile` on themselves and `shared`, never on each other.
 - `libs/shared` has no DOM globals, Angular Material, CDK, router or forms; ESLint fails on them.
 

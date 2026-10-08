@@ -20,6 +20,7 @@ public static class PersistenceServiceCollectionExtensions
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddValidatedOptions<DatabaseOptions>(configuration, DatabaseOptions.SectionName);
+        services.AddValidatedOptions<DemoOptions>(configuration, DemoOptions.SectionName);
         services.AddScoped<AuditingInterceptor>();
         services.AddScoped<TenantInterceptor>();
 

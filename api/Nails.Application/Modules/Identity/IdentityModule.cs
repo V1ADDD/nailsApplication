@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nails.Application.Common.Modules;
 using Nails.Application.Modules.Identity.Contracts;
 using Nails.Application.Modules.Identity.Options;
+using Nails.Application.Modules.Identity.Seed;
 using Nails.Application.Modules.Identity.Services;
 using Nails.Infrastructure.Common;
 using Nails.Infrastructure.Modules.Identity.Contracts;
@@ -15,6 +16,7 @@ using Nails.Infrastructure.Modules.Identity.Integrations.Sms;
 using Nails.Infrastructure.Modules.Identity.Options;
 using Nails.Infrastructure.Modules.Identity.Repositories;
 using Nails.Infrastructure.Persistence;
+using Nails.Infrastructure.Persistence.Contracts;
 
 namespace Nails.Application.Modules.Identity;
 
@@ -32,6 +34,7 @@ public sealed class IdentityModule : IAppModule
         services.AddValidatedOptions<PhoneCodeOptions>(configuration, PhoneCodeOptions.SectionName);
         services.AddValidatedOptions<SmsOptions>(configuration, SmsOptions.SectionName);
         services.AddValidatedOptions<SignInLimitOptions>(configuration, SignInLimitOptions.SectionName);
+        services.AddValidatedOptions<PresenceOptions>(configuration, PresenceOptions.SectionName);
 
         services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
 
@@ -61,6 +64,10 @@ public sealed class IdentityModule : IAppModule
         services.AddScoped<IPhoneCodeRepository, PhoneCodeRepository>();
         services.AddScoped<ISmsSender, EmailSmsSender>();
         services.AddScoped<ISessionService, SessionService>();
+        services.AddSingleton<PresenceThrottle>();
+        services.AddScoped<IUserPresenceRepository, UserPresenceRepository>();
+        services.AddScoped<IPresence, Presence>();
+        services.AddScoped<IDemoSeeder, IdentityDemoSeeder>();
     }
 
     private static Task Status(RedirectContext<CookieAuthenticationOptions> context, int status)

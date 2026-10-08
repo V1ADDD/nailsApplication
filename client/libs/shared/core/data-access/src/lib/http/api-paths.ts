@@ -3,5 +3,7 @@ export const apiPaths = {
   me: '/api/identity/me',
   signInCode: '/api/identity/sign-in/code',
   signIn: '/api/identity/sign-in',
-  signOut: '/api/identity/sign-out'
+  signOut: '/api/identity/sign-out',
+  catalog: '/api/catalog',
+  catalogSuggestions: '/api/catalog/suggestions'
 } as const;

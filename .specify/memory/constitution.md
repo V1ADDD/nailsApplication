@@ -1,5 +1,14 @@
 <!--
 Sync Impact Report
+Version: 4.2.0 → 4.3.0 (MINOR)
+Reason: spec 004 adds the Development demo world. V allows a `Seed/` folder in `Nails.Application/Modules/<Module>/`
+whose `IDemoSeeder` writes the module's own tables through `AppDbContext` (the seed reuses the module's rules, so it
+cannot live in Infrastructure) and states that demo seeding never runs in Production.
+Changed: V. Added, removed principles: none.
+Templates: no change needed.
+Follow-up: none.
+
+Previous report
 Version: 4.1.0 → 4.2.0 (MINOR)
 Reason: spec 003 replaces email-and-password accounts with phone sign-in by SMS code and drops the placeholder home page. VII lists the public routes
 without registration, email confirmation and the password pages; IX states how accounts are identified and signed in;
@@ -84,7 +93,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 
 - `api/` MUST contain exactly `Nails.Api → Nails.Application → Nails.Infrastructure`. Another project requires a spec.
 - `Nails.Api` is the only host and is thin: one sealed `[ApiController]` per resource in `Modules/<Module>/Controllers/`; each action binds the request, calls one service and returns its response. The route prefix `/api/<module>` comes from the namespace, so a controller declares only its own segment. Outside `Modules/` it MAY contain only `Host/` and `Program.cs`. It MUST NOT access the database.
-- `Nails.Application/Modules/<Module>/` MAY contain only `<Module>Module.cs` (the single place that registers the module's options and services of both layers), `Contracts/`, `Services/`, `Requests/`, `Responses/`, `Options/`, `Rules/`, and `Events/` or `ExtensionPoints/` once the module talks to others.
+- `Nails.Application/Modules/<Module>/` MAY contain only `<Module>Module.cs` (the single place that registers the module's options and services of both layers), `Contracts/`, `Services/`, `Requests/`, `Responses/`, `Options/`, `Rules/`, `Seed/` (an `IDemoSeeder` that writes only the module's own tables with Development demo data; seeding MUST NOT run in Production), and `Events/` or `ExtensionPoints/` once the module talks to others.
 - `Nails.Infrastructure/Modules/<Module>/` MAY contain only `Entities/`, `Configurations/`, `Contracts/`, `Repositories/`, `Models/`, `Options/` and `Integrations/<System>/`.
 - `Nails.Infrastructure/Persistence` holds the single `AppDbContext`, its interceptors and the migrations: one database, one schema per module, configurations picked up from the assembly.
 - Every external system MUST sit behind an interface in `Contracts/`.
@@ -157,4 +166,4 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - This constitution overrides the spec-kit templates and team habits. A plan MAY violate a principle only with a justification in its Complexity Tracking section.
 - Amending the constitution is a separate change that updates this file, its version and the reason in the Sync Impact Report.
 
-**Version**: 4.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08
+**Version**: 4.3.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08

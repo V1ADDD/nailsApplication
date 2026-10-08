@@ -8,25 +8,25 @@ const sheetConfig = {
   maxWidth: '100vw'
 } as const;
 
-const dialogConfig: MatDialogConfig = {
+const dialogConfig = {
   ...sheetConfig,
   width: 'min(32rem, calc(100% - 2rem))'
-};
+} satisfies MatDialogConfig;
 
-const bottomSheetConfig: MatDialogConfig = {
+const bottomSheetConfig = {
   ...sheetConfig,
   width: '100%',
   maxHeight: '90dvh',
   position: { bottom: '0' },
   panelClass: 'app-sheet-bottom'
-};
+} satisfies MatDialogConfig;
 
 @Injectable({ providedIn: 'root' })
 export class Sheets {
   private readonly dialog = inject(MatDialog);
   private readonly viewport = inject(Viewport);
 
-  open<T>(component: ComponentType<T>): MatDialogRef<T> {
-    return this.dialog.open(component, this.viewport.isMd() ? dialogConfig : bottomSheetConfig);
+  open<T>(component: ComponentType<T>, data?: unknown): MatDialogRef<T> {
+    return this.dialog.open(component, { ...(this.viewport.isMd() ? dialogConfig : bottomSheetConfig), data });
   }
 }
