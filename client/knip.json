@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["apps/*/src/main.ts", "libs/shared/core/data-access/scripts/generate-api-types.mjs"],
   "project": ["apps/**/*.{ts,mjs}", "libs/**/*.{ts,mjs}"],
-  "ignoreDependencies": ["@eslint/js", "@angular/language-service", "angular-eslint"],
+  "ignoreDependencies": ["@eslint/js", "@angular/language-service", "angular-eslint", "@fontsource-variable/manrope"],
   "ignoreIssues": {
     "libs/shared/core/data-access/src/lib/api/schema.ts": ["types"]
   }

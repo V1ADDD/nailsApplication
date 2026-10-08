@@ -1,5 +1,4 @@
 import type { Routes } from '@angular/router';
-import { HomePage } from '../home/home-page';
 import { ConfirmEmailPage } from '../identity/confirm-email-page';
 import { ForgotPasswordPage } from '../identity/forgot-password-page';
 import { RegisterPage } from '../identity/register-page';
@@ -16,27 +15,30 @@ import { appPaths } from './app-paths';
 
 export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
   return [
-    { path: appPaths.signIn, component: SignInPage, title: 'Sign in' },
-    { path: appPaths.register, component: RegisterPage, title: 'Create account' },
-    { path: appPaths.confirmEmail, component: ConfirmEmailPage, title: 'Confirm email' },
-    { path: appPaths.forgotPassword, component: ForgotPasswordPage, title: 'Forgot password' },
-    { path: appPaths.resetPassword, component: ResetPasswordPage, title: 'Choose a new password' },
-    { path: appPaths.unavailable, component: UnavailablePage, title: 'Unavailable' },
+    { path: appPaths.signIn, component: SignInPage, title: 'Вход' },
+    { path: appPaths.register, component: RegisterPage, title: 'Регистрация' },
+    { path: appPaths.confirmEmail, component: ConfirmEmailPage, title: 'Подтверждение адреса' },
+    { path: appPaths.forgotPassword, component: ForgotPasswordPage, title: 'Восстановление пароля' },
+    { path: appPaths.resetPassword, component: ResetPasswordPage, title: 'Новый пароль' },
+    { path: appPaths.unavailable, component: UnavailablePage, title: 'Нет связи' },
     {
       path: appPaths.home,
       component: AppLayout,
       providers: [{ provide: navigationItems, useValue: manifests.flatMap((manifest) => manifest.navigation) }],
       children: [
+        {
+          path: '',
+          pathMatch: 'full',
+          loadComponent: () => import('../home/home-page').then((m) => m.HomePage),
+          title: 'Мастера рядом'
+        },
         ...manifests.flatMap((manifest) => manifest.publicRoutes),
         {
           path: '',
           canActivateChild: [requireSession],
-          children: [
-            { path: '', pathMatch: 'full', component: HomePage, title: 'Home' },
-            ...manifests.flatMap((manifest) => manifest.routes)
-          ]
+          children: manifests.flatMap((manifest) => manifest.routes)
         },
-        { path: '**', component: NotFoundPage, title: 'Not found' }
+        { path: '**', component: NotFoundPage, title: 'Страница не найдена' }
       ]
     }
   ];

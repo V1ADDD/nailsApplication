@@ -15,7 +15,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/notes': {
+  '/api/masters': {
     parameters: {
       query?: never;
       header?: never;
@@ -25,9 +25,11 @@ export interface paths {
     get: {
       parameters: {
         query?: {
-          Search?: string;
-          Page?: number | string;
-          PageSize?: number | string;
+          Category?: string;
+          Service?: string;
+          City?: string;
+          Page?: number;
+          PageSize?: number;
         };
         header?: never;
         path?: never;
@@ -40,43 +42,20 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['PagedResponseOfNoteSummaryResponse'];
+            'application/json': components['schemas']['PagedResponseOfMasterSummaryResponse'];
           };
         };
       };
     };
     put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateNoteRequest'];
-          'application/*+json': components['schemas']['CreateNoteRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['NoteResponse'];
-          };
-        };
-      };
-    };
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/notes/{id}': {
+  '/api/masters/{id}': {
     parameters: {
       query?: never;
       header?: never;
@@ -99,11 +78,146 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['NoteResponse'];
+            'application/json': components['schemas']['MasterResponse'];
           };
         };
       };
     };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MasterResponse'];
+          };
+        };
+      };
+    };
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateMasterProfileRequest'];
+          'application/*+json': components['schemas']['UpdateMasterProfileRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MasterResponse'];
+          };
+        };
+      };
+    };
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['MasterProfileRequest'];
+          'application/*+json': components['schemas']['MasterProfileRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MasterResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/me/offers': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['OfferRequest'];
+          'application/*+json': components['schemas']['OfferRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['OfferResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/me/offers/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
     put: {
       parameters: {
         query?: never;
@@ -115,8 +229,8 @@ export interface paths {
       };
       requestBody: {
         content: {
-          'application/json': components['schemas']['UpdateNoteRequest'];
-          'application/*+json': components['schemas']['UpdateNoteRequest'];
+          'application/json': components['schemas']['OfferRequest'];
+          'application/*+json': components['schemas']['OfferRequest'];
         };
       };
       responses: {
@@ -125,7 +239,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['NoteResponse'];
+            'application/json': components['schemas']['OfferResponse'];
           };
         };
       };
@@ -481,17 +595,65 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/catalog': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CatalogResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    BeautyServiceResponse: {
+      id: string;
+      name: string;
+      categoryId: string;
+    };
+    CatalogResponse: {
+      categories: components['schemas']['CategoryResponse'][];
+      cities: components['schemas']['CityResponse'][];
+    };
+    CategoryResponse: {
+      id: string;
+      name: string;
+      services: components['schemas']['BeautyServiceResponse'][];
+    };
+    CityResponse: {
+      id: string;
+      name: string;
+    };
     ConfirmEmailRequest: {
       userId: string;
       code: string;
-    };
-    CreateNoteRequest: {
-      title: string;
-      content?: string;
     };
     EmailRequest: {
       email: string;
@@ -519,39 +681,68 @@ export interface components {
       title: string;
       description: string;
     };
+    MasterProfileRequest: {
+      displayName: string;
+      about?: string;
+      phone: string;
+      cityId: string;
+      address: string;
+    };
+    MasterResponse: {
+      id: string;
+      displayName: string;
+      about: string;
+      phone: string;
+      cityId: string;
+      cityName: string;
+      address: string;
+      version: number;
+      offers: components['schemas']['OfferResponse'][];
+    };
+    MasterSummaryResponse: {
+      id: string;
+      displayName: string;
+      cityId: string;
+      cityName: string;
+      categoryNames: string[];
+      headlinePrice: components['schemas']['PriceResponse'];
+      offerCount: number;
+    };
     MeResponse: {
       id: string;
       email: string;
       displayName: string;
-      role: components['schemas']['TenantRole'];
-      tenantId: string;
-      tenantName: string;
     };
     ModulesResponse: {
       enabled: string[];
     };
-    NoteResponse: {
-      id: string;
-      title: string;
-      content: string;
-      authorId: string;
-      createdAt: string;
-      updatedAt: string;
-      version: number | string;
+    OfferRequest: {
+      serviceId: string;
+      priceKind: components['schemas']['PriceKind'];
+      price: number;
+      durationMinutes: number;
     };
-    NoteSummaryResponse: {
+    OfferResponse: {
       id: string;
-      title: string;
-      updatedAt: string;
+      serviceId: string;
+      serviceName: string;
+      categoryId: string;
+      categoryName: string;
+      price: components['schemas']['PriceResponse'];
+      durationMinutes: number;
     };
-    PagedResponseOfNoteSummaryResponse: {
-      items: components['schemas']['NoteSummaryResponse'][];
-      page: number | string;
-      pageSize: number | string;
-      totalCount: number | string;
+    PagedResponseOfMasterSummaryResponse: {
+      items: components['schemas']['MasterSummaryResponse'][];
+      page: number;
+      pageSize: number;
+      totalCount: number;
+    };
+    PriceKind: 'exact' | 'from' | 'free';
+    PriceResponse: {
+      kind: components['schemas']['PriceKind'];
+      amount: number;
     };
     RegisterRequest: {
-      organizationName: string;
       displayName: string;
       email: string;
       password: string;
@@ -569,11 +760,13 @@ export interface components {
       password: string;
       rememberMe?: boolean;
     };
-    TenantRole: number;
-    UpdateNoteRequest: {
-      title: string;
-      content?: string;
-      version: number | string;
+    UpdateMasterProfileRequest: {
+      version: number;
+      displayName: string;
+      about?: string;
+      phone: string;
+      cityId: string;
+      address: string;
     };
   };
   responses: never;

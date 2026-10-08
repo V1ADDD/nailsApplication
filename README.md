@@ -1,46 +1,25 @@
-# Starter
+# Nails
 
-Starter is <one sentence: who it is for and what it does>.
+Nails is «Мастера рядом», a web marketplace where beauty masters in Belarus (nails, brows, lashes, cosmetology, makeup, depilation) publish their services and exact prices, and clients find and compare them. Every account is a client and can also become a master.
 
-It is a modular monolith: a core (organizations, users, sign-in, the app shell and the help center) plus feature modules that plug into it and can be switched off by configuration.
-
-## Use this template
-
-Requirements: .NET SDK 10, Node.js 24, Docker, PowerShell (Windows PowerShell 5.1 or PowerShell 7).
-
-```powershell
-git clone <template-repository> acme
-cd acme
-Remove-Item .git -Recurse -Force
-./init.ps1 -Name Acme -OwnerEmail you@acme.com
-git init -b main
-```
-
-| Parameter | Effect |
-|---|---|
-| `-Name` | PascalCase product name, e.g. `Acme` or `AcmeHealth`. `Starter` becomes `Acme` in code, file and folder names; `starter` becomes `acme` / `acme-health` in packages, cookies, containers and the database. |
-| `-OwnerEmail` | The first user, created with the first organization when the API starts. |
-| `-WithoutExample` | Removes the `Notes` example module from `api/`, `client/` and the help. |
-| `-SkipInstall` | Skips restore, the first migration, the build and `npm ci`. |
-
-`init.ps1` renames everything, writes `.env` with generated passwords, stores the same values as the API's user secrets, recreates the `Initial` migration, builds `api/`, installs `client/`, regenerates the API types, prints the owner's password, removes this section and deletes itself. Then run `/speckit-constitution` to ratify the constitution and start the first spec with `/speckit-specify`.
+It is a modular monolith: a core (personal accounts, sign-in, the service catalog, the app shell and the help center) plus feature modules that plug into it and can be switched off by configuration. The whole user interface, every message the API shows and the help are in Russian; code and docs are in English. Product rules (locale `ru-BY`, BYN prices, `Europe/Minsk`, Russian plurals, phones) are in the constitution, principle I.
 
 ## Stack
 
-- `api/`: .NET 10, ASP.NET Core controllers, EF Core 10 on PostgreSQL, ASP.NET Core Identity, built-in OpenAPI and validation, Serilog. Three projects: `Starter.Api → Starter.Application → Starter.Infrastructure`.
-- `client/`: an Nx workspace. Today one Angular 22 web app; the layout is ready for mobile apps next to it.
+- `api/`: .NET 10, ASP.NET Core controllers, EF Core 10 on PostgreSQL, ASP.NET Core Identity, built-in OpenAPI and validation, Serilog. Three projects: `Nails.Api → Nails.Application → Nails.Infrastructure`.
+- `client/`: an Nx workspace. Today one Angular 22 web app with Angular Material themed by design tokens and the self-hosted Manrope font; the layout is ready for mobile apps next to it.
 - Docker: one image per side (`api/Dockerfile`, `client/Dockerfile`) and `docker-compose.yml` for the database, the mail catcher and the whole stack.
 
 ## Repository layout
 
 ```text
-starter/
+nails/
 ├── api/                                  the .NET solution; run dotnet here
-│   ├── Starter.Api/                      the host: Host/ (Extensions, Middleware, Options, Security), Modules/<Module>/Controllers/, openapi.json
-│   ├── Starter.Application/              Common/ (module catalog, exceptions, tenancy, paging), Modules/<Module>/
-│   ├── Starter.Infrastructure/           Common/, Options/, Email/, Persistence/ (AppDbContext, interceptors, migrations), Modules/<Module>/
+│   ├── Nails.Api/                      the host: Host/ (Extensions, Middleware, Options, Security), Modules/<Module>/Controllers/, openapi.json
+│   ├── Nails.Application/              Common/ (module catalog, exceptions, tenancy, paging), Modules/<Module>/
+│   ├── Nails.Infrastructure/           Common/, Options/, Email/, Persistence/ (AppDbContext, interceptors, migrations), Modules/<Module>/
 │   ├── Dockerfile
-│   └── Starter.slnx  global.json  Directory.Build.props  Directory.Packages.props  .editorconfig  .config/dotnet-tools.json
+│   └── Nails.slnx  global.json  Directory.Build.props  Directory.Packages.props  .editorconfig  .config/dotnet-tools.json
 ├── client/                               the Nx workspace; run npx nx here
 │   ├── apps/
 │   │   └── web/                          the Angular web app (later: mobile/)
@@ -56,37 +35,38 @@ starter/
 └── AGENTS.md  CLAUDE.md                  rules for coding agents; CLAUDE.md imports AGENTS.md
 ```
 
-`api/` and `client/` are independent: they share only the HTTP contract, `api/Starter.Api/openapi.json`, which every API build writes and from which the client generates its types.
+`api/` and `client/` are independent: they share only the HTTP contract, `api/Nails.Api/openapi.json`, which every API build writes and from which the client generates its types.
 
 ## Core and modules
 
 | Module | Switch | API | Client |
 |---|---|---|---|
-| `Identity` | always on | organizations (tenants), users, cookie sessions; `/api/identity/*` | sign-in, registration, email confirmation, password reset, account menu (in `core`) |
-| `Help` | `Modules:Help:Enabled` | articles from JSON files; `GET /api/help/content` | `/help`, `/help/:articleId` |
-| `Notes` | `Modules:Notes:Enabled` | the example module: CRUD, search, paging, optimistic concurrency; `/api/notes` | `/notes`, `/notes/new`, `/notes/:id` |
+| `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in, registration, email confirmation, password reset, account menu (in `core`) |
+| `Catalog` | always on | categories, services and cities as seeded reference data with slug ids; `GET /api/catalog` | the services on the home page, `CatalogStore` (in `core`) |
+| `Help` | `Modules:Help:Enabled` | Russian articles from JSON files in `Content/ru/`; `GET /api/help/content` | `/help`, `/help/:articleId` |
+| `Masters` | `Modules:Masters:Enabled` | one master profile per account, a price list (exact, from, free prices), search with headline prices; `/api/masters`, `/api/masters/{id}`, `/api/masters/me`, `/api/masters/me/offers` | `/masters`, `/masters/:id`, `/master` (the master cabinet) |
 
 `GET /api/modules` returns the enabled modules; the client downloads only their code.
 
 ### Module layout
 
 ```text
-api/Starter.Infrastructure/Modules/<Module>/   Entities/, Configurations/, Contracts/ (repository interfaces), Repositories/, Models/, Options/
-api/Starter.Application/Modules/<Module>/      <Module>Module.cs, Contracts/ (service interfaces), Services/, Requests/, Responses/, Options/
-api/Starter.Api/Modules/<Module>/              Controllers/ (one [ApiController] per resource, route /api/<module> from the namespace), Content/
+api/Nails.Infrastructure/Modules/<Module>/   Entities/, Configurations/, Contracts/ (repository interfaces), Repositories/, Models/, Options/
+api/Nails.Application/Modules/<Module>/      <Module>Module.cs, Contracts/ (service interfaces), Services/, Requests/, Responses/, Options/, Rules/ (pure business rules)
+api/Nails.Api/Modules/<Module>/              Controllers/ (one [ApiController] per resource, route /api/<module> from the namespace), Content/
 client/libs/shared/<module>/data-access/       API calls and state, typed by the generated schema
 client/libs/web/<module>/feature/              pages, routes and the module manifest
 ```
 
 ### Adding a module
 
-1. Copy the shape of `Notes` in each folder above.
-2. Register it: one line in `api/Starter.Application/Common/Modules/ModuleCatalog.cs`, a `Modules:<Module>` section with `Enabled` in every `appsettings.{Development,Docker,Production}.json`, one line in `client/apps/web/src/modules.ts`, its paths in `client/tsconfig.base.json`.
-3. In `api/`: `dotnet ef migrations add Add<Module> --project Starter.Infrastructure --startup-project Starter.Api --output-dir Persistence/Migrations`, then `dotnet build`.
+1. Create the folders above for the new module.
+2. Register it: one line in `api/Nails.Application/Common/Modules/ModuleCatalog.cs`, a `Modules:<Module>` section with `Enabled` in every `appsettings.{Development,Docker,Production}.json`, one line in `client/apps/web/src/modules.ts`, its paths in `client/tsconfig.base.json`.
+3. In `api/`: `dotnet ef migrations add Add<Module> --project Nails.Infrastructure --startup-project Nails.Api --output-dir Persistence/Migrations`, then `dotnet build`.
 4. In `client/`: `npx nx run shared-core-data-access:api-types`.
-5. Help: `api/Starter.Api/Modules/Help/Content/<language>/articles/<module>.json` with `"module": "<module>"`.
+5. Help: `api/Nails.Api/Modules/Help/Content/ru/articles/<module>.json` with `"module": "<module>"`.
 
-A module uses another module only through `Identity` contracts (`ICurrentUser`). The first spec that needs events or extension points between modules builds that mechanism.
+A module uses another module only through the contracts of the always-on modules: `Identity` (`ICurrentUser`) and `Catalog` (`ICatalogService`, `CatalogDirectory`). Their client code lives in `core`. The first spec that needs events or extension points between modules builds that mechanism.
 
 ### Adding a mobile app
 
@@ -94,9 +74,12 @@ A module uses another module only through `Identity` contracts (`ICurrentUser`).
 
 ## Architecture rules
 
-- Controllers are thin: bind the request, call one service, return its response. `ModuleControllerConvention` prefixes every controller in `Starter.Api.Modules.<Module>` with `/api/<module>` and requires sign-in unless an action says `[AllowAnonymous]`; `ModuleControllerFeatureProvider` drops the controllers of a disabled module. Services hold the logic; repositories hold the queries; `IUnitOfWork` saves.
+- Controllers are thin: bind the request, call one service, return its response. `ModuleControllerConvention` prefixes every controller in `Nails.Api.Modules.<Module>` with `/api/<module>` and requires sign-in unless an action says `[AllowAnonymous]`; `ModuleControllerFeatureProvider` drops the controllers of a disabled module. Services hold the logic; repositories hold the queries; `IUnitOfWork` saves.
 - Errors: services throw an `AppException` subclass (`InvalidRequestException`, `UnauthorizedException`, `ForbiddenException`, `NotFoundException`, `ConflictException`, `TooManyRequestsException`); `ExceptionMiddleware` turns it into problem details with `code` and `traceId`. Validation failures, unknown routes and authentication failures use the same shape.
-- Tenancy: every `ITenantEntity` is filtered by the signed-in user's organization through a named EF Core query filter and stamped on insert by `TenantInterceptor`; writing another tenant's row throws.
+- Tenancy: registration gives every account its own tenant. Every `ITenantEntity` (private data) is filtered by the signed-in user's tenant through a named EF Core query filter and stamped on insert by `TenantInterceptor`; writing another tenant's row throws. Marketplace data every visitor sees (catalog, master profiles, price lists) is not tenant-owned: it carries the owner's user id and services check ownership.
+- Rules: business rules are pure functions in `Modules/<Module>/Rules/` (for example `OfferPrice`, `HeadlinePrice`, `BelarusPhone`, `MasterMatch`); the server enforces them and every permission. The `has a master profile` level is checked by the Masters services.
+- Russian messages: `AppException` titles are Russian; `RussianValidationMetadataProvider` gives data annotations Russian messages, `ProblemTitles` covers framework errors, `RussianIdentityErrorDescriber` covers Identity.
+- Client formatting: prices, phones, durations, plurals and the locale only through `client/libs/shared/common/util`.
 - Data: one PostgreSQL database, one `AppDbContext`, one schema per module, UUID v7 keys, snake_case names, `IAuditable` timestamps, `IVersioned` for optimistic concurrency. Migrations are additive.
 
 ## Security
@@ -116,7 +99,7 @@ A module uses another module only through `Identity` contracts (`ICurrentUser`).
 
 ```bash
 docker compose up -d
-cd api && dotnet run --project Starter.Api
+cd api && dotnet run --project Nails.Api
 cd client && npx nx run web:serve
 ```
 
@@ -128,9 +111,9 @@ The whole stack in containers, with the `Docker` settings: `docker compose --pro
 
 ```bash
 cd api
-dotnet build Starter.slnx
-dotnet ef migrations has-pending-model-changes --project Starter.Infrastructure --startup-project Starter.Api
-dotnet list Starter.slnx package --vulnerable --include-transitive
+dotnet build Nails.slnx
+dotnet ef migrations has-pending-model-changes --project Nails.Infrastructure --startup-project Nails.Api
+dotnet list Nails.slnx package --vulnerable --include-transitive
 
 cd ../client
 npx nx run-many -t lint typecheck knip format-check build
@@ -145,7 +128,7 @@ Every .NET analyzer runs in the build with warnings as errors (`api/.editorconfi
 
 - `api/Dockerfile` builds the API image (port 8080, non-root). `client/Dockerfile` builds an nginx image that serves the web app and proxies `/api` to `API_UPSTREAM`.
 - Production: set `ConnectionStrings__Database`, the `Email` settings, `App__ClientUrl` and TLS in front; apply migrations before the new version (`dotnet ef migrations script --idempotent` or `Database__MigrateOnStart=true` for a single instance).
-- Windows service: `dotnet publish Starter.Api -c Release -o <folder>` in `api/`, then `sc.exe create`; the host detects the service lifetime itself.
+- Windows service: `dotnet publish Nails.Api -c Release -o <folder>` in `api/`, then `sc.exe create`; the host detects the service lifetime itself.
 
 ## Spec-driven workflow
 

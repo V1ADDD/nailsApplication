@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="Starter.Api/Starter.Api.csproj" />
-  <Project Path="Starter.Application/Starter.Application.csproj" />
-  <Project Path="Starter.Infrastructure/Starter.Infrastructure.csproj" />
-</Solution>

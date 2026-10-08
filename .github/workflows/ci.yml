@@ -28,16 +28,16 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: api/global.json
-      - run: dotnet restore Starter.slnx --locked-mode
-      - run: dotnet build Starter.slnx --no-restore -c Release
+      - run: dotnet restore Nails.slnx --locked-mode
+      - run: dotnet build Nails.slnx --no-restore -c Release
       - name: OpenAPI document is up to date
-        run: git diff --exit-code -- Starter.Api/openapi.json
+        run: git diff --exit-code -- Nails.Api/openapi.json
       - run: dotnet tool restore
       - name: Migrations match the model
-        run: dotnet ef migrations has-pending-model-changes --project Starter.Infrastructure --startup-project Starter.Api --no-build --configuration Release
+        run: dotnet ef migrations has-pending-model-changes --project Nails.Infrastructure --startup-project Nails.Api --no-build --configuration Release
       - name: No vulnerable packages
         run: |
-          dotnet list Starter.slnx package --vulnerable --include-transitive | tee vulnerable.txt
+          dotnet list Nails.slnx package --vulnerable --include-transitive | tee vulnerable.txt
           ! grep -E -q "High|Critical" vulnerable.txt
       - run: docker build .
 

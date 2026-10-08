@@ -41,7 +41,7 @@ specs/[###-feature]/
 ├── plan.md              # /speckit-plan
 ├── research.md          # /speckit-plan, Phase 0
 ├── data-model.md        # /speckit-plan, Phase 1
-├── contracts/           # /speckit-plan, Phase 1 (drafts; the authoritative contract is api/Starter.Api/openapi.json)
+├── contracts/           # /speckit-plan, Phase 1 (drafts; the authoritative contract is api/Nails.Api/openapi.json)
 ├── design/              # screen mockups of this spec
 └── tasks.md             # /speckit-tasks
 ```
@@ -50,9 +50,9 @@ specs/[###-feature]/
 
 ```text
 api/
-├── Starter.Api/Modules/<Module>/                    Controllers/, Content/
-├── Starter.Application/Modules/<Module>/            <Module>Module.cs, Contracts/, Services/, Requests/, Responses/, Options/
-└── Starter.Infrastructure/
+├── Nails.Api/Modules/<Module>/                    Controllers/, Content/
+├── Nails.Application/Modules/<Module>/            <Module>Module.cs, Contracts/, Services/, Requests/, Responses/, Options/
+└── Nails.Infrastructure/
     ├── Modules/<Module>/                            Entities/, Configurations/, Contracts/, Repositories/, Models/, Options/
     └── Persistence/Migrations/                      the migration
 client/

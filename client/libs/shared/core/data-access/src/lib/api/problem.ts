@@ -13,8 +13,8 @@ interface ProblemBody {
   errors?: unknown;
 }
 
-const unexpectedTitle = 'Something went wrong. Try again.';
-const unreachableTitle = 'The server cannot be reached. Try again.';
+const unexpectedTitle = 'Что-то пошло не так. Попробуйте ещё раз.';
+const unreachableTitle = 'Нет связи с сервером. Попробуйте ещё раз.';
 
 function readErrors(errors: unknown): string[] {
   if (typeof errors !== 'object' || errors === null) {

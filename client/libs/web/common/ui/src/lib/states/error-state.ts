@@ -16,7 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
   `,
   template: `
     <p role="alert">{{ title() }}</p>
-    <button mat-stroked-button type="button" (click)="retry.emit()">Try again</button>
+    <button mat-stroked-button type="button" (click)="retry.emit()">Повторить</button>
   `
 })
 export class ErrorState {
