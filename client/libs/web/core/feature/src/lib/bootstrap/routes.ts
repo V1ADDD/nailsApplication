@@ -9,8 +9,8 @@ import { UnavailablePage } from '../identity/unavailable-page';
 import { AppLayout } from '../layout/app-layout';
 import { NotFoundPage } from '../layout/not-found-page';
 import { StartupFailedPage } from '../layout/startup-failed-page';
+import { buildFrameSlots, frameSlots } from '../modules/frame';
 import type { ModuleManifest } from '../modules/module-manifest';
-import { navigationItems } from '../modules/navigation';
 import { appPaths } from './app-paths';
 
 export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
@@ -24,19 +24,26 @@ export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
     {
       path: appPaths.home,
       component: AppLayout,
-      providers: [{ provide: navigationItems, useValue: manifests.flatMap((manifest) => manifest.navigation) }],
+      providers: [{ provide: frameSlots, useValue: buildFrameSlots(manifests) }],
       children: [
         {
           path: '',
           pathMatch: 'full',
           loadComponent: () => import('../home/home-page').then((m) => m.HomePage),
-          title: 'Мастера рядом'
+          title: 'Мастера рядом — бьюти-мастера Беларуси'
         },
         ...manifests.flatMap((manifest) => manifest.publicRoutes),
         {
           path: '',
           canActivateChild: [requireSession],
-          children: manifests.flatMap((manifest) => manifest.routes)
+          children: [
+            {
+              path: appPaths.profile,
+              loadComponent: () => import('../account/account-page').then((m) => m.AccountPage),
+              title: 'Профиль'
+            },
+            ...manifests.flatMap((manifest) => manifest.routes)
+          ]
         },
         { path: '**', component: NotFoundPage, title: 'Страница не найдена' }
       ]

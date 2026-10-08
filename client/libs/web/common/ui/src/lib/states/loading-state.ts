@@ -9,9 +9,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     :host {
       display: grid;
       place-items: center;
-      padding: 64px 0;
+      padding: var(--app-space-12) 0;
     }
   `,
-  template: '<mat-spinner role="status" aria-label="Загрузка" />'
+  template: '<mat-spinner role="status" aria-label="Загрузка" [diameter]="40" />'
 })
 export class LoadingState {}

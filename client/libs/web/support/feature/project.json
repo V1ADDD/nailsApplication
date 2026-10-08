@@ -1,0 +1,9 @@
+{
+  "name": "web-support-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/support/feature/src",
+  "projectType": "library",
+  "prefix": "app",
+  "tags": ["scope:web", "type:feature", "name:support"],
+  "targets": {}
+}

@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { SessionStore } from '@nails/shared/core/data-access';
-import { ErrorState } from '@nails/web/common/ui';
+import { BrandedError } from '../layout/branded-error';
 import { safeReturnTo } from './safe-return-to';
 
 @Component({
   selector: 'app-unavailable-page',
-  imports: [ErrorState],
+  imports: [BrandedError],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: '<app-error-state title="Нет связи с сервером. Попробуйте ещё раз." (retry)="retry()" />'
+  template: '<app-branded-error title="Нет связи с сервером. Попробуйте ещё раз." (retry)="retry()" />'
 })
 export class UnavailablePage {
   readonly returnTo = input<string>();

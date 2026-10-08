@@ -7,11 +7,12 @@ import { MatButtonModule } from '@angular/material/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      padding: 64px 0;
+      display: grid;
+      justify-items: center;
+      gap: var(--app-space-4);
+      padding: var(--app-space-12) var(--app-space-6);
+      text-align: center;
+      color: var(--app-color-text-secondary);
     }
   `,
   template: `

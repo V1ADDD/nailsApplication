@@ -1,5 +1,6 @@
 export const appPaths = {
   home: '',
+  profile: 'profile',
   signIn: 'sign-in',
   register: 'register',
   confirmEmail: 'confirm-email',

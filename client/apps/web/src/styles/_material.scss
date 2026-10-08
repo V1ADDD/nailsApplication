@@ -1,0 +1,164 @@
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        theme-type: light
+      ),
+      typography: (
+        plain-family: 'Manrope Variable',
+        brand-family: 'Manrope Variable',
+        bold-weight: 700,
+        medium-weight: 600,
+        regular-weight: 400
+      ),
+      density: 0
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      primary: var(--app-color-primary),
+      on-primary: var(--app-color-primary-contrast),
+      primary-container: var(--app-color-primary-soft),
+      on-primary-container: var(--app-color-primary-hover),
+      background: var(--app-color-bg),
+      on-background: var(--app-color-text),
+      surface: var(--app-color-surface),
+      on-surface: var(--app-color-text),
+      on-surface-variant: var(--app-color-text-secondary),
+      surface-container-lowest: var(--app-color-surface),
+      surface-container-low: var(--app-color-surface),
+      surface-container: var(--app-color-surface),
+      surface-container-high: var(--app-color-surface),
+      surface-container-highest: var(--app-color-surface-muted),
+      inverse-surface: var(--app-color-text),
+      inverse-on-surface: var(--app-color-text-inverse),
+      outline: var(--app-color-border-strong),
+      outline-variant: var(--app-color-border),
+      error: var(--app-color-danger),
+      on-error: var(--app-color-text-inverse),
+      corner-small: var(--app-radius-sm),
+      corner-medium: var(--app-radius-md),
+      corner-large: var(--app-radius-lg),
+      corner-extra-large: var(--app-radius-xl),
+      corner-full: var(--app-radius-full)
+    )
+  );
+
+  @include mat.button-overrides(
+    (
+      filled-container-height: var(--app-tap-target),
+      filled-container-shape: var(--app-radius-md),
+      filled-container-color: var(--app-color-primary),
+      filled-label-text-color: var(--app-color-primary-contrast),
+      filled-label-text-size: var(--app-font-size-sm),
+      filled-label-text-weight: var(--app-font-weight-bold),
+      filled-horizontal-padding: var(--app-space-5),
+      outlined-container-height: var(--app-tap-target),
+      outlined-container-shape: var(--app-radius-md),
+      outlined-outline-color: var(--app-color-border),
+      outlined-label-text-color: var(--app-color-text),
+      outlined-label-text-size: var(--app-font-size-sm),
+      outlined-label-text-weight: var(--app-font-weight-bold),
+      outlined-horizontal-padding: var(--app-space-5),
+      text-container-height: var(--app-tap-target),
+      text-container-shape: var(--app-radius-md),
+      text-label-text-color: var(--app-color-text),
+      text-label-text-size: var(--app-font-size-sm),
+      text-label-text-weight: var(--app-font-weight-bold),
+      text-horizontal-padding: var(--app-space-4),
+      tonal-container-height: var(--app-tap-target),
+      tonal-container-shape: var(--app-radius-md),
+      tonal-container-color: var(--app-color-surface-muted),
+      tonal-label-text-color: var(--app-color-text),
+      tonal-label-text-size: var(--app-font-size-sm),
+      tonal-label-text-weight: var(--app-font-weight-bold)
+    )
+  );
+
+  @include mat.icon-button-overrides(
+    (
+      icon-color: var(--app-color-text),
+      state-layer-size: var(--app-tap-target)
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: var(--app-radius-md),
+      outlined-outline-color: var(--app-color-border),
+      outlined-hover-outline-color: var(--app-color-border-strong),
+      outlined-focus-outline-color: var(--app-color-primary),
+      outlined-label-text-color: var(--app-color-text-muted),
+      outlined-input-text-placeholder-color: var(--app-color-text-muted)
+    )
+  );
+
+  @include mat.chips-overrides(
+    (
+      container-height: 2.5rem,
+      container-shape-radius: var(--app-radius-full),
+      outline-color: var(--app-color-border),
+      label-text-color: var(--app-color-text),
+      label-text-size: var(--app-font-size-sm),
+      label-text-weight: var(--app-font-weight-semibold),
+      elevated-selected-container-color: var(--app-color-primary),
+      selected-label-text-color: var(--app-color-primary-contrast)
+    )
+  );
+
+  @include mat.tabs-overrides(
+    (
+      active-indicator-color: var(--app-color-primary),
+      active-label-text-color: var(--app-color-primary),
+      active-focus-label-text-color: var(--app-color-primary),
+      active-hover-label-text-color: var(--app-color-primary),
+      inactive-label-text-color: var(--app-color-text-secondary),
+      label-text-weight: var(--app-font-weight-semibold),
+      divider-color: var(--app-color-border)
+    )
+  );
+
+  @include mat.dialog-overrides(
+    (
+      container-shape: var(--app-radius-xl),
+      container-color: var(--app-color-surface),
+      subhead-size: var(--app-font-size-lg),
+      subhead-weight: var(--app-font-weight-bold),
+      subhead-line-height: var(--app-line-height-tight),
+      subhead-color: var(--app-color-text)
+    )
+  );
+
+  @include mat.menu-overrides(
+    (
+      container-shape: var(--app-radius-md),
+      container-color: var(--app-color-surface)
+    )
+  );
+
+  @include mat.snack-bar-overrides(
+    (
+      container-shape: var(--app-radius-md),
+      supporting-text-size: var(--app-font-size-sm),
+      supporting-text-weight: var(--app-font-weight-semibold)
+    )
+  );
+}
+
+.mat-mdc-unelevated-button.app-gradient {
+  background: var(--app-gradient-primary);
+  box-shadow: var(--app-shadow-primary);
+}
+
+.mat-mdc-button-base.app-pill {
+  border-radius: var(--app-radius-full);
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) {
+  background: var(--app-color-surface);
+  border-radius: var(--app-radius-md);
+}

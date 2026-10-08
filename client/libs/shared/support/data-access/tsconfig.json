@@ -1,0 +1,9 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../../../dist/out-tsc/libs/shared/support/data-access",
+    "declaration": true,
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

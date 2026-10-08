@@ -1,0 +1,9 @@
+{
+  "name": "web-common-overlays",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/common/overlays/src",
+  "projectType": "library",
+  "prefix": "app",
+  "tags": ["scope:web", "type:ui", "name:common"],
+  "targets": {}
+}
