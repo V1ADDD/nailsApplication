@@ -1,0 +1,122 @@
+$button-variants: filled, outlined, text, tonal;
+
+@mixin button-size($height, $font-size, $radius, $padding) {
+  @each $variant in $button-variants {
+    --mat-button-#{$variant}-container-height: #{$height};
+    --mat-button-#{$variant}-container-shape: #{$radius};
+    --mat-button-#{$variant}-label-text-size: #{$font-size};
+    --mat-button-#{$variant}-horizontal-padding: #{$padding};
+  }
+}
+
+.mat-mdc-button-base {
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--app-space-2);
+  }
+
+  &.app-large {
+    @include button-size(3.5rem, var(--app-font-size-md), var(--app-radius-lg), var(--app-space-5));
+  }
+
+  &.app-small {
+    @include button-size(2.25rem, var(--app-font-size-sm), var(--app-radius-sm), var(--app-space-3));
+  }
+
+  &.app-block {
+    width: 100%;
+  }
+
+  &.app-danger-soft {
+    --mat-button-filled-container-color: var(--app-color-danger-soft);
+    --mat-button-filled-label-text-color: var(--app-color-danger);
+    border: 1px solid var(--app-color-danger-border);
+  }
+}
+
+.app-field {
+  display: grid;
+  gap: var(--app-space-1-5);
+}
+
+.app-field-label {
+  font-size: var(--app-font-size-sm);
+  color: var(--app-color-text-muted);
+}
+
+.app-field-hint {
+  font-size: var(--app-font-size-xs);
+  color: var(--app-color-text-muted);
+}
+
+.app-field-error {
+  font-size: var(--app-font-size-xs);
+  color: var(--app-color-danger);
+}
+
+.app-input {
+  width: 100%;
+  min-height: 3.125rem;
+  padding: var(--app-space-3) var(--app-space-4);
+  font: inherit;
+  font-size: var(--app-font-size-md);
+  color: var(--app-color-text);
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+  transition: border-color var(--app-transition-fast);
+
+  &::placeholder {
+    color: var(--app-color-text-muted);
+  }
+
+  &:focus {
+    border-color: var(--app-color-primary);
+    outline: none;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--app-color-danger);
+  }
+}
+
+textarea.app-input {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+html .mat-mdc-icon-button.mat-mdc-button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.app-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-1-5);
+  min-height: var(--app-tap-target);
+  padding: 0 var(--app-space-2);
+  border: 0;
+  border-radius: var(--app-radius-sm);
+  background: none;
+  font: inherit;
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-semibold);
+  color: var(--app-color-primary);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    color: var(--app-color-text-muted);
+    cursor: default;
+  }
+}

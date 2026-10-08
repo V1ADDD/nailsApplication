@@ -36,8 +36,6 @@ services:
         condition: service_started
     environment:
       ConnectionStrings__Database: "Host=postgres;Port=5432;Database=nails;Username=nails;Password=${POSTGRES_PASSWORD}"
-      Modules__Identity__Bootstrap__OwnerEmail: ${OWNER_EMAIL:?Set it in .env, see .env.example}
-      Modules__Identity__Bootstrap__OwnerPassword: ${OWNER_PASSWORD:?Set it in .env, see .env.example}
     restart: unless-stopped
 
   web:

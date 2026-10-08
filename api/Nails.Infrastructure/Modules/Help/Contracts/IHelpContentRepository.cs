@@ -10,5 +10,7 @@ public interface IHelpContentRepository
 
     HelpCompany Company();
 
-    IReadOnlyList<HelpArticleFile> Articles(string language);
+    IReadOnlyList<HelpDocument> Documents(string language);
+
+    HelpImageFile? FindImage(string language, string articleId, string fileName);
 }

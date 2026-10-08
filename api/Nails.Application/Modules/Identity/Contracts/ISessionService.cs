@@ -5,7 +5,9 @@ namespace Nails.Application.Modules.Identity.Contracts;
 
 public interface ISessionService
 {
-    Task SignInAsync(SignInRequest request, CancellationToken cancellationToken);
+    Task<PhoneCodeResponse> RequestCodeAsync(PhoneCodeRequest request, CancellationToken cancellationToken);
+
+    Task<SignInResponse> SignInAsync(SignInRequest request, CancellationToken cancellationToken);
 
     Task SignOutAsync();
 

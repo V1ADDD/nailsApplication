@@ -19,6 +19,7 @@ public sealed class HelpModule : IAppModule
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddValidatedOptions<HelpOptions>(configuration, HelpOptions.SectionName);
+        services.AddValidatedOptions<HelpImageOptions>(configuration, HelpImageOptions.SectionName);
         services.AddSingleton<IHelpContentRepository, HelpContentRepository>();
         services.AddScoped<IHelpService, HelpService>();
     }

@@ -1,5 +1,14 @@
 <!--
 Sync Impact Report
+Version: 4.1.0 → 4.2.0 (MINOR)
+Reason: spec 003 replaces email-and-password accounts with phone sign-in by SMS code and drops the placeholder home page. VII lists the public routes
+without registration, email confirmation and the password pages; IX states how accounts are identified and signed in;
+X requires extending the help and retaking its pictures.
+Changed: VII, IX, X. Added, removed principles: none.
+Templates: no change needed.
+Follow-up: a production SMS gateway (spec 012).
+
+Previous report
 Version: 4.0.0 → 4.1.0 (MINOR)
 Reason: spec 002 names where the design tokens live and adds the web app frame. Principle VII now points to
 `apps/web/src/styles/_tokens.scss` (the `--app-*` tokens, Material themed from them, light only) instead of
@@ -37,7 +46,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - **Module**: a named feature area whose code lives only in `Modules/<Module>/` of the api projects and in `client/libs/<scope>/<module>/`. The modules are the entries of `ModuleCatalog`.
 - **Always-on module**: `Identity` (accounts and sessions) and `Catalog` (the categories, services and cities every other module refers to). Their client code lives in `core`.
 - **Scope**: `shared`, `web` or `mobile` in `client/libs/`.
-- **Tenant**: the owner of private data. Every account gets its own personal tenant at registration.
+- **Tenant**: the owner of private data. Every account gets its own personal tenant when it is created.
 - **Client** and **master**: the two roles of one account. Every signed-in account is a client; an account with a master profile is also a master.
 - **User-facing text**: every string a user can see or hear: labels, buttons, placeholders, page titles, empty, loading and error states, alt text and aria labels, toasts, emails, help content and the problem details the UI shows.
 - **User-visible change**: any change to what a user can see or do: a screen, route, control, label, setting, message (errors and empty states too), limit, timing, permission rule or edge case.
@@ -92,7 +101,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - `shared` MUST depend only on `shared`; `web` and `mobile` only on themselves and `shared`. The tags `scope:*`, `type:*` and `name:*` MUST be enforced by `@nx/enforce-module-boundaries`.
 - `libs/shared` MUST NOT use DOM globals, Angular Material, CDK, the router or forms. Screens live only in `libs/web` and `libs/mobile`.
 - Each module exports one manifest per platform; the app loads only the manifests of the modules `GET /api/modules` reports as enabled, with dynamic imports.
-- Public routes are exactly the home page, sign-in, registration, email confirmation, the password pages and those a module declares public; every other route MUST require a session.
+- Public routes are exactly sign-in and those a module declares public; every other route MUST require a session. The root path opens the profile (sign-in for a guest) until the map replaces it.
 - Mobile-first: layouts work from 360 px wide without horizontal overflow, with the breakpoints 480, 768, 1024 and 1280 px. Colors, spacing, radii, type, shadows and motion come from the `--app-*` design tokens in `apps/web/src/styles/_tokens.scss`, and Angular Material is themed from them; the interface is light only; components MUST NOT use raw hex colors.
 - The web app frame is a bottom tab bar below 1024 px and a top bar from 1024 px. Modules add tabs, account links and actions to it only through their manifest.
 - A screen is accepted only with its empty, loading and failure states; the failure state offers «Повторить». Every change a user makes shows a success toast or an error, and its button is disabled while it runs. Controls are labelled, focus is visible, contrast meets WCAG AA and reduced motion is respected.
@@ -105,6 +114,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 
 ### IX. Security and privacy
 
+- Accounts are identified by a Belarusian phone. Sign-in is a one-time SMS code; a phone without an account gets one at its first sign-in, after the person gives a name. There are no passwords and no separate registration. Code attempts, lifetime and resend interval are limited.
 - Browser sessions are ASP.NET Core Identity cookies (`HttpOnly`, `SameSite=Strict`, `Secure` in production); every state-changing request MUST carry a valid antiforgery token; the browser talks to the API through one origin.
 - Anonymous Identity endpoints MUST be rate-limited. Internal messages MUST NOT reach the client.
 - Clients never see other clients' personal data. Masters see a client's phone only when that client booked with them. Uploaded files are validated by type and size.
@@ -113,7 +123,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 
 ### X. The help center grows with the product
 
-- Help content lives only in `api/Nails.Api/Modules/Help/Content/`, in Russian in `ru/`. Every user-visible change MUST update it in the same change; articles of an optional module live in that module's file.
+- Help content lives only in `api/Nails.Api/Modules/Help/Content/`, in Russian in `ru/`. Every user-visible change MUST update it in the same change; articles of an optional module live in that module's file. Every user-visible change MUST also extend it: new screens and flows get articles, new messages and edge cases are added, and pictures of changed screens are retaken.
 
 ## Code rules
 
@@ -147,4 +157,4 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - This constitution overrides the spec-kit templates and team habits. A plan MAY violate a principle only with a justification in its Complexity Tracking section.
 - Amending the constitution is a separate change that updates this file, its version and the reason in the Sync Impact Report.
 
-**Version**: 4.1.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08
+**Version**: 4.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08

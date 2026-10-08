@@ -1,3 +1,8 @@
 namespace Nails.Application.Modules.Help.Responses;
 
-public sealed record HelpArticleResponse(string Id, string Module, string Title, string Summary, IReadOnlyList<string> Body);
+public sealed record HelpArticleResponse(
+    string Id,
+    string Title,
+    string? Summary,
+    IReadOnlyList<string> Keywords,
+    IReadOnlyList<HelpBlockResponse> Blocks);

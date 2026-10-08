@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Nails.Application.Modules.Identity.Contracts;
 using Nails.Infrastructure.Common;
 using Nails.Infrastructure.Persistence;
 
@@ -15,8 +13,5 @@ public static class ApplicationServiceProviderExtensions
         }
 
         await services.MigrateDatabaseAsync(cancellationToken);
-
-        await using var scope = services.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<IIdentityBootstrapper>().RunAsync(cancellationToken);
     }
 }
