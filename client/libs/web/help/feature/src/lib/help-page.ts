@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import type { Schemas } from '@nails/shared/core/data-access';
 import { findHelpArticle, HelpContentStore, searchHelp } from '@nails/shared/help/data-access';
@@ -17,7 +16,6 @@ const placeholderRows = [1, 2, 3, 4];
 @Component({
   selector: 'app-help-page',
   imports: [
-    MatButtonModule,
     RouterLink,
     EmptyState,
     ErrorState,
@@ -36,7 +34,7 @@ const placeholderRows = [1, 2, 3, 4];
     :host {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: var(--app-space-10);
+      gap: var(--app-space-6);
       @include bp.up(lg) {
         grid-template-columns: 18rem minmax(0, 1fr);
       }
@@ -53,16 +51,33 @@ const placeholderRows = [1, 2, 3, 4];
     .content {
       display: grid;
       align-content: start;
-      gap: var(--app-space-6);
+      gap: var(--app-space-4);
       max-width: 48rem;
       min-width: 0;
     }
     .tools {
-      display: grid;
-      gap: var(--app-space-3);
+      display: flex;
+      gap: var(--app-space-2);
     }
-    .tools button {
-      justify-self: start;
+    .tools app-help-search-field {
+      flex: 1;
+      min-width: 0;
+    }
+    .topics {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: var(--app-space-1-5);
+      height: var(--app-tap-target);
+      padding: 0 var(--app-space-3);
+      border: 0;
+      border-radius: var(--app-radius-full);
+      background: var(--app-color-primary-soft);
+      color: var(--app-color-primary);
+      font: inherit;
+      font-size: var(--app-font-size-sm);
+      font-weight: var(--app-font-weight-semibold);
+      cursor: pointer;
     }
     .missing {
       display: grid;
@@ -95,9 +110,9 @@ const placeholderRows = [1, 2, 3, 4];
         @if (!viewport.isLg()) {
           <div class="tools">
             <app-help-search-field [(query)]="query" />
-            <button mat-stroked-button class="app-small" type="button" (click)="openTopics()">
-              <app-icon name="list" [size]="18" />
-              Разделы справки
+            <button class="topics" type="button" aria-label="Разделы справки" (click)="openTopics()">
+              <app-icon name="list" [size]="20" />
+              Разделы
             </button>
           </div>
         }

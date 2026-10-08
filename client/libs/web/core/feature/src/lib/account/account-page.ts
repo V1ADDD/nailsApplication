@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, Injector, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { formatPhone } from '@nails/shared/common/util';
 import { SessionStore } from '@nails/shared/core/data-access';
 import { Avatar, Icon } from '@nails/web/common/ui';
-import { frameSlots } from '../modules/frame';
-import type { FrameAction } from '../modules/module-manifest';
+import { frameSlots, injectFrameActionRunner } from '../modules/frame';
 
 @Component({
   selector: 'app-account-page',
@@ -138,12 +137,8 @@ export class AccountPage {
   protected readonly slots = inject(frameSlots);
   protected readonly signingOut = signal(false);
   protected readonly phone = formatPhone;
-  private readonly injector = inject(Injector);
+  protected readonly run = injectFrameActionRunner();
   private readonly router = inject(Router);
-
-  protected run(action: FrameAction): void {
-    void action.open(this.injector);
-  }
 
   protected async signOut(): Promise<void> {
     this.signingOut.set(true);

@@ -12,11 +12,11 @@ import { EmptyState, Icon } from '@nails/web/common/ui';
 
     :host {
       display: grid;
-      gap: var(--app-space-8);
+      gap: var(--app-space-5);
     }
     header {
       display: grid;
-      gap: var(--app-space-2);
+      gap: var(--app-space-1);
     }
     .lead {
       color: var(--app-color-text-secondary);
@@ -24,7 +24,7 @@ import { EmptyState, Icon } from '@nails/web/common/ui';
     .grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: var(--app-space-4);
+      gap: var(--app-space-3);
       @include bp.up(md) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -32,8 +32,8 @@ import { EmptyState, Icon } from '@nails/web/common/ui';
     section {
       display: grid;
       align-content: start;
-      gap: var(--app-space-3);
-      padding: var(--app-space-5);
+      gap: var(--app-space-2);
+      padding: var(--app-space-4);
       background: var(--app-color-surface);
       border: 1px solid var(--app-color-border);
       border-radius: var(--app-radius-lg);
@@ -43,7 +43,7 @@ import { EmptyState, Icon } from '@nails/web/common/ui';
     }
     ul {
       display: grid;
-      gap: var(--app-space-1);
+      gap: 0;
       margin: 0;
       padding: 0;
       list-style: none;
@@ -53,7 +53,7 @@ import { EmptyState, Icon } from '@nails/web/common/ui';
       align-items: center;
       justify-content: space-between;
       gap: var(--app-space-2);
-      min-height: var(--app-tap-target);
+      min-height: 2.25rem;
       color: var(--app-color-primary);
       font-size: var(--app-font-size-sm);
       font-weight: var(--app-font-weight-semibold);
@@ -64,6 +64,14 @@ import { EmptyState, Icon } from '@nails/web/common/ui';
     }
     a app-icon {
       color: var(--app-color-text-muted);
+    }
+    h1 {
+      font-size: var(--app-font-size-xl);
+    }
+    @media (pointer: coarse) {
+      a {
+        min-height: var(--app-tap-target);
+      }
     }
   `,
   template: `

@@ -105,3 +105,32 @@ Buttons have the old app's sizes and weights (44 px bold 14 px buttons, the 56 p
 - The remembered active role, the unread count and `patchMe` of the request have no user before specs 004–007 and come with them (the rule against unused code, as in spec 002).
 - Phones are unique per account; email is no longer collected.
 - The help pictures are taken by hand from the running app (phone width 390 px) by the procedure in the README; an automated tool can come later.
+
+## Clarifications
+
+### Session 2026-10-08 (after the first build)
+
+- Q: Inputs and other controls look broken in Docker. → A: The production build loaded the main stylesheet through an inline script that the web app's CSP blocks; critical-CSS inlining is switched off (FR-026).
+- Q: The help is too spacious and its buttons blend into the background. → A: Tighter spacing, 15 px article text, denser lists on desktop, a tinted «Разделы справки» button and a stronger search border (FR-027).
+- Q: Remove the page «Мастера красоты рядом с вами»; the map replaces it later, no placeholder. → A: The root path opens «Профиль», so a guest lands on sign-in; «Напишите нам» moves from the home-page edge tab to «Не получается войти? Напишите нам» under the sign-in card (FR-028, changes spec 002 FR-016 and FR-019).
+
+### Additional requirements
+
+- **FR-026**: The production build MUST apply every stylesheet under the web app's CSP (no inline loader script).
+- **FR-027**: The help MUST stay compact: section cards and article blocks with small gaps, list rows 36 px on fine pointers and 44 px on touch, and controls that stand out from the page background.
+- **FR-028**: There MUST be no placeholder home page: `/` opens «Профиль», a guest is sent to sign-in and returns to «Профиль»; the sign-in page offers «Не получается войти?» with «Напишите нам» when the support area is on.
+
+### Session 2026-10-08 (third round)
+
+- Q: Make «Войти» as in the design. → A: In the top bar it is the old app's small primary button: 36 px, 14/700, radius 10, not a pill (FR-029).
+- Q: Help pictures open in a new tab. → A: They open in a viewer on the page, like CONNECT; the address gets `?image=<n>`, and ×, the backdrop, Esc or the back button close it (FR-030).
+- Q: Icons and the × of sheets are off-centre; the sheet's grip cannot be dragged on phones; texts such as «Запросить код повторно» and «Изменить номер» look untidy. → A: Icon buttons centre their icon; a phone sheet follows the finger from its grip and header and closes when pulled down more than 80 px; the code step shows «Изменить номер» right after the phone and a single centred line for the resend countdown or «Запросить код повторно» (FR-031, FR-032).
+- Q: Make the help more user-friendly on phones; refactor and simplify. → A: On phones the help has one row with search and «Разделы», articles start with «Все статьи»; unused theme overrides, classes, icons and inputs were removed, and the frame actions share one runner (FR-033).
+
+### More requirements
+
+- **FR-029**: The guest's «Войти» in the top bar MUST be the old app's small primary button (36 px, radius 10 px).
+- **FR-030**: A help picture MUST open full size over the page with a close button «Закрыть картинку»; the address MUST reflect the open picture so the back button closes it, and opening or closing MUST NOT move the page.
+- **FR-031**: Every icon inside a button MUST be centred; a bottom sheet on phones MUST close when its grip or header is dragged down beyond 80 px and spring back otherwise.
+- **FR-032**: Secondary actions of the sign-in card MUST be text links in the brand colour, centred under the code; the countdown MUST replace the resend link until it ends.
+- **FR-033**: On phones the help MUST show the search and a «Разделы» button in one row, and each article MUST start with «Все статьи».

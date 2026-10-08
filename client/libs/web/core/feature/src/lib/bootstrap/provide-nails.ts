@@ -7,11 +7,12 @@ import {
   provideAppInitializer,
   type EnvironmentProviders
 } from '@angular/core';
-import { provideRouter, Router, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { appLocale } from '@nails/shared/common/util';
 import { EnabledModules, provideCoreHttp, SessionStore } from '@nails/shared/core/data-access';
 import type { ModuleEntry, ModuleManifest } from '../modules/module-manifest';
 import { buildRoutes, startupFailedRoutes } from './routes';
+import { provideScrollToTopOnPathChange } from './scroll-to-top';
 
 function loadManifests(enabled: readonly string[], modules: readonly ModuleEntry[]): Promise<ModuleManifest[]> {
   return Promise.all(modules.filter((entry) => enabled.includes(entry.key)).map((entry) => entry.load()));
@@ -22,7 +23,8 @@ export function provideNails(modules: readonly ModuleEntry[]): EnvironmentProvid
   return makeEnvironmentProviders([
     { provide: LOCALE_ID, useValue: appLocale },
     provideCoreHttp(),
-    provideRouter([], withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
+    provideRouter([], withComponentInputBinding()),
+    provideScrollToTopOnPathChange(),
     provideAppInitializer(async () => {
       const router = inject(Router);
       const enabledModules = inject(EnabledModules);

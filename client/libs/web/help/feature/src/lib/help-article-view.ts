@@ -15,11 +15,22 @@ type HelpArticle = Schemas['HelpArticleResponse'];
 
     :host {
       display: grid;
-      gap: var(--app-space-6);
+      gap: var(--app-space-4);
+    }
+    .back {
+      justify-self: start;
+      margin-left: calc(-1 * var(--app-space-2));
+      @include bp.up(lg) {
+        display: none;
+      }
     }
     .path {
+      display: none;
       font-size: var(--app-font-size-sm);
       color: var(--app-color-text-muted);
+      @include bp.up(lg) {
+        display: block;
+      }
     }
     .path a {
       color: var(--app-color-primary);
@@ -31,19 +42,22 @@ type HelpArticle = Schemas['HelpArticleResponse'];
     }
     header {
       display: grid;
-      gap: var(--app-space-2);
+      gap: var(--app-space-1);
+    }
+    h1 {
+      font-size: var(--app-font-size-xl);
     }
     .lead {
-      font-size: var(--app-font-size-lg);
+      font-size: var(--app-font-size-md);
       color: var(--app-color-text-secondary);
     }
     .contact {
       display: flex;
       align-items: flex-start;
       gap: var(--app-space-3);
-      padding: var(--app-space-4);
-      border-radius: var(--app-radius-lg);
-      background: var(--app-color-surface-muted);
+      padding: var(--app-space-3) var(--app-space-4);
+      border-radius: var(--app-radius-md);
+      background: var(--app-color-primary-soft);
       font-size: var(--app-font-size-sm);
       color: var(--app-color-text-secondary);
     }
@@ -65,7 +79,7 @@ type HelpArticle = Schemas['HelpArticleResponse'];
     .neighbour {
       display: grid;
       gap: var(--app-space-1);
-      padding: var(--app-space-4);
+      padding: var(--app-space-3) var(--app-space-4);
       background: var(--app-color-surface);
       border: 1px solid var(--app-color-border);
       border-radius: var(--app-radius-lg);
@@ -93,6 +107,7 @@ type HelpArticle = Schemas['HelpArticleResponse'];
     }
   `,
   template: `
+    <a class="app-link back" routerLink="/help"><app-icon name="chevron-left" [size]="18" />Все статьи</a>
     <nav class="path" aria-label="Путь">
       <a routerLink="/help">{{ siteTitle() }}</a
       ><span aria-hidden="true">/</span>{{ sectionTitle() }}

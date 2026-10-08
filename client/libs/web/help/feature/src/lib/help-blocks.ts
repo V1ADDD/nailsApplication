@@ -1,10 +1,15 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { Schemas } from '@nails/shared/core/data-access';
 import { Icon, type IconName } from '@nails/web/common/ui';
+import { HelpImageViewer } from './help-image-viewer';
 import { HelpInlineText } from './help-inline-text';
 
 type HelpNoteTone = NonNullable<Schemas['HelpNoteTone']>;
+
+const imageParameter = 'image';
 
 const noteIcons: Readonly<Record<HelpNoteTone, IconName>> = {
   info: 'info',
@@ -14,14 +19,14 @@ const noteIcons: Readonly<Record<HelpNoteTone, IconName>> = {
 
 @Component({
   selector: 'app-help-blocks',
-  imports: [RouterLink, Icon, HelpInlineText],
+  imports: [RouterLink, Icon, HelpImageViewer, HelpInlineText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
       display: grid;
-      gap: var(--app-space-4);
-      font-size: var(--app-font-size-md);
-      line-height: 1.65;
+      gap: var(--app-space-3);
+      font-size: 0.9375rem;
+      line-height: 1.6;
       color: var(--app-color-text-secondary);
     }
     h2 {
@@ -103,13 +108,18 @@ const noteIcons: Readonly<Record<HelpNoteTone, IconName>> = {
       gap: var(--app-space-2);
       margin: 0;
     }
-    figure a {
+    .zoom {
       display: block;
-      max-width: 100%;
+      max-width: min(100%, 24rem);
+      padding: 0;
+      border: 0;
       border-radius: var(--app-radius-md);
+      background: none;
+      cursor: zoom-in;
     }
     img {
-      max-width: min(100%, 24rem);
+      display: block;
+      width: 100%;
       height: auto;
       border: 1px solid var(--app-color-border);
       border-radius: var(--app-radius-md);
@@ -183,9 +193,17 @@ const noteIcons: Readonly<Record<HelpNoteTone, IconName>> = {
         @case ('image') {
           @if (block.image; as image) {
             <figure>
-              <a [href]="image.url" target="_blank" rel="noopener" aria-label="Открыть картинку полностью">
+              <button
+                class="zoom"
+                type="button"
+                [attr.aria-label]="'Увеличить картинку: ' + image.alt"
+                (click)="open($index)"
+              >
                 <img [src]="image.url" [alt]="image.alt" [width]="image.width" [height]="image.height" loading="lazy" />
-              </a>
+              </button>
+              @if (openIndex() === $index) {
+                <app-help-image-viewer [image]="image" (closed)="close()" />
+              }
               @if (image.caption) {
                 <figcaption>{{ image.caption }}</figcaption>
               }
@@ -214,6 +232,38 @@ const noteIcons: Readonly<Record<HelpNoteTone, IconName>> = {
 export class HelpBlocks {
   readonly blocks = input.required<readonly Schemas['HelpBlockResponse'][]>();
   readonly titles = input.required<ReadonlyMap<string, string>>();
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  private readonly query = toSignal(this.route.queryParamMap);
+  protected readonly openIndex = computed(() => Number(this.query()?.get(imageParameter) ?? Number.NaN));
+
+  protected open(index: number): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { [imageParameter]: index },
+      queryParamsHandling: 'merge',
+      state: { [imageParameter]: true }
+    });
+  }
+
+  protected close(): void {
+    if (this.openedHere()) {
+      this.location.back();
+      return;
+    }
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { [imageParameter]: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private openedHere(): boolean {
+    const state = this.location.getState();
+    return typeof state === 'object' && state !== null && imageParameter in state;
+  }
 
   protected noteIcon(tone: HelpNoteTone | null): IconName {
     return noteIcons[tone ?? 'info'];

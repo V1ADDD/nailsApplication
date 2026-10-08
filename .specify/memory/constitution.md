@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report
 Version: 4.1.0 → 4.2.0 (MINOR)
-Reason: spec 003 replaces email-and-password accounts with phone sign-in by SMS code. VII lists the public routes
+Reason: spec 003 replaces email-and-password accounts with phone sign-in by SMS code and drops the placeholder home page. VII lists the public routes
 without registration, email confirmation and the password pages; IX states how accounts are identified and signed in;
 X requires extending the help and retaking its pictures.
 Changed: VII, IX, X. Added, removed principles: none.
@@ -101,7 +101,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - `shared` MUST depend only on `shared`; `web` and `mobile` only on themselves and `shared`. The tags `scope:*`, `type:*` and `name:*` MUST be enforced by `@nx/enforce-module-boundaries`.
 - `libs/shared` MUST NOT use DOM globals, Angular Material, CDK, the router or forms. Screens live only in `libs/web` and `libs/mobile`.
 - Each module exports one manifest per platform; the app loads only the manifests of the modules `GET /api/modules` reports as enabled, with dynamic imports.
-- Public routes are exactly the home page, sign-in and those a module declares public; every other route MUST require a session.
+- Public routes are exactly sign-in and those a module declares public; every other route MUST require a session. The root path opens the profile (sign-in for a guest) until the map replaces it.
 - Mobile-first: layouts work from 360 px wide without horizontal overflow, with the breakpoints 480, 768, 1024 and 1280 px. Colors, spacing, radii, type, shadows and motion come from the `--app-*` design tokens in `apps/web/src/styles/_tokens.scss`, and Angular Material is themed from them; the interface is light only; components MUST NOT use raw hex colors.
 - The web app frame is a bottom tab bar below 1024 px and a top bar from 1024 px. Modules add tabs, account links and actions to it only through their manifest.
 - A screen is accepted only with its empty, loading and failure states; the failure state offers «Повторить». Every change a user makes shows a success toast or an error, and its button is disabled while it runs. Controls are labelled, focus is visible, contrast meets WCAG AA and reduced motion is respected.

@@ -12,7 +12,7 @@ type HelpSection = Schemas['HelpSectionResponse'];
   styles: `
     nav {
       display: grid;
-      gap: var(--app-space-1);
+      gap: var(--app-space-0-5);
     }
     .section-button {
       display: flex;
@@ -20,8 +20,8 @@ type HelpSection = Schemas['HelpSectionResponse'];
       justify-content: space-between;
       gap: var(--app-space-2);
       width: 100%;
-      min-height: var(--app-tap-target);
-      padding: var(--app-space-2) var(--app-space-2-5);
+      min-height: 2.25rem;
+      padding: var(--app-space-1-5) var(--app-space-2-5);
       border: 0;
       border-radius: var(--app-radius-sm);
       background: none;
@@ -55,8 +55,8 @@ type HelpSection = Schemas['HelpSectionResponse'];
     a {
       display: flex;
       align-items: center;
-      min-height: var(--app-tap-target);
-      padding: var(--app-space-1-5) var(--app-space-2-5);
+      min-height: 2rem;
+      padding: var(--app-space-1) var(--app-space-2-5);
       border-left: 2px solid var(--app-color-border);
       border-radius: 0 var(--app-radius-sm) var(--app-radius-sm) 0;
       color: var(--app-color-text-secondary);
@@ -72,6 +72,12 @@ type HelpSection = Schemas['HelpSectionResponse'];
       background: var(--app-color-primary-soft);
       color: var(--app-color-primary);
       font-weight: var(--app-font-weight-bold);
+    }
+    @media (pointer: coarse) {
+      .section-button,
+      a {
+        min-height: var(--app-tap-target);
+      }
     }
     .none {
       padding: 0 var(--app-space-2);

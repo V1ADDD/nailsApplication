@@ -18,6 +18,7 @@ import { formatCountdown, formatPhone, formatPhoneInput } from '@nails/shared/co
 import { IdentityApi, SessionStore, toProblem } from '@nails/shared/core/data-access';
 import { Toasts } from '@nails/web/common/overlays';
 import { appPaths } from '../bootstrap/app-paths';
+import { frameSlots, injectFrameActionRunner } from '../modules/frame';
 import { CodeInput } from './code-input';
 import { safeReturnTo } from './safe-return-to';
 import { SignInCard } from './sign-in-card';
@@ -63,20 +64,28 @@ const errorId = 'sign-in-error';
     .phone .app-input {
       padding-left: 3.75rem;
     }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--app-space-2);
+    .lead .app-link {
+      min-height: auto;
+      padding: 0;
+      font-size: inherit;
+      vertical-align: baseline;
     }
-    .muted {
+    .error {
+      text-align: center;
+    }
+    .resend {
+      display: grid;
+      place-items: center;
+      min-height: var(--app-tap-target);
       font-size: var(--app-font-size-sm);
       color: var(--app-color-text-muted);
+      text-align: center;
     }
-    .status {
+    .support {
+      margin-top: var(--app-space-4);
       font-size: var(--app-font-size-sm);
       color: var(--app-color-text-secondary);
+      text-align: center;
     }
   `,
   template: `
@@ -119,7 +128,9 @@ const errorId = 'sign-in-error';
         @case ('code') {
           <h1>Введите код из SMS</h1>
           <p class="lead">
-            Код отправлен на <strong>{{ shownPhone() }}</strong>
+            Код отправлен на <strong>{{ shownPhone() }}</strong
+            >.
+            <button class="app-link" type="button" [disabled]="busy()" (click)="changePhone()">Изменить номер</button>
           </p>
           <app-code-input
             [length]="codeLength()"
@@ -129,22 +140,16 @@ const errorId = 'sign-in-error';
             (completed)="checkCode($event)"
           />
           @if (error(); as message) {
-            <span class="app-field-error" role="alert" [id]="errorId">{{ message }}</span>
+            <p class="app-field-error error" role="alert" [id]="errorId">{{ message }}</p>
           }
-          @if (busy()) {
-            <p class="status" role="status">Проверяем…</p>
-          }
-          <div class="actions">
-            @if (resendIn() > 0) {
-              <p class="muted">Запросить код повторно через {{ countdown() }}</p>
+          <div class="resend" aria-live="polite">
+            @if (busy()) {
+              <span>Проверяем…</span>
+            } @else if (resendIn() > 0) {
+              <span>Запросить код повторно через {{ countdown() }}</span>
             } @else {
-              <button mat-button class="app-small" type="button" [disabled]="busy()" (click)="resend()">
-                Запросить код повторно
-              </button>
+              <button class="app-link" type="button" (click)="resend()">Запросить код повторно</button>
             }
-            <button mat-button class="app-small" type="button" [disabled]="busy()" (click)="changePhone()">
-              Изменить номер
-            </button>
           </div>
         }
         @case ('name') {
@@ -176,6 +181,14 @@ const errorId = 'sign-in-error';
         }
       }
     </app-sign-in-card>
+    @if (slots.actions.length > 0) {
+      <p class="support">
+        Не получается войти?
+        @for (action of slots.actions; track action.label) {
+          <button class="app-link" type="button" (click)="run(action)">{{ action.label }}</button>
+        }
+      </p>
+    }
   `
 })
 export class SignInPage {
@@ -187,6 +200,8 @@ export class SignInPage {
   private readonly toasts = inject(Toasts);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
+  protected readonly slots = inject(frameSlots);
+  protected readonly run = injectFrameActionRunner();
   protected readonly step = signal<SignInStep>('phone');
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);

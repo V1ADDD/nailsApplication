@@ -11,7 +11,7 @@ import { HelpHighlight } from './help-highlight';
   styles: `
     :host {
       display: grid;
-      gap: var(--app-space-5);
+      gap: var(--app-space-4);
     }
     h1 {
       font-size: var(--app-font-size-xl);
@@ -26,7 +26,7 @@ import { HelpHighlight } from './help-highlight';
     a {
       display: grid;
       gap: var(--app-space-1);
-      padding: var(--app-space-4);
+      padding: var(--app-space-3) var(--app-space-4);
       background: var(--app-color-surface);
       border: 1px solid var(--app-color-border);
       border-radius: var(--app-radius-lg);

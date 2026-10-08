@@ -90,31 +90,6 @@ html {
     )
   );
 
-  @include mat.chips-overrides(
-    (
-      container-height: 2.5rem,
-      container-shape-radius: var(--app-radius-full),
-      outline-color: var(--app-color-border),
-      label-text-color: var(--app-color-text),
-      label-text-size: var(--app-font-size-sm),
-      label-text-weight: var(--app-font-weight-semibold),
-      elevated-selected-container-color: var(--app-color-primary),
-      selected-label-text-color: var(--app-color-primary-contrast)
-    )
-  );
-
-  @include mat.tabs-overrides(
-    (
-      active-indicator-color: var(--app-color-primary),
-      active-label-text-color: var(--app-color-primary),
-      active-focus-label-text-color: var(--app-color-primary),
-      active-hover-label-text-color: var(--app-color-primary),
-      inactive-label-text-color: var(--app-color-text-secondary),
-      label-text-weight: var(--app-font-weight-semibold),
-      divider-color: var(--app-color-border)
-    )
-  );
-
   @include mat.dialog-overrides(
     (
       container-shape: var(--app-radius-xl),
@@ -126,13 +101,6 @@ html {
     )
   );
 
-  @include mat.menu-overrides(
-    (
-      container-shape: var(--app-radius-md),
-      container-color: var(--app-color-surface)
-    )
-  );
-
   @include mat.snack-bar-overrides(
     (
       container-shape: var(--app-radius-md),
@@ -140,13 +108,4 @@ html {
       supporting-text-weight: var(--app-font-weight-semibold)
     )
   );
-}
-
-.mat-mdc-unelevated-button.app-gradient {
-  background: var(--app-gradient-primary);
-  box-shadow: var(--app-shadow-primary);
-}
-
-.mat-mdc-button-base.app-pill {
-  border-radius: var(--app-radius-full);
 }

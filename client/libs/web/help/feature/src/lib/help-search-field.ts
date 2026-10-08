@@ -26,7 +26,7 @@ import { Icon } from '@nails/web/common/ui';
       font-size: var(--app-font-size-sm);
       color: var(--app-color-text);
       background: var(--app-color-surface);
-      border: 1px solid var(--app-color-border);
+      border: 1px solid var(--app-color-border-strong);
       border-radius: var(--app-radius-full);
     }
     input:focus {

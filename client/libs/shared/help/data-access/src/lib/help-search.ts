@@ -11,11 +11,6 @@ export interface HelpSearchResult {
   snippet: string;
 }
 
-interface HelpArticleMatch {
-  article: HelpArticle;
-  section: HelpSection;
-}
-
 const snippetRadius = 70;
 const titleWeight = 6;
 const keywordWeight = 4;
@@ -86,7 +81,7 @@ export function searchHelp(sections: readonly HelpSection[], query: string): Hel
 export function findHelpArticle(
   sections: readonly HelpSection[],
   articleId: string | undefined
-): HelpArticleMatch | null {
+): { article: HelpArticle; section: HelpSection } | null {
   for (const section of sections) {
     const article = section.articles.find((candidate) => candidate.id === articleId);
     if (article) {

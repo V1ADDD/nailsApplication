@@ -16,12 +16,7 @@ export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
       component: AppLayout,
       providers: [{ provide: frameSlots, useValue: buildFrameSlots(manifests) }],
       children: [
-        {
-          path: '',
-          pathMatch: 'full',
-          loadComponent: () => import('../home/home-page').then((m) => m.HomePage),
-          title: 'Мастера рядом — бьюти-мастера Беларуси'
-        },
+        { path: '', pathMatch: 'full', redirectTo: appPaths.profile },
         {
           path: appPaths.signIn,
           loadComponent: () => import('../identity/sign-in-page').then((m) => m.SignInPage),

@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, Injector } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SessionStore } from '@nails/shared/core/data-access';
 import { Avatar, Icon, Logo } from '@nails/web/common/ui';
 import { appPaths } from '../bootstrap/app-paths';
-import { frameSlots } from '../modules/frame';
-import type { FrameAction } from '../modules/module-manifest';
+import { frameSlots, injectFrameActionRunner } from '../modules/frame';
 import { FrameBadgeView } from './frame-badge-view';
 
 @Component({
@@ -107,7 +106,7 @@ import { FrameBadgeView } from './frame-badge-view';
             <app-avatar [name]="me.name" [size]="36" />
           </a>
         } @else if (session.status() === 'signed-out') {
-          <a mat-flat-button class="app-pill app-small" [routerLink]="['/', paths.signIn]">Войти</a>
+          <a mat-flat-button class="app-small" [routerLink]="['/', paths.signIn]">Войти</a>
         }
       </div>
     </header>
@@ -117,9 +116,5 @@ export class TopBar {
   protected readonly slots = inject(frameSlots);
   protected readonly session = inject(SessionStore);
   protected readonly paths = appPaths;
-  private readonly injector = inject(Injector);
-
-  protected run(action: FrameAction): void {
-    void action.open(this.injector);
-  }
+  protected readonly run = injectFrameActionRunner();
 }
