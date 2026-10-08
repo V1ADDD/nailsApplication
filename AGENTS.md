@@ -13,6 +13,7 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 - Remove dead code in the same change: code, exports, settings, files and packages that nothing uses.
 - Rules are checked by tools and switched off only in `api/.editorconfig`, `client/eslint.config.mjs` or `client/knip.json`, with the reason in the current spec's `plan.md`; never in code.
 - User content stays private: no free text a user typed goes into logs, URLs or browser storage.
+- Never add a `Co-Authored-By` trailer or any other AI attribution line to commit messages or pull request descriptions.
 
 ## Help is part of every change
 
