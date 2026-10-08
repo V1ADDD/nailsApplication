@@ -1,4 +1,4 @@
-Client rules on top of the root `AGENTS.md` and the constitution. Stack: Nx 23, Angular 22 (standalone, zoneless, signals, `httpResource`), TypeScript 6, Angular Material 22 themed with the design tokens in `apps/web/src/styles.scss` and the self-hosted Manrope font, types generated from the API's OpenAPI document by `openapi-typescript`.
+Client rules on top of the root `AGENTS.md` and the constitution. Stack: Nx 23, Angular 22 (standalone, zoneless, signals, `httpResource`), TypeScript 6, Angular Material 22 themed with the design tokens in `apps/web/src/styles/_tokens.scss` and the self-hosted Manrope font, types generated from the API's OpenAPI document by `openapi-typescript`.
 
 ## Layout
 
@@ -11,8 +11,8 @@ Client rules on top of the root `AGENTS.md` and the constitution. Stack: Nx 23, 
 ## Rules
 
 - Every user-facing string is Russian and written directly in the template (labels, buttons, titles, empty and error states with «Повторить», aria labels, toasts). Prices, phones, dates, durations and counts only through the helpers in `libs/shared/common/util`; never format them by hand.
-- Mobile-first: no horizontal overflow at 360 px, breakpoints 480, 768, 1024, 1280 px, `minmax(0, 1fr)` columns; spacing and radii from the `--app-*` tokens, colors from `--mat-sys-*`, no hex colors in components.
-- Keep the initial bundle small: put code used by one module in that module, not in `common`, because a barrel import pulls its Material dependencies into the main chunk.
+- Mobile-first: no horizontal overflow at 360 px, breakpoints 480, 768, 1024, 1280 px, `minmax(0, 1fr)` columns; colors, spacing, radii, type, shadows and motion from the `--app-*` tokens (`apps/web/src/styles/_tokens.scss`), breakpoints through `@use 'breakpoints' as bp` in component styles, no hex colors in components; light only.
+- Keep the initial bundle small: put code used by one module in that module, not in `common`, because a barrel import pulls its Material dependencies into the main chunk. Sheets and toasts live in `libs/web/common/overlays` for this reason.
 - Standalone components, `ChangeDetectionStrategy.OnPush`, zoneless; signals, `computed`, `input()`, `output()`, `httpResource()`; built-in control flow; `inject()`.
 - Call the API only with relative `/api/...` URLs through `HttpClient`, so the session cookie and the XSRF header work. Never store tokens or user data in browser storage.
 - Reads use `httpResource`; changes use a `data-access` service that returns promises. Request and response types come only from `Schemas` (`@nails/shared/core/data-access`).

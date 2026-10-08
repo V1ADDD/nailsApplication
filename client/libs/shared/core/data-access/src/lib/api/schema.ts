@@ -15,6 +15,45 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/support/tickets': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CreateSupportTicketRequest'];
+          'application/*+json': components['schemas']['CreateSupportTicketRequest'];
+        };
+      };
+      responses: {
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CreateSupportTicketResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/identity/register': {
     parameters: {
       query?: never;
@@ -348,6 +387,13 @@ export interface components {
     ConfirmEmailRequest: {
       userId: string;
       code: string;
+    };
+    CreateSupportTicketRequest: {
+      text: string;
+      contact?: null | string;
+    };
+    CreateSupportTicketResponse: {
+      ticketId: string;
     };
     EmailRequest: {
       email: string;

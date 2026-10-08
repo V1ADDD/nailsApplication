@@ -25,6 +25,40 @@
         }
       }
     },
+    "/api/support/tickets": {
+      "post": {
+        "tags": [
+          "Tickets"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportTicketRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportTicketRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSupportTicketResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/identity/register": {
       "post": {
         "tags": [
@@ -273,6 +307,37 @@
           }
         }
       },
+      "CreateSupportTicketRequest": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "contact": {
+            "maxLength": 200,
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CreateSupportTicketResponse": {
+        "required": [
+          "ticketId"
+        ],
+        "type": "object",
+        "properties": {
+          "ticketId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "EmailRequest": {
         "required": [
           "email"
@@ -496,6 +561,9 @@
   "tags": [
     {
       "name": "Nails.Api"
+    },
+    {
+      "name": "Tickets"
     },
     {
       "name": "Account"

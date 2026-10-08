@@ -41,8 +41,9 @@ nails/
 
 | Module | Switch | API | Client |
 |---|---|---|---|
-| `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in, registration, email confirmation, password reset, account menu (in `core`) |
+| `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in, registration, email confirmation, password reset, the account page `/profile` with «Выйти» (in `core`) |
 | `Help` | `Modules:Help:Enabled` | Russian articles from JSON files in `Content/ru/`; `GET /api/help/content` | `/help`, `/help/:articleId` |
+| `Support` | `Modules:Support:Enabled` | support tickets in `support.tickets`; `POST /api/support/tickets` (anonymous, rate-limited per address by `Modules:Support:RateLimit`) | the «Напишите нам» sheet, opened from the frame |
 
 `GET /api/modules` returns the enabled modules; the client downloads only their code.
 
@@ -78,13 +79,15 @@ A module uses another module only through the contracts of the always-on modules
 - Rules: business rules are pure functions in `Modules/<Module>/Rules/`; the server enforces them and every permission.
 - Russian messages: `AppException` titles are Russian; `RussianValidationMetadataProvider` gives data annotations Russian messages, `ProblemTitles` covers framework errors, `RussianIdentityErrorDescriber` covers Identity.
 - Client formatting: the locale (`appLocale`) and, as features add them, the price, phone, date and plural helpers live only in `client/libs/shared/common/util`.
+- Design tokens: every color, spacing step, radius, type size, shadow, layout size, duration and layer is a `--app-*` custom property in `client/apps/web/src/styles/_tokens.scss` (values from the old app); Angular Material is themed from them in `styles/_material.scss`; components use tokens and never raw hex. Breakpoints 480, 768, 1024, 1280 px are the `up()` / `down()` mixins of `styles/_breakpoints.scss`, usable in component styles (`@use 'breakpoints' as bp`). The app is light only.
+- The frame: below 1024 px a bottom tab bar, from 1024 px a sticky top bar (`client/libs/web/core/feature/src/lib/layout/`). A module plugs into it through optional slots of its manifest: `frameItem` (a tab, ordered; «Профиль» at order 30 is the core's), `accountLink` (top bar and account page, e.g. «Справка») and `frameAction` (a button that opens something, e.g. «Напишите нам»). Shared blocks: `@nails/web/common/ui` (logo, icons, avatar, skeleton, states, `Viewport`) and `@nails/web/common/overlays` (`Sheets`, `SheetLayout`, `Toasts`; a separate library so Material dialog and snack bar stay out of the initial bundle).
 - Data: one PostgreSQL database, one `AppDbContext`, one schema per module, UUID v7 keys, snake_case names, `IAuditable` timestamps, `IVersioned` for optimistic concurrency. Migrations are additive.
 
 ## Security
 
 - ASP.NET Core Identity: hashed passwords, lockout, confirmed email, single-use reset links, password policy in `Modules:Identity:Options`.
 - Session: an `HttpOnly`, `SameSite=Strict` cookie, `Secure` when `Security:SecureCookies` is on; no tokens in JavaScript. Changes need the antiforgery header that Angular's `HttpClient` sends from the `XSRF-TOKEN` cookie. The browser always talks to one origin: the dev server and nginx proxy `/api`.
-- Rate limits on the anonymous Identity endpoints (`Modules:Identity:RateLimit`); `nosniff`, `no-referrer`, a locked-down `Permissions-Policy`, CSP and `no-store` on the API; a strict CSP on the web app.
+- Rate limits per client address on the anonymous endpoints (`Modules:Identity:RateLimit`, `Modules:Support:RateLimit`; one helper in `Nails.Application/Common/RateLimiting`); `nosniff`, `no-referrer`, a locked-down `Permissions-Policy`, CSP and `no-store` on the API; a strict CSP on the web app.
 - Data protection keys live in PostgreSQL. Behind a reverse proxy, enable `Security:ForwardedHeaders` with its addresses.
 - Secrets never enter git: `.env` (git-ignored) and user secrets locally, the environment or a secret store in production.
 

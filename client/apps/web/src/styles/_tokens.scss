@@ -1,0 +1,126 @@
+:root {
+  --app-color-bg: #f7f5f0;
+  --app-color-surface: #ffffff;
+  --app-color-surface-muted: #f1f1f4;
+  --app-color-surface-sunken: #efece5;
+
+  --app-color-text: #17151c;
+  --app-color-text-secondary: #5b5866;
+  --app-color-text-muted: #6f6c79;
+  --app-color-text-inverse: #ffffff;
+
+  --app-color-primary: #7b2cf5;
+  --app-color-primary-hover: #6a1fe0;
+  --app-color-primary-soft: #f1e9ff;
+  --app-color-primary-contrast: #ffffff;
+  --app-gradient-primary: linear-gradient(135deg, #9a5cff 0%, #7b2cf5 100%);
+
+  --app-color-border: #e7e3da;
+  --app-color-border-strong: #d6d1c5;
+
+  --app-color-success: #12b85a;
+  --app-color-success-soft: #e8f9ef;
+  --app-color-success-border: #b9ebcd;
+  --app-color-success-text: #11813f;
+  --app-color-warning: #f59e0b;
+  --app-color-warning-soft: #fffbea;
+  --app-color-warning-border: #f6e6a6;
+  --app-color-warning-text: #9a6200;
+  --app-color-star: #f5a300;
+  --app-color-danger: #ef3b3b;
+  --app-color-danger-soft: #fff2f2;
+  --app-color-danger-border: #fad4d4;
+  --app-color-info: #2f80ed;
+
+  --app-color-tint-lilac: #f1e9ff;
+  --app-color-tint-lilac-fg: #6a1fe0;
+  --app-color-tint-pink: #ffe6f0;
+  --app-color-tint-pink-fg: #b4235f;
+  --app-color-tint-mint: #e3f7ec;
+  --app-color-tint-mint-fg: #11713a;
+  --app-color-tint-sky: #e5efff;
+  --app-color-tint-sky-fg: #2257b5;
+  --app-color-tint-amber: #fff1d6;
+  --app-color-tint-amber-fg: #8a5600;
+  --app-gradient-hero: linear-gradient(135deg, #8b46ff 0%, #6a1fe0 55%, #b4235f 130%);
+  --app-color-hero-glow: rgb(255 255 255 / 18%);
+
+  --app-schedule-hour-height: 3.5rem;
+
+  --app-color-map-land: #ece6dc;
+  --app-color-map-block: #cfc3b5;
+  --app-gradient-map-pin: linear-gradient(160deg, #9a54ff 0%, #7b2cf5 60%, #6a1fe0 100%);
+  --app-gradient-map-cluster: radial-gradient(circle at 30% 25%, #b784ff 0%, #7b2cf5 55%, #5a16c4 100%);
+  --app-shadow-map-pin: 0 3px 10px rgb(60 20 120 / 28%), 0 1px 2px rgb(23 21 28 / 18%);
+  --app-color-map-halo: rgb(123 44 245 / 16%);
+  --app-color-map-user-halo: rgb(47 128 237 / 22%);
+  --app-sheet-peek-height: 3.75rem;
+  --app-map-card-clearance: 7rem;
+
+  --app-space-0-5: 0.125rem;
+  --app-space-1: 0.25rem;
+  --app-space-1-5: 0.375rem;
+  --app-space-2: 0.5rem;
+  --app-space-2-5: 0.625rem;
+  --app-space-3: 0.75rem;
+  --app-space-4: 1rem;
+  --app-space-5: 1.25rem;
+  --app-space-6: 1.5rem;
+  --app-space-8: 2rem;
+  --app-space-10: 2.5rem;
+  --app-space-12: 3rem;
+  --app-space-16: 4rem;
+
+  --app-font: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --app-letter-spacing-display: -0.02em;
+  --app-font-size-2xs: 0.6875rem;
+  --app-font-size-xs: 0.75rem;
+  --app-font-size-sm: 0.875rem;
+  --app-font-size-md: 1rem;
+  --app-font-size-lg: 1.125rem;
+  --app-font-size-xl: 1.375rem;
+  --app-font-size-2xl: 1.75rem;
+  --app-font-weight-regular: 400;
+  --app-font-weight-medium: 500;
+  --app-font-weight-semibold: 600;
+  --app-font-weight-bold: 700;
+  --app-font-weight-extrabold: 800;
+  --app-line-height: 1.5;
+  --app-line-height-tight: 1.25;
+  --app-letter-spacing-caps: 0.04em;
+
+  --app-radius-xs: 6px;
+  --app-radius-sm: 10px;
+  --app-radius-md: 14px;
+  --app-radius-lg: 18px;
+  --app-radius-xl: 24px;
+  --app-radius-full: 9999px;
+
+  --app-shadow-sm: 0 1px 2px rgb(23 21 28 / 6%);
+  --app-shadow-md: 0 4px 14px rgb(23 21 28 / 8%);
+  --app-shadow-lg: 0 10px 30px rgb(23 21 28 / 12%);
+  --app-shadow-primary: 0 6px 18px rgb(123 44 245 / 35%);
+
+  --app-top-bar-height: 4rem;
+  --app-tab-bar-height: 4.5rem;
+  --app-content-width: 72rem;
+  --app-tap-target: 2.75rem;
+
+  --app-transition-fast: 120ms ease;
+  --app-transition-base: 200ms ease;
+  --app-transition-slow: 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --app-z-map-controls: 500;
+  --app-z-sheet: 600;
+  --app-z-nav: 700;
+  --app-z-overlay: 900;
+  --app-z-toast: 1000;
+
+  --app-color-brand-ink: #2a1650;
+  --app-brand-ink-soft: #5b3f8f;
+  --app-brand-hero-bg: linear-gradient(160deg, #f1e9ff 0%, #fbf7ff 100%);
+  --app-brand-pattern-dot: rgb(123 44 245 / 14%);
+  --app-logo-from: #b57dff;
+  --app-logo-to: #6a1fe0;
+  --app-logo-highlight: #9a5cff;
+}

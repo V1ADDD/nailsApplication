@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
+import { Logo } from '@nails/web/common/ui';
 
 @Component({
   selector: 'app-auth-card',
-  imports: [MatCardModule, RouterLink],
+  imports: [RouterLink, Logo],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -12,29 +12,36 @@ import { RouterLink } from '@angular/router';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: var(--app-space-4);
+      gap: var(--app-space-6);
       min-height: 100dvh;
-      padding: var(--app-space-4);
-      box-sizing: border-box;
+      padding: var(--app-space-6) var(--app-space-4);
     }
     .brand {
+      display: inline-flex;
       color: inherit;
-      font-weight: 700;
       text-decoration: none;
     }
-    mat-card {
+    section {
+      display: grid;
+      gap: var(--app-space-4);
       width: 100%;
-      max-width: 420px;
-      padding: var(--app-space-4);
-      box-sizing: border-box;
+      max-width: 28rem;
+      padding: var(--app-space-6) var(--app-space-5);
+      background: var(--app-color-surface);
+      border: 1px solid var(--app-color-border);
+      border-radius: var(--app-radius-lg);
+      box-shadow: var(--app-shadow-md);
+    }
+    h1 {
+      font-size: var(--app-font-size-xl);
     }
   `,
   template: `
-    <a class="brand" routerLink="/">Мастера рядом</a>
-    <mat-card appearance="outlined">
+    <a class="brand" routerLink="/" aria-label="Мастера рядом — на главную"><app-logo [size]="40" /></a>
+    <section>
       <h1>{{ heading() }}</h1>
       <ng-content />
-    </mat-card>
+    </section>
   `
 })
 export class AuthCard {

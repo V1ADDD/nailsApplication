@@ -1,0 +1,32 @@
+@use 'breakpoints' as bp;
+
+@keyframes app-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.app-sheet-bottom {
+  --mat-dialog-container-shape: var(--app-radius-xl) var(--app-radius-xl) 0 0;
+
+  .mat-mdc-dialog-surface {
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: app-sheet-up var(--app-transition-slow);
+  }
+}
+
+.app-toast {
+  max-width: min(28rem, calc(100vw - 2 * var(--app-space-4)));
+
+  @include bp.down(lg) {
+    margin-bottom: calc(var(--app-tab-bar-height) + env(safe-area-inset-bottom) + var(--app-space-2)) !important;
+  }
+}
+
+.app-toast-success {
+  --mat-snack-bar-container-color: var(--app-color-success-text);
+}
+
+.app-toast-error {
+  --mat-snack-bar-container-color: var(--app-color-danger);
+}

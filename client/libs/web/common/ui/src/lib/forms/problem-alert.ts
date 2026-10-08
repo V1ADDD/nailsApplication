@@ -11,11 +11,18 @@ interface ShownProblem {
   styles: `
     :host {
       display: block;
-      color: var(--mat-sys-error);
+    }
+    div {
+      padding: var(--app-space-3) var(--app-space-4);
+      border: 1px solid var(--app-color-danger-border);
+      border-radius: var(--app-radius-md);
+      background: var(--app-color-danger-soft);
+      color: var(--app-color-danger);
+      font-size: var(--app-font-size-sm);
     }
     ul {
-      margin: 4px 0 0;
-      padding-left: 20px;
+      margin: var(--app-space-1) 0 0;
+      padding-left: var(--app-space-5);
     }
   `,
   template: `

@@ -1,5 +1,15 @@
 <!--
 Sync Impact Report
+Version: 4.0.0 → 4.1.0 (MINOR)
+Reason: spec 002 names where the design tokens live and adds the web app frame. Principle VII now points to
+`apps/web/src/styles/_tokens.scss` (the `--app-*` tokens, Material themed from them, light only) instead of
+`apps/web/src/styles.scss`, and states that the frame (tab bar below 1024 px, top bar from 1024 px) is fed by
+module manifests.
+Changed: VII. Added, removed principles: none.
+Templates: no change needed.
+Follow-up: none.
+
+Previous report
 Version: 3.1.0 → 4.0.0 (MAJOR)
 Reason: ratified for «Мастера рядом», a beauty-services marketplace for Belarus. The UI language rule is
 redefined (Russian user-facing text instead of English), the product principles are added (locale, time, prices,
@@ -83,7 +93,8 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - `libs/shared` MUST NOT use DOM globals, Angular Material, CDK, the router or forms. Screens live only in `libs/web` and `libs/mobile`.
 - Each module exports one manifest per platform; the app loads only the manifests of the modules `GET /api/modules` reports as enabled, with dynamic imports.
 - Public routes are exactly the home page, sign-in, registration, email confirmation, the password pages and those a module declares public; every other route MUST require a session.
-- Mobile-first: layouts work from 360 px wide without horizontal overflow, with the breakpoints 480, 768, 1024 and 1280 px. Colors, spacing, radii and type come from the design tokens in `apps/web/src/styles.scss`; components MUST NOT use raw hex colors.
+- Mobile-first: layouts work from 360 px wide without horizontal overflow, with the breakpoints 480, 768, 1024 and 1280 px. Colors, spacing, radii, type, shadows and motion come from the `--app-*` design tokens in `apps/web/src/styles/_tokens.scss`, and Angular Material is themed from them; the interface is light only; components MUST NOT use raw hex colors.
+- The web app frame is a bottom tab bar below 1024 px and a top bar from 1024 px. Modules add tabs, account links and actions to it only through their manifest.
 - A screen is accepted only with its empty, loading and failure states; the failure state offers «Повторить». Every change a user makes shows a success toast or an error, and its button is disabled while it runs. Controls are labelled, focus is visible, contrast meets WCAG AA and reduced motion is respected.
 
 ### VIII. Tenants, ownership and permissions
@@ -136,4 +147,4 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - This constitution overrides the spec-kit templates and team habits. A plan MAY violate a principle only with a justification in its Complexity Tracking section.
 - Amending the constitution is a separate change that updates this file, its version and the reason in the Sync Impact Report.
 
-**Version**: 4.0.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08
+**Version**: 4.1.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08

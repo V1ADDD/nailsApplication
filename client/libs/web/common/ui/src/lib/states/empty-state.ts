@@ -5,10 +5,13 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
-      display: block;
-      padding: 64px 0;
+      display: grid;
+      justify-items: center;
+      gap: var(--app-space-2);
+      padding: var(--app-space-12) var(--app-space-6);
       text-align: center;
-      color: var(--mat-sys-on-surface-variant);
+      font-weight: var(--app-font-weight-bold);
+      color: var(--app-color-text);
     }
   `,
   template: '<p>{{ title() }}</p>'
