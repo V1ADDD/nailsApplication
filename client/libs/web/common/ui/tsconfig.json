@@ -1,0 +1,9 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../../../dist/out-tsc/libs/web/common/ui",
+    "declaration": true,
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

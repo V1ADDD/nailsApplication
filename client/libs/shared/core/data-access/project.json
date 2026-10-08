@@ -1,0 +1,19 @@
+{
+  "name": "shared-core-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/core/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:data-access", "name:core"],
+  "targets": {
+    "api-types": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node libs/shared/core/data-access/scripts/generate-api-types.mjs",
+          "prettier --write libs/shared/core/data-access/src/lib/api/schema.ts"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

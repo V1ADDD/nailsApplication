@@ -1,0 +1,63 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  NX_NO_CLOUD: true
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: api/global.json
+      - run: dotnet restore Starter.slnx --locked-mode
+      - run: dotnet build Starter.slnx --no-restore -c Release
+      - name: OpenAPI document is up to date
+        run: git diff --exit-code -- Starter.Api/openapi.json
+      - run: dotnet tool restore
+      - name: Migrations match the model
+        run: dotnet ef migrations has-pending-model-changes --project Starter.Infrastructure --startup-project Starter.Api --no-build --configuration Release
+      - name: No vulnerable packages
+        run: |
+          dotnet list Starter.slnx package --vulnerable --include-transitive | tee vulnerable.txt
+          ! grep -E -q "High|Critical" vulnerable.txt
+      - run: docker build .
+
+  client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm ci
+      - name: API types match the OpenAPI document
+        run: |
+          npx nx run shared-core-data-access:api-types
+          git diff --exit-code -- libs/shared/core/data-access/src/lib/api/schema.ts
+      - run: npx nx run-many -t lint typecheck knip format-check build
+      - run: npm audit --audit-level=high
+      - run: docker build .
