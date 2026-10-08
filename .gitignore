@@ -33,3 +33,6 @@ tmp/
 
 .claude/settings.local.json
 .claude/worktrees/
+
+/specs_draft/
+/specs_requests/

@@ -2,6 +2,7 @@ import type { Routes } from '@angular/router';
 
 export interface NavigationItem {
   label: string;
+  description: string;
   path: string;
 }
 

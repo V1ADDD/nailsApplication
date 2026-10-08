@@ -15,146 +15,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/notes': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          Search?: string;
-          Page?: number | string;
-          PageSize?: number | string;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PagedResponseOfNoteSummaryResponse'];
-          };
-        };
-      };
-    };
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateNoteRequest'];
-          'application/*+json': components['schemas']['CreateNoteRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['NoteResponse'];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/notes/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['NoteResponse'];
-          };
-        };
-      };
-    };
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateNoteRequest'];
-          'application/*+json': components['schemas']['UpdateNoteRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['NoteResponse'];
-          };
-        };
-      };
-    };
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/identity/register': {
     parameters: {
       query?: never;
@@ -489,10 +349,6 @@ export interface components {
       userId: string;
       code: string;
     };
-    CreateNoteRequest: {
-      title: string;
-      content?: string;
-    };
     EmailRequest: {
       email: string;
     };
@@ -523,35 +379,11 @@ export interface components {
       id: string;
       email: string;
       displayName: string;
-      role: components['schemas']['TenantRole'];
-      tenantId: string;
-      tenantName: string;
     };
     ModulesResponse: {
       enabled: string[];
     };
-    NoteResponse: {
-      id: string;
-      title: string;
-      content: string;
-      authorId: string;
-      createdAt: string;
-      updatedAt: string;
-      version: number | string;
-    };
-    NoteSummaryResponse: {
-      id: string;
-      title: string;
-      updatedAt: string;
-    };
-    PagedResponseOfNoteSummaryResponse: {
-      items: components['schemas']['NoteSummaryResponse'][];
-      page: number | string;
-      pageSize: number | string;
-      totalCount: number | string;
-    };
     RegisterRequest: {
-      organizationName: string;
       displayName: string;
       email: string;
       password: string;
@@ -568,12 +400,6 @@ export interface components {
       email: string;
       password: string;
       rememberMe?: boolean;
-    };
-    TenantRole: number;
-    UpdateNoteRequest: {
-      title: string;
-      content?: string;
-      version: number | string;
     };
   };
   responses: never;

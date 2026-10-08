@@ -5,7 +5,7 @@ import openapiTS, { astToString } from 'openapi-typescript';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const source =
-  process.env.OPENAPI_PATH ?? join(here, '..', '..', '..', '..', '..', '..', 'api', 'Starter.Api', 'openapi.json');
+  process.env.OPENAPI_PATH ?? join(here, '..', '..', '..', '..', '..', '..', 'api', 'Nails.Api', 'openapi.json');
 const output = join(here, '..', 'src', 'lib', 'api', 'schema.ts');
 
 const ast = await openapiTS(pathToFileURL(resolve(source)));

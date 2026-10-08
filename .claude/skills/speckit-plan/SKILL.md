@@ -143,7 +143,7 @@ Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated 
    - State transitions if applicable
 
 2. **Define interface contracts** (if the feature adds or changes endpoints) → `/contracts/`:
-   - Draft the endpoints of `api/Starter.Api` (browser endpoints under `/api/<module>/`) that the feature adds or changes
+   - Draft the endpoints of `api/Nails.Api` (browser endpoints under `/api/<module>/`) that the feature adds or changes
    - These drafts are proposals; the authoritative contract is the OpenAPI the API publishes after implementation, and client types are generated from it
    - Skip if the feature changes no interface
 

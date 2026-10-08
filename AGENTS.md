@@ -2,7 +2,8 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 
 ## Always
 
-- English only: code, identifiers, UI text, help content, configuration, specs, docs and commit messages. Other languages only as translations in their own language folders.
+- Language: English for code, identifiers, logs, configuration, specs, docs and commit messages. Every user-facing string is Russian (UI, problem details the UI shows, emails, help content in `Content/ru/`), written directly; there is no i18n framework.
+- Locale `ru-BY`, BYN, business time zone `Europe/Minsk`: prices, plurals, phones and non-breaking spaces only through the shared helpers in `client/libs/shared/common/util` (constitution, principle I).
 - No tests: no test projects, no test files, no test tasks.
 - No comments in code: no `//`, `///`, `/* */`, `<!-- -->`, and no `#` in scripts.
 - In `api/`, every model, DTO, options class, enum and interface lives in its own file named after the type.
@@ -12,10 +13,11 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 - Remove dead code in the same change: code, exports, settings, files and packages that nothing uses.
 - Rules are checked by tools and switched off only in `api/.editorconfig`, `client/eslint.config.mjs` or `client/knip.json`, with the reason in the current spec's `plan.md`; never in code.
 - User content stays private: no free text a user typed goes into logs, URLs or browser storage.
+- Never add a `Co-Authored-By` trailer or any other AI attribution line to commit messages or pull request descriptions.
 
 ## Help is part of every change
 
-- If a user can see or do something differently after a change, update `api/Starter.Api/Modules/Help/Content/<language>/` in the same change (articles in `articles/<module>.json`, `core` for the shell); otherwise say so in the report.
+- If a user can see or do something differently after a change, update `api/Nails.Api/Modules/Help/Content/<language>/` in the same change (articles in `articles/<module>.json`, `core` for the shell); otherwise say so in the report.
 - Write for users, quote on-screen messages exactly, keep article ids stable.
 
 ## Specs
@@ -26,12 +28,12 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 
 ## Definition of done
 
-1. In `api/`: `dotnet build Starter.slnx` has no warnings and `dotnet ef migrations has-pending-model-changes --project Starter.Infrastructure --startup-project Starter.Api` is clean. In `client/`: `npx nx run-many -t lint typecheck knip format-check build` passes.
-2. `dotnet list Starter.slnx package --vulnerable --include-transitive` and `npm audit --audit-level=high` find nothing high or critical.
-3. A contract change commits the rebuilt `api/Starter.Api/openapi.json` and the regenerated `client/libs/shared/core/data-access/src/lib/api/schema.ts`.
+1. In `api/`: `dotnet build Nails.slnx` has no warnings and `dotnet ef migrations has-pending-model-changes --project Nails.Infrastructure --startup-project Nails.Api` is clean. In `client/`: `npx nx run-many -t lint typecheck knip format-check build` passes.
+2. `dotnet list Nails.slnx package --vulnerable --include-transitive` and `npm audit --audit-level=high` find nothing high or critical.
+3. A contract change commits the rebuilt `api/Nails.Api/openapi.json` and the regenerated `client/libs/shared/core/data-access/src/lib/api/schema.ts`.
 4. A model change has an additive migration.
 5. Help, `README.md`, the current spec and the constitution match the code.
-6. No comments, dead code, duplication, hardcoded values, secrets or non-English text were added.
+6. No comments, dead code, duplication, hardcoded values or secrets were added; code is English and user-facing text is Russian.
 
 ## Vendor knowledge
 
@@ -42,7 +44,8 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 
 ## Core and modules
 
-- The core: `Common/` of each project, `Host/` in `Starter.Api`, `Persistence`, `Email` and `Options` in `Starter.Infrastructure`, the always-on `Identity` module, the switchable `Help` module, `client/libs/{shared,web}/{core,common}`.
+- The core: `Common/` of each project, `Host/` in `Nails.Api`, `Persistence`, `Email` and `Options` in `Nails.Infrastructure`, the always-on `Identity` and `Catalog` modules, the switchable `Help` module, `client/libs/{shared,web}/{core,common}`.
 - A module lives only in `Modules/<Module>/` of each api project and `client/libs/{shared,web,mobile}/<module>/`; registering it touches only `ModuleCatalog.cs`, `modules.ts`, `tsconfig.base.json`, the settings files and a migration.
-- Every module except `Identity` is switched by `Modules:<Module>:Enabled`; a disabled module exposes nothing and keeps its tables.
-- Another module is used only through `Identity` contracts; no shared tables, foreign keys or queries across module schemas.
+- Every module except `Identity` and `Catalog` is switched by `Modules:<Module>:Enabled`; a disabled module exposes nothing and keeps its tables.
+- Another module is used only through `Identity` and `Catalog` contracts; no shared tables, foreign keys or queries across module schemas.
+- Business rules are pure functions in `Nails.Application/Modules/<Module>/Rules/`; the server enforces every rule and permission.

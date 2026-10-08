@@ -1,11 +1,33 @@
 @use '@angular/material' as mat;
 
+:root {
+  --app-font: 'Manrope Variable', system-ui, sans-serif;
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 24px;
+  --app-space-6: 32px;
+  --app-space-7: 48px;
+  --app-radius-s: 8px;
+  --app-radius-m: 12px;
+  --app-radius-l: 20px;
+  --app-content-width: 1200px;
+  --app-form-width: 720px;
+}
+
 html {
   color-scheme: light dark;
   @include mat.theme(
     (
-      color: mat.$azure-palette,
-      typography: system-ui,
+      color: (
+        primary: mat.$rose-palette,
+        tertiary: mat.$orange-palette
+      ),
+      typography: (
+        plain-family: 'Manrope Variable',
+        brand-family: 'Manrope Variable'
+      ),
       density: 0
     )
   );
@@ -13,7 +35,40 @@ html {
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: var(--app-font);
   background: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font: var(--mat-sys-headline-small);
+  margin: 0 0 var(--app-space-4);
+}
+
+h2 {
+  font: var(--mat-sys-title-large);
+  margin: var(--app-space-5) 0 var(--app-space-3);
+}
+
+:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font: var(--mat-sys-headline-medium);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

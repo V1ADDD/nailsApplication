@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
-import { IdentityApi, toProblem, type Problem } from '@starter/shared/core/data-access';
-import { ProblemAlert } from '@starter/web/common/ui';
+import { IdentityApi, toProblem, type Problem } from '@nails/shared/core/data-access';
+import { ProblemAlert } from '@nails/web/common/ui';
 import { appPaths } from '../bootstrap/app-paths';
 import { AuthCard } from './auth-card';
 import { authFormStyles } from './auth-form.styles';
@@ -26,33 +26,29 @@ const minimumPasswordLength = 12;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: authFormStyles,
   template: `
-    <app-auth-card heading="Create account">
+    <app-auth-card heading="Регистрация">
       @if (sentTo(); as email) {
-        <p role="status">We sent a link to {{ email }}. Open it to confirm your email, then sign in.</p>
-        <a mat-flat-button [routerLink]="['/', paths.signIn]">Sign in</a>
+        <p role="status">Мы отправили ссылку на {{ email }}. Откройте её, чтобы подтвердить адрес, а затем войдите.</p>
+        <a mat-flat-button [routerLink]="['/', paths.signIn]">Войти</a>
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()">
           <app-problem-alert [problem]="problem()" />
           <mat-form-field>
-            <mat-label>Organization</mat-label>
-            <input matInput autocomplete="organization" formControlName="organizationName" required />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Your name</mat-label>
+            <mat-label>Ваше имя</mat-label>
             <input matInput autocomplete="name" formControlName="displayName" required />
           </mat-form-field>
           <mat-form-field>
-            <mat-label>Email</mat-label>
+            <mat-label>Электронная почта</mat-label>
             <input matInput type="email" autocomplete="email" formControlName="email" required />
           </mat-form-field>
           <mat-form-field>
-            <mat-label>Password</mat-label>
+            <mat-label>Пароль</mat-label>
             <input matInput type="password" autocomplete="new-password" formControlName="password" required />
-            <mat-hint>At least {{ minimumPasswordLength }} characters</mat-hint>
+            <mat-hint>Не короче {{ minimumPasswordLength }} символов</mat-hint>
           </mat-form-field>
-          <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Create account</button>
+          <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Создать аккаунт</button>
           <div class="links">
-            <a mat-button [routerLink]="['/', paths.signIn]">I already have an account</a>
+            <a mat-button [routerLink]="['/', paths.signIn]">У меня уже есть аккаунт</a>
           </div>
         </form>
       }
@@ -68,7 +64,6 @@ export class RegisterPage {
   protected readonly problem = signal<Problem | null>(null);
   protected readonly sentTo = signal<string | null>(null);
   protected readonly form = inject(NonNullableFormBuilder).group({
-    organizationName: ['', Validators.required],
     displayName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(minimumPasswordLength)]]

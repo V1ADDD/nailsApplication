@@ -164,9 +164,9 @@ Every task MUST strictly follow this format:
 **Examples**:
 
 - ✅ CORRECT: `- [ ] T001 Create project structure per implementation plan`
-- ✅ CORRECT: `- [ ] T005 [P] Add SessionController in api/Starter.Api/Modules/Identity/Controllers/SessionController.cs`
-- ✅ CORRECT: `- [ ] T012 [P] [US1] Create Project entity in api/Starter.Infrastructure/Modules/Projects/Entities/Project.cs`
-- ✅ CORRECT: `- [ ] T014 [US1] Implement ProjectService in api/Starter.Application/Modules/Projects/Services/ProjectService.cs`
+- ✅ CORRECT: `- [ ] T005 [P] Add SessionController in api/Nails.Api/Modules/Identity/Controllers/SessionController.cs`
+- ✅ CORRECT: `- [ ] T012 [P] [US1] Create Project entity in api/Nails.Infrastructure/Modules/Projects/Entities/Project.cs`
+- ✅ CORRECT: `- [ ] T014 [US1] Implement ProjectService in api/Nails.Application/Modules/Projects/Services/ProjectService.cs`
 - ❌ WRONG: `- [ ] Create User model` (missing ID and Story label)
 - ❌ WRONG: `T001 [US1] Create model` (missing checkbox)
 - ❌ WRONG: `- [ ] [US1] Create User model` (missing Task ID)

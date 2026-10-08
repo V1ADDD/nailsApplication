@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { Router, type CanActivateChildFn } from '@angular/router';
-import { SessionStore } from '@starter/shared/core/data-access';
+import { SessionStore } from '@nails/shared/core/data-access';
 import { appPaths, returnToParameter } from '../bootstrap/app-paths';
 
 export const requireSession: CanActivateChildFn = async (_route, state) => {

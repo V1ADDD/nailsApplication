@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { IdentityApi, toProblem, type Problem } from '@starter/shared/core/data-access';
-import { ProblemAlert } from '@starter/web/common/ui';
+import { IdentityApi, toProblem, type Problem } from '@nails/shared/core/data-access';
+import { ProblemAlert } from '@nails/web/common/ui';
 import { appPaths } from '../bootstrap/app-paths';
 import { AuthCard } from './auth-card';
 import { authFormStyles } from './auth-form.styles';
@@ -26,19 +26,19 @@ const minimumPasswordLength = 12;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: authFormStyles,
   template: `
-    <app-auth-card heading="Choose a new password">
+    <app-auth-card heading="Новый пароль">
       @if (done()) {
-        <p role="status">Your password is changed. Sign in with the new password.</p>
-        <a mat-flat-button [routerLink]="['/', paths.signIn]">Sign in</a>
+        <p role="status">Пароль изменён. Войдите с новым паролем.</p>
+        <a mat-flat-button [routerLink]="['/', paths.signIn]">Войти</a>
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()">
           <app-problem-alert [problem]="problem()" />
           <mat-form-field>
-            <mat-label>New password</mat-label>
+            <mat-label>Новый пароль</mat-label>
             <input matInput type="password" autocomplete="new-password" formControlName="newPassword" required />
-            <mat-hint>At least {{ minimumPasswordLength }} characters</mat-hint>
+            <mat-hint>Не короче {{ minimumPasswordLength }} символов</mat-hint>
           </mat-form-field>
-          <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Change password</button>
+          <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Сменить пароль</button>
         </form>
       }
     </app-auth-card>

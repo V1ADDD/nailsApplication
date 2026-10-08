@@ -19,9 +19,9 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
-- Infrastructure: `api/Starter.Infrastructure/Modules/<Module>/{Entities,Configurations,Contracts,Repositories,Models,Options}/`, migrations `api/Starter.Infrastructure/Persistence/Migrations/`
-- Application: `api/Starter.Application/Modules/<Module>/{Contracts,Services,Requests,Responses,Options}/`, registration `<Module>Module.cs`, the catalog `api/Starter.Application/Common/Modules/ModuleCatalog.cs`
-- API: `api/Starter.Api/Modules/<Module>/Controllers/`, settings `api/Starter.Api/appsettings.{Development,Docker,Production}.json`, help `api/Starter.Api/Modules/Help/Content/<language>/articles/<module>.json`
+- Infrastructure: `api/Nails.Infrastructure/Modules/<Module>/{Entities,Configurations,Contracts,Repositories,Models,Options}/`, migrations `api/Nails.Infrastructure/Persistence/Migrations/`
+- Application: `api/Nails.Application/Modules/<Module>/{Contracts,Services,Requests,Responses,Options}/`, registration `<Module>Module.cs`, the catalog `api/Nails.Application/Common/Modules/ModuleCatalog.cs`
+- API: `api/Nails.Api/Modules/<Module>/Controllers/`, settings `api/Nails.Api/appsettings.{Development,Docker,Production}.json`, help `api/Nails.Api/Modules/Help/Content/<language>/articles/<module>.json`
 - Client: `client/libs/shared/<module>/data-access/`, `client/libs/web/<module>/feature/`, module list `client/apps/web/src/modules.ts`, core `client/libs/{shared,web}/{core,common}/`
 
 ## Phase 1: Setup

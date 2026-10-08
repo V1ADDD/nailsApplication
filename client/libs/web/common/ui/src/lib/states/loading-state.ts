@@ -12,6 +12,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       padding: 64px 0;
     }
   `,
-  template: '<mat-spinner role="status" aria-label="Loading" />'
+  template: '<mat-spinner role="status" aria-label="Загрузка" />'
 })
 export class LoadingState {}

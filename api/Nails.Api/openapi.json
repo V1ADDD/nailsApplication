@@ -1,0 +1,510 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Nails.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/modules": {
+      "get": {
+        "tags": [
+          "Nails.Api"
+        ],
+        "operationId": "GetModules",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModulesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/identity/register": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/identity/confirm-email": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/resend-confirmation": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/forgot-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/reset-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/sign-in": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/sign-out": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/me": {
+      "get": {
+        "tags": [
+          "Session"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/help/content": {
+      "get": {
+        "tags": [
+          "Help"
+        ],
+        "parameters": [
+          {
+            "name": "language",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelpContentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConfirmEmailRequest": {
+        "required": [
+          "userId",
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "maxLength": 2048,
+            "type": "string"
+          }
+        }
+      },
+      "EmailRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 256,
+            "type": "string"
+          }
+        }
+      },
+      "HelpArticleResponse": {
+        "required": [
+          "id",
+          "module",
+          "title",
+          "summary",
+          "body"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "body": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HelpCompanyResponse": {
+        "required": [
+          "name",
+          "email",
+          "website"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          }
+        }
+      },
+      "HelpContentResponse": {
+        "required": [
+          "language",
+          "languages",
+          "site",
+          "company",
+          "articles"
+        ],
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string"
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "site": {
+            "$ref": "#/components/schemas/HelpSiteResponse"
+          },
+          "company": {
+            "$ref": "#/components/schemas/HelpCompanyResponse"
+          },
+          "articles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HelpArticleResponse"
+            }
+          }
+        }
+      },
+      "HelpSiteResponse": {
+        "required": [
+          "title",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "MeResponse": {
+        "required": [
+          "id",
+          "email",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "ModulesResponse": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RegisterRequest": {
+        "required": [
+          "displayName",
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 256,
+            "type": "string"
+          }
+        }
+      },
+      "RegisterResponse": {
+        "required": [
+          "requiresEmailConfirmation"
+        ],
+        "type": "object",
+        "properties": {
+          "requiresEmailConfirmation": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "required": [
+          "userId",
+          "code",
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "newPassword": {
+            "maxLength": 256,
+            "type": "string"
+          }
+        }
+      },
+      "SignInRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "rememberMe": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Nails.Api"
+    },
+    {
+      "name": "Account"
+    },
+    {
+      "name": "Session"
+    },
+    {
+      "name": "Help"
+    }
+  ]
+}

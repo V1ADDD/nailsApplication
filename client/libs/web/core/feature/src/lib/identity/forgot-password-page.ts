@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { IdentityApi, toProblem, type Problem } from '@starter/shared/core/data-access';
-import { ProblemAlert } from '@starter/web/common/ui';
+import { IdentityApi, toProblem, type Problem } from '@nails/shared/core/data-access';
+import { ProblemAlert } from '@nails/web/common/ui';
 import { appPaths } from '../bootstrap/app-paths';
 import { AuthCard } from './auth-card';
 import { authFormStyles } from './auth-form.styles';
@@ -24,21 +24,21 @@ import { authFormStyles } from './auth-form.styles';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: authFormStyles,
   template: `
-    <app-auth-card heading="Forgot password">
+    <app-auth-card heading="Восстановление пароля">
       @if (sentTo(); as email) {
-        <p role="status">If {{ email }} has an account, we sent it a link to choose a new password.</p>
+        <p role="status">Если для {{ email }} есть аккаунт, мы отправили на этот адрес ссылку для смены пароля.</p>
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()">
           <app-problem-alert [problem]="problem()" />
           <mat-form-field>
-            <mat-label>Email</mat-label>
+            <mat-label>Электронная почта</mat-label>
             <input matInput type="email" autocomplete="username" formControlName="email" required />
           </mat-form-field>
-          <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Send link</button>
+          <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Отправить ссылку</button>
         </form>
       }
       <div class="links">
-        <a mat-button [routerLink]="['/', paths.signIn]">Back to sign in</a>
+        <a mat-button [routerLink]="['/', paths.signIn]">Вернуться ко входу</a>
       </div>
     </app-auth-card>
   `

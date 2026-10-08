@@ -1,8 +1,0 @@
-namespace Starter.Infrastructure.Persistence;
-
-public static class DatabaseSchemas
-{
-    public const string Platform = "platform";
-    public const string Identity = "identity";
-    public const string Notes = "notes";
-}

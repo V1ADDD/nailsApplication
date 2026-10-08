@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Nails.Api/Nails.Api.csproj" />
+  <Project Path="Nails.Application/Nails.Application.csproj" />
+  <Project Path="Nails.Infrastructure/Nails.Infrastructure.csproj" />
+</Solution>

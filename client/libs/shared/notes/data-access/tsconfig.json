@@ -1,9 +1,0 @@
-{
-  "extends": "../../../../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "../../../../dist/out-tsc/libs/shared/notes/data-access",
-    "declaration": true,
-    "types": []
-  },
-  "include": ["src/**/*.ts"]
-}

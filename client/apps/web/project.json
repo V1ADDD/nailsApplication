@@ -14,7 +14,7 @@
         "browser": "apps/web/src/main.ts",
         "tsConfig": "apps/web/tsconfig.app.json",
         "assets": [{ "glob": "**/*", "input": "apps/web/public" }],
-        "styles": ["apps/web/src/styles.scss"]
+        "styles": ["@fontsource-variable/manrope/index.css", "apps/web/src/styles.scss"]
       },
       "configurations": {
         "production": {

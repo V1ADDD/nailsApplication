@@ -20,13 +20,12 @@
     "skipLibCheck": true,
     "types": [],
     "paths": {
-      "@starter/shared/core/data-access": ["./libs/shared/core/data-access/src/index.ts"],
-      "@starter/shared/help/data-access": ["./libs/shared/help/data-access/src/index.ts"],
-      "@starter/shared/notes/data-access": ["./libs/shared/notes/data-access/src/index.ts"],
-      "@starter/web/common/ui": ["./libs/web/common/ui/src/index.ts"],
-      "@starter/web/core/feature": ["./libs/web/core/feature/src/index.ts"],
-      "@starter/web/help/feature": ["./libs/web/help/feature/src/index.ts"],
-      "@starter/web/notes/feature": ["./libs/web/notes/feature/src/index.ts"]
+      "@nails/shared/common/util": ["./libs/shared/common/util/src/index.ts"],
+      "@nails/shared/core/data-access": ["./libs/shared/core/data-access/src/index.ts"],
+      "@nails/shared/help/data-access": ["./libs/shared/help/data-access/src/index.ts"],
+      "@nails/web/common/ui": ["./libs/web/common/ui/src/index.ts"],
+      "@nails/web/core/feature": ["./libs/web/core/feature/src/index.ts"],
+      "@nails/web/help/feature": ["./libs/web/help/feature/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
