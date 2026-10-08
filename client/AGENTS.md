@@ -11,12 +11,13 @@ Client rules on top of the root `AGENTS.md` and the constitution. Stack: Nx 23, 
 ## Rules
 
 - Every user-facing string is Russian and written directly in the template (labels, buttons, titles, empty and error states with «Повторить», aria labels, toasts). Prices, phones, dates, durations and counts only through the helpers in `libs/shared/common/util`; never format them by hand.
+- Forms use native inputs with the global classes `.app-field`, `.app-field-label`, `.app-field-hint`, `.app-field-error`, `.app-input` (labels above, as in the old app); buttons are Material buttons with `.app-large`, `.app-small`, `.app-block`, `.app-pill`, `.app-gradient`, `.app-danger-soft`.
 - Mobile-first: no horizontal overflow at 360 px, breakpoints 480, 768, 1024, 1280 px, `minmax(0, 1fr)` columns; colors, spacing, radii, type, shadows and motion from the `--app-*` tokens (`apps/web/src/styles/_tokens.scss`), breakpoints through `@use 'breakpoints' as bp` in component styles, no hex colors in components; light only.
 - Keep the initial bundle small: put code used by one module in that module, not in `common`, because a barrel import pulls its Material dependencies into the main chunk. Sheets and toasts live in `libs/web/common/overlays` for this reason.
 - Standalone components, `ChangeDetectionStrategy.OnPush`, zoneless; signals, `computed`, `input()`, `output()`, `httpResource()`; built-in control flow; `inject()`.
 - Call the API only with relative `/api/...` URLs through `HttpClient`, so the session cookie and the XSRF header work. Never store tokens or user data in browser storage.
 - Reads use `httpResource`; changes use a `data-access` service that returns promises. Request and response types come only from `Schemas` (`@nails/shared/core/data-access`).
-- Errors are shown with `toProblem()` and `app-problem-alert`; the API's `title` is the message the user sees.
+- Errors are read with `toProblem()`; the API's `title` is the message the user sees: under the field it belongs to (`.app-field-error`, `role="alert"`) or in an error toast (`Toasts`).
 - Read a resource only after `hasValue()`; every screen has its empty, loading and failure states; every control has a visible label or an `aria-label`.
 - A module's routes are in its manifest, loaded by a dynamic `import()` in `modules.ts`, so a disabled module's code is never downloaded.
 - `unknown` and narrowing, never `any`; no `I` prefix on interfaces; kebab-case file names; selectors use the `app` prefix.

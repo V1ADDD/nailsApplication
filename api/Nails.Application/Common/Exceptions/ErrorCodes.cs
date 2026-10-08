@@ -10,10 +10,9 @@ public static class ErrorCodes
     public const string Conflict = "conflict";
     public const string RateLimited = "rate-limited";
     public const string Antiforgery = "antiforgery";
-    public const string CredentialsRejected = "credentials-rejected";
-    public const string EmailNotConfirmed = "email-not-confirmed";
-    public const string LockedOut = "locked-out";
-    public const string RegistrationClosed = "registration-closed";
-    public const string LinkInvalid = "link-invalid";
     public const string SessionEnded = "session-ended";
+    public const string PhoneInvalid = "phone-invalid";
+    public const string CodeTooSoon = "code-too-soon";
+    public const string CodeInvalid = "code-invalid";
+    public const string CodeExpired = "code-expired";
 }

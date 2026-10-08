@@ -31,9 +31,12 @@ export class SessionStore {
     return this.loading ?? this.load();
   }
 
-  async signIn(request: Schemas['SignInRequest']): Promise<void> {
-    await firstValueFrom(this.http.post<unknown>(apiPaths.signIn, request));
-    await this.load();
+  async signIn(request: Schemas['SignInRequest']): Promise<Schemas['SignInResponse']> {
+    const response = await firstValueFrom(this.http.post<Schemas['SignInResponse']>(apiPaths.signIn, request));
+    if (!response.nameRequired) {
+      await this.load();
+    }
+    return response;
   }
 
   async signOut(): Promise<void> {

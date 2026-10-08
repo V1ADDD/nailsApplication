@@ -26,7 +26,7 @@ import { Icon, Viewport } from '@nails/web/common/ui';
       align-items: center;
       justify-content: space-between;
       gap: var(--app-space-2);
-      padding: var(--app-space-4) var(--app-space-3) var(--app-space-2) var(--app-space-5);
+      padding: var(--app-space-3) var(--app-space-3) var(--app-space-2) var(--app-space-5);
     }
     h2 {
       margin: 0;
@@ -41,10 +41,10 @@ import { Icon, Viewport } from '@nails/web/common/ui';
     .body {
       flex: 1;
       overflow-y: auto;
-      padding: var(--app-space-2) var(--app-space-5) var(--app-space-4);
+      padding: 0 var(--app-space-5) var(--app-space-4);
     }
     footer {
-      padding: var(--app-space-3) var(--app-space-5) var(--app-space-5);
+      padding: var(--app-space-3) var(--app-space-5) var(--app-space-4);
       border-top: 1px solid var(--app-color-border);
     }
     footer:empty {

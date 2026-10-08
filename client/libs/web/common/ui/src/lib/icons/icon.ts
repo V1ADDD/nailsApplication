@@ -16,6 +16,7 @@ import { iconPaths, type IconName } from './icon-paths';
     :host {
       display: inline-flex;
       flex-shrink: 0;
+      vertical-align: middle;
     }
     svg {
       width: 100%;

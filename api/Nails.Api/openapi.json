@@ -59,21 +59,21 @@
         }
       }
     },
-    "/api/identity/register": {
+    "/api/identity/sign-in/code": {
       "post": {
         "tags": [
-          "Account"
+          "Session"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterRequest"
+                "$ref": "#/components/schemas/PhoneCodeRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterRequest"
+                "$ref": "#/components/schemas/PhoneCodeRequest"
               }
             }
           },
@@ -85,118 +85,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisterResponse"
+                  "$ref": "#/components/schemas/PhoneCodeResponse"
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/identity/confirm-email": {
-      "post": {
-        "tags": [
-          "Account"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfirmEmailRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfirmEmailRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/identity/resend-confirmation": {
-      "post": {
-        "tags": [
-          "Account"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/identity/forgot-password": {
-      "post": {
-        "tags": [
-          "Account"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/identity/reset-password": {
-      "post": {
-        "tags": [
-          "Account"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ResetPasswordRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ResetPasswordRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -223,7 +115,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignInResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -286,27 +185,48 @@
           }
         }
       }
+    },
+    "/api/help/images/{language}/{articleId}/{fileName}": {
+      "get": {
+        "tags": [
+          "Help"
+        ],
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "articleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "ConfirmEmailRequest": {
-        "required": [
-          "userId",
-          "code"
-        ],
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "code": {
-            "maxLength": 2048,
-            "type": "string"
-          }
-        }
-      },
       "CreateSupportTicketRequest": {
         "required": [
           "text"
@@ -338,47 +258,112 @@
           }
         }
       },
-      "EmailRequest": {
-        "required": [
-          "email"
-        ],
-        "type": "object",
-        "properties": {
-          "email": {
-            "maxLength": 256,
-            "type": "string"
-          }
-        }
-      },
       "HelpArticleResponse": {
         "required": [
           "id",
-          "module",
           "title",
           "summary",
-          "body"
+          "keywords",
+          "blocks"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "module": {
-            "type": "string"
-          },
           "title": {
             "type": "string"
           },
           "summary": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
-          "body": {
+          "keywords": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HelpBlockResponse"
+            }
           }
         }
+      },
+      "HelpBlockResponse": {
+        "required": [
+          "type",
+          "text",
+          "tone",
+          "items",
+          "articleIds",
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/HelpBlockType"
+          },
+          "text": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tone": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HelpNoteTone"
+              }
+            ]
+          },
+          "items": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "articleIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "image": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HelpImageResponse"
+              }
+            ]
+          }
+        }
+      },
+      "HelpBlockType": {
+        "enum": [
+          "heading",
+          "paragraph",
+          "list",
+          "steps",
+          "note",
+          "related",
+          "image"
+        ]
       },
       "HelpCompanyResponse": {
         "required": [
@@ -401,28 +386,79 @@
       },
       "HelpContentResponse": {
         "required": [
-          "language",
-          "languages",
           "site",
           "company",
-          "articles"
+          "sections"
         ],
         "type": "object",
         "properties": {
-          "language": {
-            "type": "string"
-          },
-          "languages": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "site": {
             "$ref": "#/components/schemas/HelpSiteResponse"
           },
           "company": {
             "$ref": "#/components/schemas/HelpCompanyResponse"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HelpSectionResponse"
+            }
+          }
+        }
+      },
+      "HelpImageResponse": {
+        "required": [
+          "url",
+          "alt",
+          "caption",
+          "width",
+          "height"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "alt": {
+            "type": "string"
+          },
+          "caption": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "HelpNoteTone": {
+        "enum": [
+          "info",
+          "tip",
+          "warning",
+          null
+        ]
+      },
+      "HelpSectionResponse": {
+        "required": [
+          "id",
+          "title",
+          "articles"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
           },
           "articles": {
             "type": "array",
@@ -450,8 +486,8 @@
       "MeResponse": {
         "required": [
           "id",
-          "email",
-          "displayName"
+          "name",
+          "phone"
         ],
         "type": "object",
         "properties": {
@@ -459,11 +495,14 @@
             "type": "string",
             "format": "uuid"
           },
-          "email": {
+          "name": {
             "type": "string"
           },
-          "displayName": {
-            "type": "string"
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -481,77 +520,66 @@
           }
         }
       },
-      "RegisterRequest": {
+      "PhoneCodeRequest": {
         "required": [
-          "displayName",
-          "email",
-          "password"
+          "phone"
         ],
         "type": "object",
         "properties": {
-          "displayName": {
-            "maxLength": 200,
-            "type": "string"
-          },
-          "email": {
-            "maxLength": 256,
-            "type": "string"
-          },
-          "password": {
-            "maxLength": 256,
+          "phone": {
+            "maxLength": 32,
             "type": "string"
           }
         }
       },
-      "RegisterResponse": {
+      "PhoneCodeResponse": {
         "required": [
-          "requiresEmailConfirmation"
+          "codeLength",
+          "resendAfterSeconds"
         ],
         "type": "object",
         "properties": {
-          "requiresEmailConfirmation": {
-            "type": "boolean"
-          }
-        }
-      },
-      "ResetPasswordRequest": {
-        "required": [
-          "userId",
-          "code",
-          "newPassword"
-        ],
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "string",
-            "format": "uuid"
+          "codeLength": {
+            "type": "integer",
+            "format": "int32"
           },
-          "code": {
-            "maxLength": 2048,
-            "type": "string"
-          },
-          "newPassword": {
-            "maxLength": 256,
-            "type": "string"
+          "resendAfterSeconds": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
       "SignInRequest": {
         "required": [
-          "email",
-          "password"
+          "phone",
+          "code"
         ],
         "type": "object",
         "properties": {
-          "email": {
-            "maxLength": 256,
+          "phone": {
+            "maxLength": 32,
             "type": "string"
           },
-          "password": {
-            "maxLength": 256,
+          "code": {
+            "maxLength": 8,
             "type": "string"
           },
-          "rememberMe": {
+          "name": {
+            "maxLength": 200,
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "SignInResponse": {
+        "required": [
+          "nameRequired"
+        ],
+        "type": "object",
+        "properties": {
+          "nameRequired": {
             "type": "boolean"
           }
         }
@@ -564,9 +592,6 @@
     },
     {
       "name": "Tickets"
-    },
-    {
-      "name": "Account"
     },
     {
       "name": "Session"

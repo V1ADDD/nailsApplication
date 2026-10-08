@@ -8,23 +8,7 @@ import { apiPaths } from '../http/api-paths';
 export class IdentityApi {
   private readonly http = inject(HttpClient);
 
-  register(request: Schemas['RegisterRequest']): Promise<Schemas['RegisterResponse']> {
-    return firstValueFrom(this.http.post<Schemas['RegisterResponse']>(apiPaths.register, request));
-  }
-
-  async confirmEmail(request: Schemas['ConfirmEmailRequest']): Promise<void> {
-    await firstValueFrom(this.http.post<unknown>(apiPaths.confirmEmail, request));
-  }
-
-  async resendConfirmation(request: Schemas['EmailRequest']): Promise<void> {
-    await firstValueFrom(this.http.post<unknown>(apiPaths.resendConfirmation, request));
-  }
-
-  async forgotPassword(request: Schemas['EmailRequest']): Promise<void> {
-    await firstValueFrom(this.http.post<unknown>(apiPaths.forgotPassword, request));
-  }
-
-  async resetPassword(request: Schemas['ResetPasswordRequest']): Promise<void> {
-    await firstValueFrom(this.http.post<unknown>(apiPaths.resetPassword, request));
+  requestCode(request: Schemas['PhoneCodeRequest']): Promise<Schemas['PhoneCodeResponse']> {
+    return firstValueFrom(this.http.post<Schemas['PhoneCodeResponse']>(apiPaths.signInCode, request));
   }
 }

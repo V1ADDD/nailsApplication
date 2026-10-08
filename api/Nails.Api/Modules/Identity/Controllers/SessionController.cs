@@ -12,14 +12,17 @@ namespace Nails.Api.Modules.Identity.Controllers;
 [Route("")]
 public sealed class SessionController(ISessionService sessions) : ControllerBase
 {
+    [HttpPost("sign-in/code")]
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingExtensions.IdentityPolicy)]
+    public Task<PhoneCodeResponse> RequestCode(PhoneCodeRequest request, CancellationToken cancellationToken) =>
+        sessions.RequestCodeAsync(request, cancellationToken);
+
     [HttpPost("sign-in")]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitingExtensions.IdentityPolicy)]
-    public async Task<IActionResult> StartSession(SignInRequest request, CancellationToken cancellationToken)
-    {
-        await sessions.SignInAsync(request, cancellationToken);
-        return NoContent();
-    }
+    public Task<SignInResponse> StartSession(SignInRequest request, CancellationToken cancellationToken) =>
+        sessions.SignInAsync(request, cancellationToken);
 
     [HttpPost("sign-out")]
     [AllowAnonymous]

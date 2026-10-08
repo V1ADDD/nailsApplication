@@ -1,109 +1,328 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  type ElementRef,
+  inject,
+  Injector,
+  input,
+  signal,
+  viewChild
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { Router, RouterLink } from '@angular/router';
-import { IdentityApi, SessionStore, toProblem, type Problem } from '@nails/shared/core/data-access';
-import { ProblemAlert } from '@nails/web/common/ui';
+import { Router } from '@angular/router';
+import { formatCountdown, formatPhone, formatPhoneInput } from '@nails/shared/common/util';
+import { IdentityApi, SessionStore, toProblem } from '@nails/shared/core/data-access';
+import { Toasts } from '@nails/web/common/overlays';
 import { appPaths } from '../bootstrap/app-paths';
-import { AuthCard } from './auth-card';
-import { authFormStyles } from './auth-form.styles';
+import { CodeInput } from './code-input';
 import { safeReturnTo } from './safe-return-to';
+import { SignInCard } from './sign-in-card';
 
-const emailNotConfirmed = 'email-not-confirmed';
+type SignInStep = 'phone' | 'code' | 'name';
+
+const countryCode = '+375';
+const phoneDigits = 9;
+const millisecondsPerSecond = 1000;
+const nameMaxLength = 120;
+const errorId = 'sign-in-error';
 
 @Component({
   selector: 'app-sign-in-page',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
-    AuthCard,
-    ProblemAlert
-  ],
+  imports: [MatButtonModule, CodeInput, SignInCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: authFormStyles,
+  styles: `
+    :host {
+      display: block;
+    }
+    form {
+      display: grid;
+      gap: var(--app-space-4);
+    }
+    .lead {
+      color: var(--app-color-text-secondary);
+    }
+    .lead strong {
+      color: var(--app-color-text);
+      white-space: nowrap;
+    }
+    .phone {
+      position: relative;
+      display: block;
+    }
+    .phone .prefix {
+      position: absolute;
+      top: 50%;
+      left: var(--app-space-4);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .phone .app-input {
+      padding-left: 3.75rem;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--app-space-2);
+    }
+    .muted {
+      font-size: var(--app-font-size-sm);
+      color: var(--app-color-text-muted);
+    }
+    .status {
+      font-size: var(--app-font-size-sm);
+      color: var(--app-color-text-secondary);
+    }
+  `,
   template: `
-    <app-auth-card heading="Вход в «Мастера рядом»">
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <app-problem-alert [problem]="problem()" />
-        @if (problem()?.code === emailNotConfirmed) {
-          <button mat-button type="button" (click)="resend()">Отправить ссылку ещё раз</button>
+    <app-sign-in-card>
+      @switch (step()) {
+        @case ('phone') {
+          <h1>Вход</h1>
+          <p class="lead">
+            Записывайтесь к мастерам, переписывайтесь и храните избранное. Если вы мастер — ведите график и клиентов в
+            том же аккаунте.
+          </p>
+          <form (submit)="requestCode($event)">
+            <label class="app-field">
+              <span class="app-field-label">Телефон</span>
+              <span class="phone">
+                <span class="prefix" aria-hidden="true">+375</span>
+                <input
+                  #phoneField
+                  class="app-input"
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel-national"
+                  placeholder="(29) 123-45-67"
+                  aria-label="Телефон, после +375"
+                  [attr.aria-invalid]="error() !== null"
+                  [attr.aria-describedby]="error() ? errorId : null"
+                  [value]="phoneText()"
+                  (input)="phoneChanged($event)"
+                />
+              </span>
+              @if (error(); as message) {
+                <span class="app-field-error" role="alert" [id]="errorId">{{ message }}</span>
+              }
+            </label>
+            <button mat-flat-button class="app-large app-block" type="submit" [disabled]="busy() || !phoneComplete()">
+              {{ busy() ? 'Отправляем…' : 'Получить код' }}
+            </button>
+          </form>
         }
-        @if (notice()) {
-          <p role="status">{{ notice() }}</p>
+        @case ('code') {
+          <h1>Введите код из SMS</h1>
+          <p class="lead">
+            Код отправлен на <strong>{{ shownPhone() }}</strong>
+          </p>
+          <app-code-input
+            [length]="codeLength()"
+            [disabled]="busy()"
+            [invalid]="error() !== null"
+            [describedBy]="error() ? errorId : null"
+            (completed)="checkCode($event)"
+          />
+          @if (error(); as message) {
+            <span class="app-field-error" role="alert" [id]="errorId">{{ message }}</span>
+          }
+          @if (busy()) {
+            <p class="status" role="status">Проверяем…</p>
+          }
+          <div class="actions">
+            @if (resendIn() > 0) {
+              <p class="muted">Запросить код повторно через {{ countdown() }}</p>
+            } @else {
+              <button mat-button class="app-small" type="button" [disabled]="busy()" (click)="resend()">
+                Запросить код повторно
+              </button>
+            }
+            <button mat-button class="app-small" type="button" [disabled]="busy()" (click)="changePhone()">
+              Изменить номер
+            </button>
+          </div>
         }
-        <mat-form-field>
-          <mat-label>Электронная почта</mat-label>
-          <input matInput type="email" autocomplete="username" formControlName="email" required />
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Пароль</mat-label>
-          <input matInput type="password" autocomplete="current-password" formControlName="password" required />
-        </mat-form-field>
-        <mat-checkbox formControlName="rememberMe">Не выходить на этом устройстве</mat-checkbox>
-        <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">Войти</button>
-        <div class="links">
-          <a mat-button [routerLink]="['/', paths.forgotPassword]">Забыли пароль?</a>
-          <a mat-button [routerLink]="['/', paths.register]">Создать аккаунт</a>
-        </div>
-      </form>
-    </app-auth-card>
+        @case ('name') {
+          <h1>Как вас зовут?</h1>
+          <p class="lead">
+            Аккаунта с номером <strong>{{ shownPhone() }}</strong> ещё нет. Укажите имя, и мы его создадим.
+          </p>
+          <form (submit)="finish($event)">
+            <label class="app-field">
+              <span class="app-field-label">Имя</span>
+              <input
+                #nameField
+                class="app-input"
+                autocomplete="name"
+                [maxLength]="nameMaxLength"
+                [attr.aria-invalid]="error() !== null"
+                [attr.aria-describedby]="error() ? errorId : null"
+                [value]="name()"
+                (input)="nameChanged($event)"
+              />
+              @if (error(); as message) {
+                <span class="app-field-error" role="alert" [id]="errorId">{{ message }}</span>
+              }
+            </label>
+            <button mat-flat-button class="app-large app-block" type="submit" [disabled]="busy()">
+              {{ busy() ? 'Создаём…' : 'Продолжить' }}
+            </button>
+          </form>
+        }
+      }
+    </app-sign-in-card>
   `
 })
 export class SignInPage {
   readonly returnTo = input<string>();
-  protected readonly paths = appPaths;
-  protected readonly emailNotConfirmed = emailNotConfirmed;
+  protected readonly errorId = errorId;
+  protected readonly nameMaxLength = nameMaxLength;
   private readonly session = inject(SessionStore);
   private readonly identity = inject(IdentityApi);
+  private readonly toasts = inject(Toasts);
   private readonly router = inject(Router);
-  protected readonly submitting = signal(false);
-  protected readonly problem = signal<Problem | null>(null);
-  protected readonly notice = signal<string | null>(null);
-  protected readonly form = inject(NonNullableFormBuilder).group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
-    rememberMe: [false]
-  });
+  private readonly injector = inject(Injector);
+  protected readonly step = signal<SignInStep>('phone');
+  protected readonly busy = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly digits = signal('');
+  protected readonly name = signal('');
+  protected readonly codeLength = signal(6);
+  private readonly code = signal('');
+  private readonly resendAt = signal(0);
+  private readonly now = signal(Date.now());
+  protected readonly phoneText = computed(() => formatPhoneInput(this.digits()));
+  protected readonly phoneComplete = computed(() => this.digits().length === phoneDigits);
+  protected readonly shownPhone = computed(() => formatPhone(this.phone()));
+  protected readonly resendIn = computed(() => Math.max(0, (this.resendAt() - this.now()) / millisecondsPerSecond));
+  protected readonly countdown = computed(() => formatCountdown(this.resendIn()));
+  private readonly phoneField = viewChild<ElementRef<HTMLInputElement>>('phoneField');
+  private readonly nameField = viewChild<ElementRef<HTMLInputElement>>('nameField');
+  private readonly codeInput = viewChild(CodeInput);
 
   constructor() {
+    const timer = setInterval(() => this.now.set(Date.now()), millisecondsPerSecond);
+    inject(DestroyRef).onDestroy(() => clearInterval(timer));
     effect(() => {
-      if (this.session.status() === 'signed-in' && !this.submitting()) {
-        void this.router.navigateByUrl(safeReturnTo(this.returnTo()), { replaceUrl: true });
+      if (this.session.status() === 'signed-in' && !this.busy()) {
+        void this.router.navigateByUrl(this.destination(), { replaceUrl: true });
       }
     });
+    this.focusStep();
   }
 
-  protected async submit(): Promise<void> {
-    if (this.form.invalid) {
+  protected phoneChanged(event: Event): void {
+    const field = event.target as HTMLInputElement;
+    const raw = field.value.replace(/\D/g, '');
+    const local = raw.length > phoneDigits && raw.startsWith('375') ? raw.slice(3) : raw;
+    this.digits.set(local.slice(0, phoneDigits));
+    field.value = this.phoneText();
+    this.error.set(null);
+  }
+
+  protected nameChanged(event: Event): void {
+    this.name.set((event.target as HTMLInputElement).value);
+    this.error.set(null);
+  }
+
+  protected async requestCode(event: Event): Promise<void> {
+    event.preventDefault();
+    if (!this.phoneComplete()) {
       return;
     }
-    this.submitting.set(true);
-    this.problem.set(null);
-    this.notice.set(null);
-    try {
-      await this.session.signIn(this.form.getRawValue());
-      await this.router.navigateByUrl(safeReturnTo(this.returnTo()), { replaceUrl: true });
-    } catch (error) {
-      this.problem.set(toProblem(error));
-      this.submitting.set(false);
+    if (await this.sendCode()) {
+      this.step.set('code');
+      this.focusStep();
     }
   }
 
   protected async resend(): Promise<void> {
-    const email = this.form.controls.email.value;
-    try {
-      await this.identity.resendConfirmation({ email });
-      this.problem.set(null);
-      this.notice.set(`Мы отправили новую ссылку на ${email}.`);
-    } catch (error) {
-      this.problem.set(toProblem(error));
+    this.codeInput()?.clear();
+    await this.sendCode();
+  }
+
+  protected changePhone(): void {
+    this.error.set(null);
+    this.step.set('phone');
+    this.focusStep();
+  }
+
+  protected async checkCode(code: string): Promise<void> {
+    this.code.set(code);
+    await this.signIn(null);
+  }
+
+  protected async finish(event: Event): Promise<void> {
+    event.preventDefault();
+    const name = this.name().trim();
+    if (name === '') {
+      this.error.set('Введите имя');
+      return;
     }
+    await this.signIn(name);
+  }
+
+  private async sendCode(): Promise<boolean> {
+    this.busy.set(true);
+    this.error.set(null);
+    try {
+      const response = await this.identity.requestCode({ phone: this.phone() });
+      this.codeLength.set(response.codeLength);
+      this.resendAt.set(Date.now() + response.resendAfterSeconds * millisecondsPerSecond);
+      return true;
+    } catch (error) {
+      this.error.set(toProblem(error).title);
+      return false;
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  private async signIn(name: string | null): Promise<void> {
+    this.busy.set(true);
+    this.error.set(null);
+    try {
+      const response = await this.session.signIn({ phone: this.phone(), code: this.code(), name });
+      if (response.nameRequired) {
+        this.busy.set(false);
+        this.step.set('name');
+        this.focusStep();
+        return;
+      }
+      if (name !== null) {
+        this.toasts.success('Добро пожаловать!');
+      }
+      await this.router.navigateByUrl(this.destination(), { replaceUrl: true });
+    } catch (error) {
+      this.busy.set(false);
+      this.error.set(toProblem(error).title);
+      if (this.step() === 'code') {
+        this.codeInput()?.clear();
+      }
+    }
+  }
+
+  private phone(): string {
+    return countryCode + this.digits();
+  }
+
+  private destination(): string {
+    return safeReturnTo(this.returnTo(), `/${appPaths.profile}`);
+  }
+
+  private focusStep(): void {
+    afterNextRender(
+      () => {
+        this.phoneField()?.nativeElement.focus();
+        this.nameField()?.nativeElement.focus();
+        this.codeInput()?.focus();
+      },
+      { injector: this.injector }
+    );
   }
 }

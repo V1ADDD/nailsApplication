@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Nails.Application.Common.Modules;
 using Nails.Application.Modules.Identity.Contracts;
 using Nails.Application.Modules.Identity.Options;
@@ -12,6 +11,8 @@ using Nails.Application.Modules.Identity.Services;
 using Nails.Infrastructure.Common;
 using Nails.Infrastructure.Modules.Identity.Contracts;
 using Nails.Infrastructure.Modules.Identity.Entities;
+using Nails.Infrastructure.Modules.Identity.Integrations.Sms;
+using Nails.Infrastructure.Modules.Identity.Options;
 using Nails.Infrastructure.Modules.Identity.Repositories;
 using Nails.Infrastructure.Persistence;
 
@@ -28,9 +29,8 @@ public sealed class IdentityModule : IAppModule
 
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddValidatedOptions<LinkTokenOptions>(configuration, LinkTokenOptions.SectionName);
-        services.AddValidatedOptions<RegistrationOptions>(configuration, RegistrationOptions.SectionName);
-        services.AddValidatedOptions<BootstrapOptions>(configuration, BootstrapOptions.SectionName);
+        services.AddValidatedOptions<PhoneCodeOptions>(configuration, PhoneCodeOptions.SectionName);
+        services.AddValidatedOptions<SmsOptions>(configuration, SmsOptions.SectionName);
         services.AddValidatedOptions<SignInLimitOptions>(configuration, SignInLimitOptions.SectionName);
 
         services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
@@ -38,7 +38,6 @@ public sealed class IdentityModule : IAppModule
         services.AddIdentityCore<ApplicationUser>(options => configuration.GetSection(IdentitySection).Bind(options))
             .AddEntityFrameworkStores<AppDbContext>()
             .AddSignInManager()
-            .AddDefaultTokenProviders()
             .AddErrorDescriber<RussianIdentityErrorDescriber>()
             .AddClaimsPrincipalFactory<TenantClaimsPrincipalFactory>();
 
@@ -55,16 +54,13 @@ public sealed class IdentityModule : IAppModule
             };
         });
 
-        services.AddOptions<DataProtectionTokenProviderOptions>()
-            .Configure<IOptions<LinkTokenOptions>>((options, tokens) => options.TokenLifespan = tokens.Value.TokenLifespan);
-
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<CurrentUser>();
         services.AddScoped<ICurrentUser>(provider => provider.GetRequiredService<CurrentUser>());
         services.AddScoped<UserFactory>();
+        services.AddScoped<IPhoneCodeRepository, PhoneCodeRepository>();
+        services.AddScoped<ISmsSender, EmailSmsSender>();
         services.AddScoped<ISessionService, SessionService>();
-        services.AddScoped<IAccountService, AccountService>();
-        services.AddScoped<IIdentityBootstrapper, IdentityBootstrapper>();
     }
 
     private static Task Status(RedirectContext<CookieAuthenticationOptions> context, int status)

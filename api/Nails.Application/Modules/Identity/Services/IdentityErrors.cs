@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Nails.Application.Common.Exceptions;
 
@@ -5,30 +6,33 @@ namespace Nails.Application.Modules.Identity.Services;
 
 public static class IdentityErrors
 {
-    private const string EmailField = "email";
-    private const string PasswordField = "password";
+    private const string PhoneField = "phone";
+    private const string NameField = "name";
     private const string GeneralField = "";
-    private const string PasswordPrefix = "Password";
-    private const string EmailCode = "Email";
-    private const string UserNameCode = "UserName";
+    private const string PhoneInvalidTitle = "Введите номер в формате +375 XX XXX-XX-XX";
+    private const string NameInvalidTitle = "Введите имя";
 
-    public static InvalidRequestException LinkInvalid() =>
-        new(ErrorCodes.LinkInvalid, "Ссылка недействительна или устарела.");
+    public static InvalidRequestException PhoneInvalid() =>
+        new(ErrorCodes.PhoneInvalid, PhoneInvalidTitle, Field(PhoneField, PhoneInvalidTitle));
 
-    public static UnauthorizedException CredentialsRejected() =>
-        new(ErrorCodes.CredentialsRejected, "Неверный адрес электронной почты или пароль.");
+    public static InvalidRequestException NameInvalid() =>
+        new(ErrorCodes.InvalidRequest, NameInvalidTitle, Field(NameField, NameInvalidTitle));
 
-    public static InvalidRequestException From(IdentityResult result)
-    {
-        var errors = result.Errors
-            .GroupBy(error => FieldOf(error.Code))
-            .ToDictionary(group => group.Key, group => group.Select(error => error.Description).Distinct(StringComparer.Ordinal).ToArray());
+    public static InvalidRequestException CodeInvalid() => new(ErrorCodes.CodeInvalid, "Неверный код");
 
-        return new InvalidRequestException(ErrorCodes.InvalidRequest, InvalidRequestException.DefaultTitle, errors);
-    }
+    public static InvalidRequestException CodeExpired() => new(ErrorCodes.CodeExpired, "Код устарел. Запросите новый.");
 
-    private static string FieldOf(string code) =>
-        code.StartsWith(PasswordPrefix, StringComparison.Ordinal) ? PasswordField
-        : code.Contains(EmailCode, StringComparison.Ordinal) || code.Contains(UserNameCode, StringComparison.Ordinal) ? EmailField
-        : GeneralField;
+    public static TooManyRequestsException CodeTooSoon(int seconds) =>
+        new(ErrorCodes.CodeTooSoon, string.Create(CultureInfo.InvariantCulture, $"Новый код можно запросить через {seconds} с."));
+
+    public static InvalidRequestException From(IdentityResult result) =>
+        new(
+            ErrorCodes.InvalidRequest,
+            InvalidRequestException.DefaultTitle,
+            new Dictionary<string, string[]>
+            {
+                [GeneralField] = [.. result.Errors.Select(error => error.Description).Distinct(StringComparer.Ordinal)]
+            });
+
+    private static Dictionary<string, string[]> Field(string field, string message) => new() { [field] = [message] };
 }

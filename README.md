@@ -41,8 +41,8 @@ nails/
 
 | Module | Switch | API | Client |
 |---|---|---|---|
-| `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in, registration, email confirmation, password reset, the account page `/profile` with «Выйти» (in `core`) |
-| `Help` | `Modules:Help:Enabled` | Russian articles from JSON files in `Content/ru/`; `GET /api/help/content` | `/help`, `/help/:articleId` |
+| `Identity` | always on | users with a personal tenant each, cookie sessions; `/api/identity/*` | sign-in by phone and SMS code (a new phone gets an account), the account page `/profile` with «Выйти из аккаунта» (in `core`) |
+| `Help` | `Modules:Help:Enabled` | Russian articles in sections with blocks and pictures from `Content/ru/`; `GET /api/help/content`, `GET /api/help/images/{language}/{articleId}/{fileName}` | `/help`, `/help/:articleId`: section cards, search, articles; a side list from 1024 px, the «Разделы справки» sheet below |
 | `Support` | `Modules:Support:Enabled` | support tickets in `support.tickets`; `POST /api/support/tickets` (anonymous, rate-limited per address by `Modules:Support:RateLimit`) | the «Напишите нам» sheet, opened from the frame |
 
 `GET /api/modules` returns the enabled modules; the client downloads only their code.
@@ -67,6 +67,12 @@ client/libs/web/<module>/feature/              pages, routes and the module mani
 
 A module uses another module only through the contracts of the always-on modules: today `Identity` (`ICurrentUser`); the constitution also reserves this for `Catalog` once it exists. Their client code lives in `core`. The first spec that needs events or extension points between modules builds that mechanism.
 
+### Help content
+
+- `api/Nails.Api/Modules/Help/Content/ru/articles/<module>.json`: `{ "module", "sections": [{ "id", "title", "order", "articles": [{ "id", "title", "summary", "order", "keywords", "blocks" }] }] }`. Sections with the same id from several files merge; an article of a disabled module is hidden.
+- Blocks: `heading` (`text`), `paragraph` (`text`), `list` and `steps` (`items`), `note` (`tone`: `info`, `tip`, `warning`; `text`), `image` (`file`: `images/<articleId>/<name>.png`, `alt`, optional `caption`), `related` (`articleIds`). `**text**` is bold. A block the API cannot use (unknown type, missing picture, missing `alt`) is dropped with a warning in the log.
+- Pictures: PNG in `Content/ru/images/<articleId>/`, at most `Modules:Help:Images:MaxBytes`, served with a long cache and a content hash in the URL. Take them from the running app at phone size: Chrome DevTools device mode 390×844, device pixel ratio 2, «Capture screenshot», or the DevTools protocol command `Page.captureScreenshot` after `Emulation.setDeviceMetricsOverride { width: 390, height: 844, deviceScaleFactor: 2, mobile: true }`. Use the demo name «Анна Новикова» and the number +375 (29) 123-45-67.
+
 ### Adding a mobile app
 
 `apps/mobile` and `libs/mobile/<module>/` follow the web pattern: the mobile app reuses `libs/shared` (HTTP, state and API types) and brings its own screens. `libs/shared` never imports DOM APIs, Angular Material, the router or forms, so it stays usable by any Angular-based mobile shell (Ionic with Capacitor, NativeScript). Mobile sign-in needs a token flow next to the browser cookie; that is the first spec of the mobile app.
@@ -78,14 +84,15 @@ A module uses another module only through the contracts of the always-on modules
 - Tenancy: registration gives every account its own tenant. Every `ITenantEntity` (private data) is filtered by the signed-in user's tenant through a named EF Core query filter and stamped on insert by `TenantInterceptor`; writing another tenant's row throws.
 - Rules: business rules are pure functions in `Modules/<Module>/Rules/`; the server enforces them and every permission.
 - Russian messages: `AppException` titles are Russian; `RussianValidationMetadataProvider` gives data annotations Russian messages, `ProblemTitles` covers framework errors, `RussianIdentityErrorDescriber` covers Identity.
-- Client formatting: the locale (`appLocale`) and, as features add them, the price, phone, date and plural helpers live only in `client/libs/shared/common/util`.
+- Client formatting: the locale (`appLocale`), `formatPhone` / `formatPhoneInput` and `formatCountdown` live in `client/libs/shared/common/util`; the price, date and plural helpers join them with their first feature.
 - Design tokens: every color, spacing step, radius, type size, shadow, layout size, duration and layer is a `--app-*` custom property in `client/apps/web/src/styles/_tokens.scss` (values from the old app); Angular Material is themed from them in `styles/_material.scss`; components use tokens and never raw hex. Breakpoints 480, 768, 1024, 1280 px are the `up()` / `down()` mixins of `styles/_breakpoints.scss`, usable in component styles (`@use 'breakpoints' as bp`). The app is light only.
 - The frame: below 1024 px a bottom tab bar, from 1024 px a sticky top bar (`client/libs/web/core/feature/src/lib/layout/`). A module plugs into it through optional slots of its manifest: `frameItem` (a tab, ordered; «Профиль» at order 30 is the core's), `accountLink` (top bar and account page, e.g. «Справка») and `frameAction` (a button that opens something, e.g. «Напишите нам»). Shared blocks: `@nails/web/common/ui` (logo, icons, avatar, skeleton, states, `Viewport`) and `@nails/web/common/overlays` (`Sheets`, `SheetLayout`, `Toasts`; a separate library so Material dialog and snack bar stay out of the initial bundle).
 - Data: one PostgreSQL database, one `AppDbContext`, one schema per module, UUID v7 keys, snake_case names, `IAuditable` timestamps, `IVersioned` for optimistic concurrency. Migrations are additive.
 
 ## Security
 
-- ASP.NET Core Identity: hashed passwords, lockout, confirmed email, single-use reset links, password policy in `Modules:Identity:Options`.
+- Sign-in by phone only (no passwords, no email): `POST /api/identity/sign-in/code` sends a 6-digit SMS code (hashed in `identity.phone_codes`, 5 minutes, 5 attempts, a new one after 1 minute: `Modules:Identity:PhoneCode`), `POST /api/identity/sign-in` checks it and either starts the session, or answers `nameRequired` for a new phone and creates the account when the name comes. Phones are normalised to `+375XXXXXXXXX` (`Rules/BelarusPhone`) and are the account's user name.
+- SMS go through `ISmsSender`; today `EmailSmsSender` delivers each SMS as an email to `<digits>@<Modules:Identity:Sms:RecipientDomain>` (Mailpit locally: http://localhost:8025). A production SMS gateway replaces it behind the same interface (spec 012).
 - Session: an `HttpOnly`, `SameSite=Strict` cookie, `Secure` when `Security:SecureCookies` is on; no tokens in JavaScript. Changes need the antiforgery header that Angular's `HttpClient` sends from the `XSRF-TOKEN` cookie. The browser always talks to one origin: the dev server and nginx proxy `/api`.
 - Rate limits per client address on the anonymous endpoints (`Modules:Identity:RateLimit`, `Modules:Support:RateLimit`; one helper in `Nails.Application/Common/RateLimiting`); `nosniff`, `no-referrer`, a locked-down `Permissions-Policy`, CSP and `no-store` on the API; a strict CSP on the web app.
 - Data protection keys live in PostgreSQL. Behind a reverse proxy, enable `Security:ForwardedHeaders` with its addresses.
@@ -104,7 +111,7 @@ cd api && dotnet run --project Nails.Api
 cd client && npx nx run web:serve
 ```
 
-`docker compose up -d` starts PostgreSQL and Mailpit (emails at http://localhost:8025). The API listens on http://localhost:5200 (OpenAPI reference at `/scalar`), the web app on http://localhost:4200. Sign in with the owner from `.env`.
+`docker compose up -d` starts PostgreSQL and Mailpit (emails at http://localhost:8025). The API listens on http://localhost:5200 (OpenAPI reference at `/scalar`), the web app on http://localhost:4200. Sign in with any Belarusian number: the SMS code arrives in Mailpit.
 
 The whole stack in containers, with the `Docker` settings: `docker compose --profile app up -d --build`, then open http://localhost:8080.
 
@@ -128,7 +135,7 @@ Every .NET analyzer runs in the build with warnings as errors (`api/.editorconfi
 ## Deployment
 
 - `api/Dockerfile` builds the API image (port 8080, non-root). `client/Dockerfile` builds an nginx image that serves the web app and proxies `/api` to `API_UPSTREAM`.
-- Production: set `ConnectionStrings__Database`, the `Email` settings, `App__ClientUrl` and TLS in front; apply migrations before the new version (`dotnet ef migrations script --idempotent` or `Database__MigrateOnStart=true` for a single instance).
+- Production: set `ConnectionStrings__Database`, the `Email` settings, `Modules__Identity__Sms__RecipientDomain` (until an SMS gateway exists) and TLS in front; apply migrations before the new version (`dotnet ef migrations script --idempotent` or `Database__MigrateOnStart=true` for a single instance).
 - Windows service: `dotnet publish Nails.Api -c Release -o <folder>` in `api/`, then `sc.exe create`; the host detects the service lifetime itself.
 
 ## Spec-driven workflow

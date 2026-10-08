@@ -39,7 +39,7 @@ import { appPaths } from '../bootstrap/app-paths';
         мастера.
       </p>
       @if (session.status() === 'signed-out') {
-        <a mat-flat-button class="app-gradient" [routerLink]="['/', paths.register]">Создать аккаунт</a>
+        <a mat-flat-button class="app-gradient" [routerLink]="['/', paths.signIn]">Войти по номеру телефона</a>
       }
     </section>
   `

@@ -7,14 +7,11 @@ import {
   provideAppInitializer,
   type EnvironmentProviders
 } from '@angular/core';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, type MatFormFieldDefaultOptions } from '@angular/material/form-field';
 import { provideRouter, Router, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { appLocale } from '@nails/shared/common/util';
 import { EnabledModules, provideCoreHttp, SessionStore } from '@nails/shared/core/data-access';
 import type { ModuleEntry, ModuleManifest } from '../modules/module-manifest';
 import { buildRoutes, startupFailedRoutes } from './routes';
-
-const formFieldDefaults: MatFormFieldDefaultOptions = { appearance: 'outline' };
 
 function loadManifests(enabled: readonly string[], modules: readonly ModuleEntry[]): Promise<ModuleManifest[]> {
   return Promise.all(modules.filter((entry) => enabled.includes(entry.key)).map((entry) => entry.load()));
@@ -24,7 +21,6 @@ export function provideNails(modules: readonly ModuleEntry[]): EnvironmentProvid
   registerLocaleData(localeRuBy, appLocale);
   return makeEnvironmentProviders([
     { provide: LOCALE_ID, useValue: appLocale },
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: formFieldDefaults },
     provideCoreHttp(),
     provideRouter([], withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideAppInitializer(async () => {

@@ -17,8 +17,11 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 
 ## Help is part of every change
 
-- If a user can see or do something differently after a change, update `api/Nails.Api/Modules/Help/Content/<language>/` in the same change (articles in `articles/<module>.json`, `core` for the shell); otherwise say so in the report.
-- Write for users, quote on-screen messages exactly, keep article ids stable.
+- After **every** change, check whether a user can see or do something differently (a screen, route, control, label, message, error, empty state, limit, timing or edge case). If yes, update **and extend** the help in the same change: add an article for every new screen or flow, add the new messages and edge cases to the existing ones, and remove or rewrite the articles of a removed feature. If no, say so explicitly in the report.
+- Help content lives only in `api/Nails.Api/Modules/Help/Content/ru/`: articles in `articles/<module>.json` (`"module"` = the module key, `core` for the shell), grouped in sections; blocks `heading`, `paragraph`, `list`, `steps`, `note` (`info`, `tip`, `warning`), `image`, `related`; `**bold**` for on-screen controls. The format is in `README.md` («Help content»).
+- Write for users, not developers: what they see, what to do, the edge cases. Quote every on-screen message exactly as the UI shows it. Keep article ids stable; renaming one updates every `related` reference.
+- Pictures are part of help. A screen or flow worth a picture gets one (`images/<articleId>/<name>.png`, phone 390×844 at device scale 2, taken from the running app by the procedure in `README.md`) with an `alt` text that quotes the screen. A change to a screen shown in a picture retakes that picture in the same change.
+- The final report lists the help articles and pictures added, changed or removed, or states that the change has no user-visible effect.
 
 ## Specs
 

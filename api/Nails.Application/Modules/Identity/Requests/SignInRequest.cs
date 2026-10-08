@@ -1,18 +1,23 @@
 using System.ComponentModel.DataAnnotations;
+using Nails.Application.Modules.Identity.Rules;
 using Nails.Infrastructure.Modules.Identity.Entities;
 
 namespace Nails.Application.Modules.Identity.Requests;
 
 public sealed class SignInRequest
 {
-    [Required]
-    [EmailAddress]
-    [MaxLength(ApplicationUser.EmailMaxLength)]
-    public required string Email { get; init; }
+    public const int NameMaxLength = 120;
+
+    private const int CodeMaxLength = 8;
 
     [Required]
-    [MaxLength(ApplicationUser.PasswordMaxLength)]
-    public required string Password { get; init; }
+    [MaxLength(BelarusPhone.MaxInputLength)]
+    public required string Phone { get; init; }
 
-    public bool RememberMe { get; init; }
+    [Required]
+    [MaxLength(CodeMaxLength)]
+    public required string Code { get; init; }
+
+    [MaxLength(ApplicationUser.DisplayNameMaxLength)]
+    public string? Name { get; init; }
 }

@@ -54,7 +54,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/identity/register': {
+  '/api/identity/sign-in/code': {
     parameters: {
       query?: never;
       header?: never;
@@ -72,8 +72,8 @@ export interface paths {
       };
       requestBody: {
         content: {
-          'application/json': components['schemas']['RegisterRequest'];
-          'application/*+json': components['schemas']['RegisterRequest'];
+          'application/json': components['schemas']['PhoneCodeRequest'];
+          'application/*+json': components['schemas']['PhoneCodeRequest'];
         };
       };
       responses: {
@@ -82,156 +82,8 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['RegisterResponse'];
+            'application/json': components['schemas']['PhoneCodeResponse'];
           };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/identity/confirm-email': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['ConfirmEmailRequest'];
-          'application/*+json': components['schemas']['ConfirmEmailRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/identity/resend-confirmation': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['EmailRequest'];
-          'application/*+json': components['schemas']['EmailRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/identity/forgot-password': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['EmailRequest'];
-          'application/*+json': components['schemas']['EmailRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/identity/reset-password': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['ResetPasswordRequest'];
-          'application/*+json': components['schemas']['ResetPasswordRequest'];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
         };
       };
     };
@@ -268,7 +120,9 @@ export interface paths {
           headers: {
             [name: string]: unknown;
           };
-          content?: never;
+          content: {
+            'application/json': components['schemas']['SignInResponse'];
+          };
         };
       };
     };
@@ -380,14 +234,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/help/images/{language}/{articleId}/{fileName}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          language: string;
+          articleId: string;
+          fileName: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ConfirmEmailRequest: {
-      userId: string;
-      code: string;
-    };
     CreateSupportTicketRequest: {
       text: string;
       contact?: null | string;
@@ -395,26 +281,43 @@ export interface components {
     CreateSupportTicketResponse: {
       ticketId: string;
     };
-    EmailRequest: {
-      email: string;
-    };
     HelpArticleResponse: {
       id: string;
-      module: string;
       title: string;
-      summary: string;
-      body: string[];
+      summary: null | string;
+      keywords: string[];
+      blocks: components['schemas']['HelpBlockResponse'][];
     };
+    HelpBlockResponse: {
+      type: components['schemas']['HelpBlockType'];
+      text: null | string;
+      tone: null | components['schemas']['HelpNoteTone'];
+      items: null | string[];
+      articleIds: null | string[];
+      image: null | components['schemas']['HelpImageResponse'];
+    };
+    HelpBlockType: 'heading' | 'paragraph' | 'list' | 'steps' | 'note' | 'related' | 'image';
     HelpCompanyResponse: {
       name: string;
       email: string;
       website: string;
     };
     HelpContentResponse: {
-      language: string;
-      languages: string[];
       site: components['schemas']['HelpSiteResponse'];
       company: components['schemas']['HelpCompanyResponse'];
+      sections: components['schemas']['HelpSectionResponse'][];
+    };
+    HelpImageResponse: {
+      url: string;
+      alt: string;
+      caption: null | string;
+      width: number;
+      height: number;
+    };
+    HelpNoteTone: 'info' | 'tip' | 'warning' | null;
+    HelpSectionResponse: {
+      id: string;
+      title: string;
       articles: components['schemas']['HelpArticleResponse'][];
     };
     HelpSiteResponse: {
@@ -423,29 +326,26 @@ export interface components {
     };
     MeResponse: {
       id: string;
-      email: string;
-      displayName: string;
+      name: string;
+      phone: null | string;
     };
     ModulesResponse: {
       enabled: string[];
     };
-    RegisterRequest: {
-      displayName: string;
-      email: string;
-      password: string;
+    PhoneCodeRequest: {
+      phone: string;
     };
-    RegisterResponse: {
-      requiresEmailConfirmation: boolean;
-    };
-    ResetPasswordRequest: {
-      userId: string;
-      code: string;
-      newPassword: string;
+    PhoneCodeResponse: {
+      codeLength: number;
+      resendAfterSeconds: number;
     };
     SignInRequest: {
-      email: string;
-      password: string;
-      rememberMe?: boolean;
+      phone: string;
+      code: string;
+      name?: null | string;
+    };
+    SignInResponse: {
+      nameRequired: boolean;
     };
   };
   responses: never;

@@ -64,10 +64,6 @@ import { FrameBadgeView } from './frame-badge-view';
       align-items: center;
       gap: var(--app-space-1);
     }
-    .end a.mat-mdc-button-base,
-    .end button {
-      gap: var(--app-space-2);
-    }
     .account {
       display: inline-flex;
       margin-left: var(--app-space-2);
@@ -95,23 +91,23 @@ import { FrameBadgeView } from './frame-badge-view';
       </nav>
       <div class="end">
         @for (action of slots.actions; track action.label) {
-          <button mat-button type="button" (click)="run(action)">
+          <button mat-button class="app-small" type="button" (click)="run(action)">
             <app-icon [name]="action.icon" [size]="20" />
             {{ action.label }}
           </button>
         }
         @for (link of slots.accountLinks; track link.path) {
-          <a mat-button [routerLink]="link.path">
+          <a mat-button class="app-small" [routerLink]="link.path">
             <app-icon [name]="link.icon" [size]="20" />
             {{ link.label }}
           </a>
         }
         @if (session.me(); as me) {
           <a class="account" [routerLink]="['/', paths.profile]" aria-label="Профиль">
-            <app-avatar [name]="me.displayName" [size]="36" />
+            <app-avatar [name]="me.name" [size]="36" />
           </a>
         } @else if (session.status() === 'signed-out') {
-          <a mat-flat-button class="app-pill" [routerLink]="['/', paths.signIn]">Войти</a>
+          <a mat-flat-button class="app-pill app-small" [routerLink]="['/', paths.signIn]">Войти</a>
         }
       </div>
     </header>

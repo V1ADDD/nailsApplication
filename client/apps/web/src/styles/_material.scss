@@ -56,6 +56,7 @@ html {
       filled-label-text-color: var(--app-color-primary-contrast),
       filled-label-text-size: var(--app-font-size-sm),
       filled-label-text-weight: var(--app-font-weight-bold),
+      filled-label-text-tracking: normal,
       filled-horizontal-padding: var(--app-space-5),
       outlined-container-height: var(--app-tap-target),
       outlined-container-shape: var(--app-radius-md),
@@ -63,19 +64,22 @@ html {
       outlined-label-text-color: var(--app-color-text),
       outlined-label-text-size: var(--app-font-size-sm),
       outlined-label-text-weight: var(--app-font-weight-bold),
+      outlined-label-text-tracking: normal,
       outlined-horizontal-padding: var(--app-space-5),
       text-container-height: var(--app-tap-target),
       text-container-shape: var(--app-radius-md),
       text-label-text-color: var(--app-color-text),
       text-label-text-size: var(--app-font-size-sm),
       text-label-text-weight: var(--app-font-weight-bold),
+      text-label-text-tracking: normal,
       text-horizontal-padding: var(--app-space-4),
       tonal-container-height: var(--app-tap-target),
       tonal-container-shape: var(--app-radius-md),
       tonal-container-color: var(--app-color-surface-muted),
       tonal-label-text-color: var(--app-color-text),
       tonal-label-text-size: var(--app-font-size-sm),
-      tonal-label-text-weight: var(--app-font-weight-bold)
+      tonal-label-text-weight: var(--app-font-weight-bold),
+      tonal-label-text-tracking: normal
     )
   );
 
@@ -83,17 +87,6 @@ html {
     (
       icon-color: var(--app-color-text),
       state-layer-size: var(--app-tap-target)
-    )
-  );
-
-  @include mat.form-field-overrides(
-    (
-      outlined-container-shape: var(--app-radius-md),
-      outlined-outline-color: var(--app-color-border),
-      outlined-hover-outline-color: var(--app-color-border-strong),
-      outlined-focus-outline-color: var(--app-color-primary),
-      outlined-label-text-color: var(--app-color-text-muted),
-      outlined-input-text-placeholder-color: var(--app-color-text-muted)
     )
   );
 
@@ -156,9 +149,4 @@ html {
 
 .mat-mdc-button-base.app-pill {
   border-radius: var(--app-radius-full);
-}
-
-.mdc-text-field--outlined:not(.mdc-text-field--disabled) {
-  background: var(--app-color-surface);
-  border-radius: var(--app-radius-md);
 }

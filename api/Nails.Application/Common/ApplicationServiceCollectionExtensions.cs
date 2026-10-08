@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nails.Application.Common.Modules;
-using Nails.Application.Common.Options;
 using Nails.Application.Common.Tenancy;
-using Nails.Infrastructure.Common;
 using Nails.Infrastructure.Email;
 using Nails.Infrastructure.Persistence;
 using Nails.Infrastructure.Persistence.Contracts;
@@ -17,7 +15,6 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<TenantContext>();
         services.AddScoped<ITenantProvider>(provider => provider.GetRequiredService<TenantContext>());
-        services.AddValidatedOptions<AppOptions>(configuration, AppOptions.SectionName);
 
         services.AddPersistence(configuration);
         services.AddEmail(configuration);
