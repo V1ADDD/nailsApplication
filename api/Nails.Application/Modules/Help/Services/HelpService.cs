@@ -60,7 +60,7 @@ public sealed partial class HelpService(
 
         return image is not null && image.Length <= imageOptions.Value.MaxBytes
             ? image
-            : throw new NotFoundException("Такой картинки нет.");
+            : throw new NotFoundException(ErrorCodes.NotFound, "Такой картинки нет.");
     }
 
     private string Resolve(string? language)

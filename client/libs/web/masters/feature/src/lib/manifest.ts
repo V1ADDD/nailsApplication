@@ -9,6 +9,11 @@ export const manifest: ModuleManifest = {
       pathMatch: 'full',
       loadComponent: () => import('./map-page').then((m) => m.MapPage),
       title: 'Мастера рядом — карта бьюти-мастеров'
+    },
+    {
+      path: 'masters/:id',
+      loadComponent: () => import('./profile/profile-page').then((m) => m.ProfilePage),
+      title: 'Профиль мастера'
     }
   ],
   routes: []

@@ -21,9 +21,21 @@ public sealed class MastersModule : IAppModule
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddValidatedOptions<MasterSearchOptions>(configuration, MasterSearchOptions.SectionName);
+        services.AddValidatedOptions<BookingOptions>(configuration, BookingOptions.SectionName);
+        services.AddValidatedOptions<ReviewOptions>(configuration, ReviewOptions.SectionName);
+        services.AddValidatedOptions<BookingTimeRulesOptions>(configuration, BookingTimeRulesOptions.SectionName);
         services.AddScoped<IMasterSearchRepository, MasterSearchRepository>();
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+        services.AddScoped<MasterFacts>();
+        services.AddScoped<IBookingEvents, BookingEvents>();
         services.AddScoped<IMasterSearchService, MasterSearchService>();
+        services.AddScoped<IMasterProfileRepository, MasterProfileRepository>();
+        services.AddScoped<IMasterProfileService, MasterProfileService>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<BookingChanges>();
+        services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<IBookingTimeRules, BookingTimeRules>();
+        services.AddHostedService<BookingTimeRulesJob>();
         services.AddScoped<IFavoriteService, FavoriteService>();
         services.AddScoped<IDemoSeeder, MastersDemoSeeder>();
     }

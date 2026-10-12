@@ -1,0 +1,28 @@
+namespace Nails.Application.Modules.Masters.Responses;
+
+public sealed record MasterProfileResponse(
+    Guid Id,
+    string Name,
+    string? PhotoUrl,
+    string Specialty,
+    IReadOnlyList<string> CategoryIds,
+    string City,
+    string District,
+    string Address,
+    double Lat,
+    double Lng,
+    double DistanceKm,
+    double? Rating,
+    int ReviewsCount,
+    int ExperienceYears,
+    bool Verified,
+    bool Online,
+    string About,
+    IReadOnlyList<CourseResponse> Courses,
+    ContactsResponse Contacts,
+    IReadOnlyList<ProfileServiceResponse> Services,
+    IReadOnlyList<PortfolioPhotoResponse> Portfolio,
+    PriceResponse? HeadlinePrice,
+    int BookingsCount,
+    bool IsFavorite,
+    bool IsOwn);

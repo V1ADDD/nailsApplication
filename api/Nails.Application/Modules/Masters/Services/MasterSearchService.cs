@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using Nails.Application.Common.Exceptions;
 using Nails.Application.Common.Time;
 using Nails.Application.Modules.Catalog.Contracts;
 using Nails.Application.Modules.Identity.Contracts;
@@ -18,12 +17,11 @@ public sealed class MasterSearchService(
     IFavoriteRepository favorites,
     IPresence presence,
     ICatalog catalog,
+    MasterFacts facts,
     ICurrentUser currentUser,
     TimeProvider clock,
     IOptions<MasterSearchOptions> options) : IMasterSearchService
 {
-    private const int RatingDecimals = 1;
-
     public async Task<MasterSearchResponse> SearchAsync(MasterSearchRequest request, CancellationToken cancellationToken)
     {
         var settings = options.Value;
@@ -64,7 +62,7 @@ public sealed class MasterSearchService(
                 master.Candidate.Id,
                 master.Candidate.Lat,
                 master.Candidate.Lng,
-                ToResponse(master.Headline),
+                MasterFacts.ToResponse(master.Headline),
                 master.Candidate.Specialty,
                 master.Online))]);
     }
@@ -75,7 +73,7 @@ public sealed class MasterSearchService(
         var candidates = await masters.FindCandidatesAsync(
             new CandidateQuery { Now = clock.GetUtcNow(), MasterIds = [masterId] },
             cancellationToken);
-        var candidate = (candidates.Count > 0 ? candidates[0] : null) ?? throw new NotFoundException("Мастер не найден");
+        var candidate = (candidates.Count > 0 ? candidates[0] : null) ?? throw MastersErrors.MasterNotFound();
         var online = await OnlineUsersAsync(candidates, cancellationToken);
         var origin = (Lat: request.Lat ?? settings.DefaultLatitude, Lng: request.Lng ?? settings.DefaultLongitude);
         var ranked = Rank(candidate, new MasterSearchRequest(), origin, online)!;
@@ -89,8 +87,8 @@ public sealed class MasterSearchService(
         IReadOnlySet<Guid> online)
     {
         var distance = Geo.DistanceKm(origin.Lat, origin.Lng, candidate.Lat, candidate.Lng);
-        var rating = candidate.RatingAverage is { } average ? Math.Round(average, RatingDecimals, MidpointRounding.AwayFromZero) : (double?)null;
-        var isOnline = candidate.ShowOnline && online.Contains(candidate.UserId);
+        var rating = MasterFacts.Rating(candidate.RatingAverage);
+        var isOnline = MasterFacts.IsOnline(candidate.ShowOnline, candidate.UserId, online);
 
         if ((request.MaxDistanceKm is { } km && distance > km)
             || (request.MinRating is { } minimum && (rating is null || rating < minimum))
@@ -114,8 +112,7 @@ public sealed class MasterSearchService(
             return null;
         }
 
-        var headline = Prices.Headline([.. services.Select(service =>
-            (PriceOf(service), catalog.FindSubcategory(service.SubcategoryId)?.Addon ?? false))]);
+        var headline = facts.Headline(services.Select(service => (service.SubcategoryId, PriceOf(service))));
 
         return new RankedMaster(candidate, match.Score, services, services.Count < candidate.Services.Count, distance, isOnline, headline, rating);
     }
@@ -180,13 +177,13 @@ public sealed class MasterSearchService(
             candidate.Verified,
             favoriteIds.Contains(candidate.Id),
             currentUser.UserId != Guid.Empty && candidate.UserId == currentUser.UserId,
-            ToResponse(master.Headline),
+            MasterFacts.ToResponse(master.Headline),
             master.Narrowed,
             master.Narrowed && subcategories.Count == 1 ? subcategories[0] : null,
             [.. master.Services.Select(service => new CardServiceResponse(
                 service.SubcategoryId,
                 catalog.SubcategoryName(service.SubcategoryId),
-                ToResponse(PriceOf(service))!,
+                MasterFacts.ToResponse(PriceOf(service))!,
                 service.DurationMin))],
             candidate.NextFreeSlotAt);
     }
@@ -208,6 +205,4 @@ public sealed class MasterSearchService(
     }
 
     private static Price PriceOf(CandidateService service) => new(service.PriceKind, service.PriceAmount);
-
-    private static PriceResponse? ToResponse(Price? price) => price is null ? null : new PriceResponse(price.Kind, price.Amount);
 }
