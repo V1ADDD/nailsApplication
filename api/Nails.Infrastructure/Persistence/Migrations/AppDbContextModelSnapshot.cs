@@ -819,8 +819,8 @@ namespace Nails.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_reviews_booking_id_author_role");
 
-                    b.HasIndex("MasterId", "AuthorRole")
-                        .HasDatabaseName("ix_reviews_master_id_author_role");
+                    b.HasIndex("MasterId", "AuthorRole", "CreatedAt")
+                        .HasDatabaseName("ix_reviews_master_id_author_role_created_at");
 
                     b.ToTable("reviews", "masters");
                 });

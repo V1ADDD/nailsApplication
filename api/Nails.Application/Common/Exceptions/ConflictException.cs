@@ -2,5 +2,5 @@ using Microsoft.AspNetCore.Http;
 
 namespace Nails.Application.Common.Exceptions;
 
-public sealed class ConflictException(string title)
-    : AppException(ErrorCodes.Conflict, StatusCodes.Status409Conflict, title);
+public sealed class ConflictException(string code, string title)
+    : AppException(code, StatusCodes.Status409Conflict, title);

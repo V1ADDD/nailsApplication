@@ -1,4 +1,3 @@
-using Nails.Application.Common.Exceptions;
 using Nails.Application.Modules.Identity.Contracts;
 using Nails.Application.Modules.Masters.Contracts;
 using Nails.Infrastructure.Modules.Masters.Contracts;
@@ -39,7 +38,7 @@ public sealed class FavoriteService(
     {
         if (!await favorites.MasterExistsAsync(masterId, cancellationToken))
         {
-            throw new NotFoundException("Мастер не найден");
+            throw MastersErrors.MasterNotFound();
         }
     }
 }

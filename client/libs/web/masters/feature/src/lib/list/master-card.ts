@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { formatDistance, formatPrice, plural } from '@nails/shared/common/util';
-import { SessionStore, toProblem } from '@nails/shared/core/data-access';
+import { SessionStore } from '@nails/shared/core/data-access';
 import { FavoritesStore, type MasterCard as Card } from '@nails/shared/masters/data-access';
-import { Toasts } from '@nails/web/common/overlays';
 import { Avatar, Icon, Rating } from '@nails/web/common/ui';
-import { appPaths, returnToParameter } from '@nails/web/core/feature';
-import { serviceForms, yearForms } from '../texts';
+import { FavoriteToggle } from '../favorite-toggle';
+import { goToSignIn } from '../sign-in';
+import { experienceLabel, serviceForms } from '../texts';
 
 @Component({
   selector: 'app-master-card',
@@ -244,7 +244,7 @@ export class MasterCard {
   private readonly favorites = inject(FavoritesStore);
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
-  private readonly toasts = inject(Toasts);
+  private readonly favoriteToggle = inject(FavoriteToggle);
 
   protected readonly expanded = signal(false);
   protected readonly price = formatPrice;
@@ -259,37 +259,22 @@ export class MasterCard {
     return services.length === 1 ? services[0] : null;
   });
   protected readonly distance = computed(() => formatDistance(this.master().distanceKm));
-  protected readonly experience = computed(() => {
-    const years = this.master().experienceYears;
-    return years < 1 ? 'Опыт меньше года' : `Опыт ${plural(years, yearForms)}`;
-  });
+  protected readonly experience = computed(() => experienceLabel(this.master().experienceYears));
   protected readonly servicesLabel = computed(() => {
     const card = this.master();
     return `${card.narrowed ? 'Подходящие' : 'Все услуги'}: ${plural(card.services.length, serviceForms)}`;
   });
 
-  protected async toggleFavorite(): Promise<void> {
-    if (this.session.status() !== 'signed-in') {
-      this.signIn(this.router.url);
-      return;
-    }
-    try {
-      await this.favorites.toggle(this.master().id);
-    } catch (error) {
-      this.toasts.error(toProblem(error).title);
-    }
+  protected toggleFavorite(): void {
+    void this.favoriteToggle.toggle(this.master().id);
   }
 
   protected book(): void {
     const tree = this.router.createUrlTree(this.profileLink(), { queryParams: { book: 1, ...this.serviceParams() } });
     if (this.session.status() !== 'signed-in') {
-      this.signIn(this.router.serializeUrl(tree));
+      goToSignIn(this.router, this.router.serializeUrl(tree));
       return;
     }
     void this.router.navigateByUrl(tree);
-  }
-
-  private signIn(returnTo: string): void {
-    void this.router.navigate(['/', appPaths.signIn], { queryParams: { [returnToParameter]: returnTo } });
   }
 }

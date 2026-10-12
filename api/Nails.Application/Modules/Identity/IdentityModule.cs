@@ -67,6 +67,8 @@ public sealed class IdentityModule : IAppModule
         services.AddSingleton<PresenceThrottle>();
         services.AddScoped<IUserPresenceRepository, UserPresenceRepository>();
         services.AddScoped<IPresence, Presence>();
+        services.AddScoped<IAccountDirectoryRepository, AccountDirectoryRepository>();
+        services.AddScoped<IAccountDirectory, AccountDirectory>();
         services.AddScoped<IDemoSeeder, IdentityDemoSeeder>();
     }
 

@@ -59,6 +59,149 @@
         }
       }
     },
+    "/api/masters/bookings/conflicts": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConflictsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConflictsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/bookings": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBookingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/bookings/{id}/confirm": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/bookings/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelBookingRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelBookingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/masters/{id}/favorite": {
       "put": {
         "tags": [
@@ -337,6 +480,136 @@
         }
       }
     },
+    "/api/masters/{id}": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/{id}/slots": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlotsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/masters/{id}/reviews": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/identity/sign-in/code": {
       "post": {
         "tags": [
@@ -559,6 +832,207 @@
   },
   "components": {
     "schemas": {
+      "BookingResponse": {
+        "required": [
+          "id",
+          "masterId",
+          "clientUserId",
+          "slotId",
+          "subcategoryId",
+          "serviceName",
+          "price",
+          "start",
+          "durationMin",
+          "address",
+          "status",
+          "source",
+          "createdBy",
+          "confirmedAt",
+          "releaseAt",
+          "cancelledAt",
+          "cancelledBy",
+          "cancelReason",
+          "cancelMutual",
+          "cancelExpired",
+          "masterName",
+          "masterPhotoUrl",
+          "clientName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "masterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "slotId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "subcategoryId": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceResponse"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "address": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BookingStatus"
+          },
+          "source": {
+            "$ref": "#/components/schemas/BookingSource"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "confirmedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "releaseAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "cancelledAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "cancelledBy": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Party"
+              }
+            ]
+          },
+          "cancelReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cancelMutual": {
+            "type": "boolean"
+          },
+          "cancelExpired": {
+            "type": "boolean"
+          },
+          "masterName": {
+            "type": "string"
+          },
+          "masterPhotoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientName": {
+            "type": "string"
+          }
+        }
+      },
+      "BookingSource": {
+        "enum": [
+          "site",
+          "external"
+        ]
+      },
+      "BookingStatus": {
+        "enum": [
+          "pending",
+          "confirmed",
+          "cancelled",
+          "completed",
+          "noShow"
+        ]
+      },
+      "BookingSummaryResponse": {
+        "required": [
+          "id",
+          "masterName",
+          "serviceName",
+          "start",
+          "durationMin",
+          "address"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "masterName": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "address": {
+            "type": "string"
+          }
+        }
+      },
+      "CancelBookingRequest": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "maxLength": 300,
+            "minLength": 0,
+            "type": "string"
+          },
+          "mutual": {
+            "type": "boolean"
+          }
+        }
+      },
       "CardServiceResponse": {
         "required": [
           "subcategoryId",
@@ -605,6 +1079,146 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SubcategoryResponse"
+            }
+          }
+        }
+      },
+      "ConflictsRequest": {
+        "required": [
+          "slotId"
+        ],
+        "type": "object",
+        "properties": {
+          "slotId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ConflictsResponse": {
+        "required": [
+          "overlapping",
+          "tooClose"
+        ],
+        "type": "object",
+        "properties": {
+          "overlapping": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingSummaryResponse"
+            }
+          },
+          "tooClose": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingSummaryResponse"
+            }
+          }
+        }
+      },
+      "ContactsResponse": {
+        "required": [
+          "phone",
+          "email",
+          "telegram",
+          "viber",
+          "instagram"
+        ],
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "telegram": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "viber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instagram": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CourseResponse": {
+        "required": [
+          "title",
+          "school",
+          "year"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "school": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateBookingRequest": {
+        "required": [
+          "masterId",
+          "slotId",
+          "subcategoryId"
+        ],
+        "type": "object",
+        "properties": {
+          "masterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slotId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subcategoryId": {
+            "maxLength": 40,
+            "minLength": 0,
+            "type": "string"
+          }
+        }
+      },
+      "CreateBookingResponse": {
+        "required": [
+          "booking",
+          "autoCancelled",
+          "tooClose"
+        ],
+        "type": "object",
+        "properties": {
+          "booking": {
+            "$ref": "#/components/schemas/BookingResponse"
+          },
+          "autoCancelled": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingSummaryResponse"
+            }
+          },
+          "tooClose": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingSummaryResponse"
             }
           }
         }
@@ -1009,6 +1623,146 @@
           }
         }
       },
+      "MasterProfileResponse": {
+        "required": [
+          "id",
+          "name",
+          "photoUrl",
+          "specialty",
+          "categoryIds",
+          "city",
+          "district",
+          "address",
+          "lat",
+          "lng",
+          "distanceKm",
+          "rating",
+          "reviewsCount",
+          "experienceYears",
+          "verified",
+          "online",
+          "about",
+          "courses",
+          "contacts",
+          "services",
+          "portfolio",
+          "headlinePrice",
+          "bookingsCount",
+          "isFavorite",
+          "isOwn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "city": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "distanceKm": {
+            "type": "number",
+            "format": "double"
+          },
+          "rating": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "reviewsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "experienceYears": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "about": {
+            "type": "string"
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseResponse"
+            }
+          },
+          "contacts": {
+            "$ref": "#/components/schemas/ContactsResponse"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileServiceResponse"
+            }
+          },
+          "portfolio": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortfolioPhotoResponse"
+            }
+          },
+          "headlinePrice": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PriceResponse"
+              }
+            ]
+          },
+          "bookingsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "isOwn": {
+            "type": "boolean"
+          }
+        }
+      },
       "MasterSearchResponse": {
         "required": [
           "total",
@@ -1085,6 +1839,41 @@
           }
         }
       },
+      "PagedResponseOfReviewResponse": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Party": {
+        "enum": [
+          "client",
+          "master"
+        ]
+      },
       "PhoneCodeRequest": {
         "required": [
           "phone"
@@ -1118,6 +1907,37 @@
           }
         }
       },
+      "PortfolioPhotoResponse": {
+        "required": [
+          "id",
+          "url",
+          "hue",
+          "caption"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "caption": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "PriceKind": {
         "enum": [
           "exact",
@@ -1141,6 +1961,77 @@
               "number"
             ],
             "format": "double"
+          }
+        }
+      },
+      "ProfileServiceResponse": {
+        "required": [
+          "id",
+          "subcategoryId",
+          "categoryId",
+          "name",
+          "price",
+          "durationMin"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subcategoryId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceResponse"
+          },
+          "durationMin": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReviewResponse": {
+        "required": [
+          "id",
+          "subcategoryId",
+          "serviceName",
+          "rating",
+          "text",
+          "date",
+          "authorName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subcategoryId": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "authorName": {
+            "type": "string"
           }
         }
       },
@@ -1195,6 +2086,61 @@
         "properties": {
           "nameRequired": {
             "type": "boolean"
+          }
+        }
+      },
+      "SlotEntryResponse": {
+        "required": [
+          "start",
+          "durationMin",
+          "status",
+          "slotId"
+        ],
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SlotEntryStatus"
+          },
+          "slotId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "SlotEntryStatus": {
+        "enum": [
+          "free",
+          "pending",
+          "busy"
+        ]
+      },
+      "SlotsResponse": {
+        "required": [
+          "days",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlotEntryResponse"
+            }
           }
         }
       },
@@ -1258,6 +2204,9 @@
     },
     {
       "name": "Tickets"
+    },
+    {
+      "name": "Bookings"
     },
     {
       "name": "Favorites"
