@@ -1,5 +1,16 @@
 <!--
 Sync Impact Report
+Version: 4.3.0 → 4.4.0 (MINOR)
+Reason: spec 006 adds chats, the first module that uses another non-core module, and core media and real time.
+IV and VI let a module use the `Contracts`, `Events` and `ExtensionPoints` of a module it declares in `DependsOn`
+(never the reverse), and a module whose dependency is off is off. The core gains media, real time and the client/master
+mode; V allows `Nails.Infrastructure/Storage`. VIII states that two-party data (chats, bookings) and public-by-id uploads
+carry user ids instead of a tenant, with the party or owner checked by the service.
+Changed: Definitions, IV, V, VI, VIII. Added, removed principles: none.
+Templates: no change needed.
+Follow-up: none.
+
+Previous report
 Version: 4.2.0 → 4.3.0 (MINOR)
 Reason: spec 004 adds the Development demo world. V allows a `Seed/` folder in `Nails.Application/Modules/<Module>/`
 whose `IDemoSeeder` writes the module's own tables through `AppDbContext` (the seed reuses the module's rules, so it
@@ -51,12 +62,13 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 
 ## Definitions
 
-- **Core**: the `Common/` folder of each api project, `Host/` in `Nails.Api`, `Persistence`, `Email` and `Options` in `Nails.Infrastructure`, the `Identity`, `Catalog` and `Help` modules, `client/libs/<scope>/core` and `client/libs/<scope>/common`.
+- **Core**: the `Common/` folder of each api project (including media uploads and real time), `Host/` in `Nails.Api` (including the real-time hub), `Persistence`, `Email`, `Options` and `Storage` in `Nails.Infrastructure`, the `Identity`, `Catalog` and `Help` modules, `client/libs/<scope>/core` and `client/libs/<scope>/common`.
 - **Module**: a named feature area whose code lives only in `Modules/<Module>/` of the api projects and in `client/libs/<scope>/<module>/`. The modules are the entries of `ModuleCatalog`.
 - **Always-on module**: `Identity` (accounts and sessions) and `Catalog` (the categories, services and cities every other module refers to). Their client code lives in `core`.
 - **Scope**: `shared`, `web` or `mobile` in `client/libs/`.
 - **Tenant**: the owner of private data. Every account gets its own personal tenant when it is created.
-- **Client** and **master**: the two roles of one account. Every signed-in account is a client; an account with a master profile is also a master.
+- **Client** and **master**: the two roles of one account. Every signed-in account is a client; an account with a master profile is also a master. The account's current mode (client or master) is saved on the account and is part of the core.
+- **Dependency**: a module that another module lists in its `DependsOn`.
 - **User-facing text**: every string a user can see or hear: labels, buttons, placeholders, page titles, empty, loading and error states, alt text and aria labels, toasts, emails, help content and the problem details the UI shows.
 - **User-visible change**: any change to what a user can see or do: a screen, route, control, label, setting, message (errors and empty states too), limit, timing, permission rule or edge case.
 - **Spec**: a folder `specs/NNN-<module>-<short-name>/` with at least `spec.md` and `plan.md`.
@@ -87,6 +99,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - A module's code MUST NOT exist outside its module folders.
 - Adding a module MUST touch nothing else except one line in `ModuleCatalog`, one line in each app's module list, its paths in `client/tsconfig.base.json`, a `Modules:<Module>` section in every `appsettings.{Environment}.json`, and its migration.
 - Every module except `Identity` and `Catalog` MUST be switched by `Modules:<Module>:Enabled` alone. A disabled module MUST expose nothing (services, endpoints, navigation, routes, help articles), MUST keep its tables, and MUST NOT break the rest.
+- A module whose dependency is disabled is disabled too.
 - Code shared by several modules MUST live in the core; code used by one module MUST NOT.
 
 ### V. The backend has three layers
@@ -96,11 +109,12 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - `Nails.Application/Modules/<Module>/` MAY contain only `<Module>Module.cs` (the single place that registers the module's options and services of both layers), `Contracts/`, `Services/`, `Requests/`, `Responses/`, `Options/`, `Rules/`, `Seed/` (an `IDemoSeeder` that writes only the module's own tables with Development demo data; seeding MUST NOT run in Production), and `Events/` or `ExtensionPoints/` once the module talks to others.
 - `Nails.Infrastructure/Modules/<Module>/` MAY contain only `Entities/`, `Configurations/`, `Contracts/`, `Repositories/`, `Models/`, `Options/` and `Integrations/<System>/`.
 - `Nails.Infrastructure/Persistence` holds the single `AppDbContext`, its interceptors and the migrations: one database, one schema per module, configurations picked up from the assembly.
+- `Nails.Infrastructure/Storage` holds the core file storage (uploaded files and their table) behind an interface.
 - Every external system MUST sit behind an interface in `Contracts/`.
 
-### VI. Modules interact only through the always-on modules
+### VI. Modules interact through the always-on modules and declared dependencies
 
-- From another module's folders, a module MAY use only `Nails.Application.Modules.Identity.Contracts` and `Nails.Application.Modules.Catalog.Contracts`; on the client, only `core`, `common` and another module's `contracts` library.
+- From another module's folders, a module MAY use only `Nails.Application.Modules.Identity.Contracts`, `Nails.Application.Modules.Catalog.Contracts` and the `Contracts`, `Events` and `ExtensionPoints` namespaces of a module it lists in `DependsOn`. A dependency MUST NOT use the module that depends on it, and dependencies MUST NOT form a cycle. On the client, a module MAY use only `core`, `common` and another module's `contracts` library.
 - Shared tables, foreign keys, navigation properties and queries across module schemas MUST NOT exist; another module's data is referenced by id or catalog slug only.
 - Events, extension points or any other way for modules to interact MUST be introduced by a spec.
 
@@ -119,6 +133,7 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 
 - `TenantId` MUST be on every tenant-owned (private) table, its indexes and every query, through `ITenantEntity`, the named query filter and `TenantInterceptor`.
 - Marketplace data that every visitor may see (the catalog, master profiles, price lists) is not tenant-owned: it carries the owner's user id, and every change checks that the signed-in user owns it.
+- Two-party data (bookings, chats and their messages) and uploaded files that anyone may read by their id are not tenant-owned: they carry the user ids of their parties or owner, and every read and change checks in `Nails.Application` that the signed-in user is a party or the owner.
 - Every endpoint declares one of three levels: anonymous (`[AllowAnonymous]`), signed in (the default), or has a master profile (checked by the module's service). A permission is checked in `Nails.Application`, never in the client alone.
 
 ### IX. Security and privacy
@@ -166,4 +181,4 @@ The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. Anything n
 - This constitution overrides the spec-kit templates and team habits. A plan MAY violate a principle only with a justification in its Complexity Tracking section.
 - Amending the constitution is a separate change that updates this file, its version and the reason in the Sync Impact Report.
 
-**Version**: 4.3.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08
+**Version**: 4.4.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-16
