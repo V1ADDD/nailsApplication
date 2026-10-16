@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nails.Application.Common.Modules;
+using Nails.Application.Common.Realtime;
 using Nails.Application.Modules.Identity.Contracts;
 using Nails.Application.Modules.Identity.Options;
+using Nails.Application.Modules.Identity.Responses;
 using Nails.Application.Modules.Identity.Seed;
 using Nails.Application.Modules.Identity.Services;
 using Nails.Infrastructure.Common;
@@ -28,6 +30,8 @@ public sealed class IdentityModule : IAppModule
     public string Name => "Identity";
 
     public bool AlwaysOn => true;
+
+    public IReadOnlyList<string> DependsOn => [];
 
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
@@ -69,6 +73,8 @@ public sealed class IdentityModule : IAppModule
         services.AddScoped<IPresence, Presence>();
         services.AddScoped<IAccountDirectoryRepository, AccountDirectoryRepository>();
         services.AddScoped<IAccountDirectory, AccountDirectory>();
+        services.AddScoped<IUserModeRepository, UserModeRepository>();
+        services.AddRealtimeEvent<ModeChangedEvent>();
         services.AddScoped<IDemoSeeder, IdentityDemoSeeder>();
     }
 

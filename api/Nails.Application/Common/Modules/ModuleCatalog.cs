@@ -1,4 +1,5 @@
 using Nails.Application.Modules.Catalog;
+using Nails.Application.Modules.Chats;
 using Nails.Application.Modules.Help;
 using Nails.Application.Modules.Identity;
 using Nails.Application.Modules.Masters;
@@ -14,6 +15,7 @@ public static class ModuleCatalog
         new CatalogModule(),
         new HelpModule(),
         new MastersModule(),
-        new SupportModule()
+        new SupportModule(),
+        new ChatsModule()
     ];
 }

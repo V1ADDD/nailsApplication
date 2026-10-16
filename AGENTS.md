@@ -50,5 +50,6 @@ Project rules: `.specify/memory/constitution.md`. Layout, modules and commands: 
 - The core: `Common/` of each project, `Host/` in `Nails.Api`, `Persistence`, `Email` and `Options` in `Nails.Infrastructure`, the always-on `Identity` and `Catalog` modules, the switchable `Help` module, `client/libs/{shared,web}/{core,common}`.
 - A module lives only in `Modules/<Module>/` of each api project and `client/libs/{shared,web,mobile}/<module>/`; registering it touches only `ModuleCatalog.cs`, `modules.ts`, `tsconfig.base.json`, the settings files and a migration.
 - Every module except `Identity` and `Catalog` is switched by `Modules:<Module>:Enabled`; a disabled module exposes nothing and keeps its tables.
-- Another module is used only through `Identity` and `Catalog` contracts; no shared tables, foreign keys or queries across module schemas.
+- Another module is used only through `Identity` and `Catalog` contracts, or the `Contracts`, `Events` and `ExtensionPoints` of a module listed in `DependsOn` (never the reverse); no shared tables, foreign keys or queries across module schemas.
+- A module whose dependency is disabled is disabled too.
 - Business rules are pure functions in `Nails.Application/Modules/<Module>/Rules/`; the server enforces every rule and permission.

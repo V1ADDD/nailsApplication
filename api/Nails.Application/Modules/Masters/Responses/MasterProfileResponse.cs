@@ -25,4 +25,5 @@ public sealed record MasterProfileResponse(
     PriceResponse? HeadlinePrice,
     int BookingsCount,
     bool IsFavorite,
-    bool IsOwn);
+    bool IsOwn,
+    int? ReplyMinutes);

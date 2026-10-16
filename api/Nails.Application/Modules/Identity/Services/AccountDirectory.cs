@@ -7,4 +7,7 @@ public sealed class AccountDirectory(IAccountDirectoryRepository accounts) : IAc
 {
     public Task<IReadOnlyDictionary<Guid, string>> NamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
         accounts.NamesAsync([.. userIds.Distinct()], cancellationToken);
+
+    public Task<IReadOnlyDictionary<Guid, string>> PhonesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        accounts.PhonesAsync([.. userIds.Distinct()], cancellationToken);
 }

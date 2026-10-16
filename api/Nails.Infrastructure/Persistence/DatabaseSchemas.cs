@@ -6,4 +6,5 @@ public static class DatabaseSchemas
     public const string Identity = "identity";
     public const string Support = "support";
     public const string Masters = "masters";
+    public const string Chats = "chats";
 }

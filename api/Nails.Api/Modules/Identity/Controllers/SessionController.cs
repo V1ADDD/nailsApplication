@@ -34,4 +34,8 @@ public sealed class SessionController(ISessionService sessions) : ControllerBase
 
     [HttpGet("me")]
     public Task<MeResponse> Me(CancellationToken cancellationToken) => sessions.MeAsync(cancellationToken);
+
+    [HttpPut("mode")]
+    public Task<MeResponse> SetMode(SetModeRequest request, CancellationToken cancellationToken) =>
+        sessions.SetModeAsync(request, cancellationToken);
 }

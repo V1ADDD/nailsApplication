@@ -18,6 +18,8 @@ public sealed class MastersModule : IAppModule
 
     public bool AlwaysOn => false;
 
+    public IReadOnlyList<string> DependsOn => [];
+
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddValidatedOptions<MasterSearchOptions>(configuration, MasterSearchOptions.SectionName);
@@ -37,6 +39,8 @@ public sealed class MastersModule : IAppModule
         services.AddScoped<IBookingTimeRules, BookingTimeRules>();
         services.AddHostedService<BookingTimeRulesJob>();
         services.AddScoped<IFavoriteService, FavoriteService>();
+        services.AddScoped<IMasterDirectoryRepository, MasterDirectoryRepository>();
+        services.AddScoped<IMasterDirectory, MasterDirectory>();
         services.AddScoped<IDemoSeeder, MastersDemoSeeder>();
     }
 }

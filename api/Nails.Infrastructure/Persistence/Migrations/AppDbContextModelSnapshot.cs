@@ -127,6 +127,153 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.ToTable("user_tokens", "identity");
                 });
 
+            modelBuilder.Entity("Nails.Infrastructure.Modules.Chats.Entities.Chat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BlockedBy")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("blocked_by");
+
+                    b.Property<DateTimeOffset?>("ClientClearedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("client_cleared_at");
+
+                    b.Property<bool>("ClientHidden")
+                        .HasColumnType("boolean")
+                        .HasColumnName("client_hidden");
+
+                    b.Property<DateTimeOffset>("ClientReadAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("client_read_at");
+
+                    b.Property<Guid>("ClientUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_message_at");
+
+                    b.Property<DateTimeOffset?>("MasterClearedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("master_cleared_at");
+
+                    b.Property<bool>("MasterHidden")
+                        .HasColumnType("boolean")
+                        .HasColumnName("master_hidden");
+
+                    b.Property<Guid>("MasterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("master_id");
+
+                    b.Property<DateTimeOffset>("MasterReadAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("master_read_at");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chats");
+
+                    b.HasIndex("ClientUserId", "LastMessageAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_chats_client_user_id_last_message_at");
+
+                    b.HasIndex("MasterId", "ClientUserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_chats_master_id_client_user_id");
+
+                    b.HasIndex("MasterId", "LastMessageAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_chats_master_id_last_message_at");
+
+                    b.ToTable("chats", "chats");
+                });
+
+            modelBuilder.Entity("Nails.Infrastructure.Modules.Chats.Entities.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AuthorRole")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("author_role");
+
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("booking_id");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chat_id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTimeOffset?>("EditedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("edited_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("MediaUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("media_url");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_messages");
+
+                    b.HasIndex("ChatId", "BookingId")
+                        .HasDatabaseName("ix_messages_chat_id_booking_id")
+                        .HasFilter("booking_id IS NOT NULL");
+
+                    b.HasIndex("ChatId", "SentAt", "Id")
+                        .HasDatabaseName("ix_messages_chat_id_sent_at_id");
+
+                    b.ToTable("messages", "chats", t =>
+                        {
+                            t.HasCheckConstraint("ck_messages_booking", "kind <> 'Booking' OR booking_id IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_messages_system", "kind <> 'System' OR (text IS NOT NULL AND author_role IS NULL)");
+
+                            t.HasCheckConstraint("ck_messages_text_content", "kind <> 'Text' OR deleted_at IS NOT NULL OR text IS NOT NULL OR media_url IS NOT NULL");
+                        });
+                });
+
             modelBuilder.Entity("Nails.Infrastructure.Modules.Identity.Entities.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -137,6 +284,14 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer")
                         .HasColumnName("access_failed_count");
+
+                    b.Property<string>("ActiveMode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Client")
+                        .HasColumnName("active_mode");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -974,6 +1129,50 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.ToTable("tickets", "support");
                 });
 
+            modelBuilder.Entity("Nails.Infrastructure.Storage.Entities.MediaFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("storage_key");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_media_files");
+
+                    b.HasIndex("OwnerUserId")
+                        .HasDatabaseName("ix_media_files_owner_user_id");
+
+                    b.ToTable("media_files", "platform");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("Nails.Infrastructure.Modules.Identity.Entities.ApplicationUser", null)
@@ -1002,6 +1201,16 @@ namespace Nails.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("Nails.Infrastructure.Modules.Chats.Entities.Message", b =>
+                {
+                    b.HasOne("Nails.Infrastructure.Modules.Chats.Entities.Chat", null)
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_messages_chats_chat_id");
                 });
 
             modelBuilder.Entity("Nails.Infrastructure.Modules.Identity.Entities.ApplicationUser", b =>

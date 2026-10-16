@@ -25,6 +25,68 @@
         }
       }
     },
+    "/api/media": {
+      "post": {
+        "tags": [
+          "MediaEndpoints"
+        ],
+        "operationId": "UploadMedia",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media/{id}": {
+      "get": {
+        "tags": [
+          "MediaEndpoints"
+        ],
+        "operationId": "GetMedia",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/support/tickets": {
       "post": {
         "tags": [
@@ -709,6 +771,40 @@
         }
       }
     },
+    "/api/identity/mode": {
+      "put": {
+        "tags": [
+          "Session"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetModeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetModeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/help/content": {
       "get": {
         "tags": [
@@ -775,6 +871,458 @@
         }
       }
     },
+    "/api/chats": {
+      "post": {
+        "tags": [
+          "Chats"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartChatRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartChatResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatSummaryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/unread": {
+      "get": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{id}": {
+      "get": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatThreadResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/read": {
+      "post": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/block": {
+      "post": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{id}/messages": {
+      "get": {
+        "tags": [
+          "Messages"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "maximum": 500,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagesPageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatRole"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/messages/{messageId}": {
+      "patch": {
+        "tags": [
+          "Messages"
+        ],
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditMessageRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Messages"
+        ],
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/catalog": {
       "get": {
         "tags": [
@@ -832,6 +1380,226 @@
   },
   "components": {
     "schemas": {
+      "BookingCard": {
+        "required": [
+          "id",
+          "masterId",
+          "clientUserId",
+          "subcategoryId",
+          "serviceName",
+          "price",
+          "start",
+          "durationMin",
+          "status",
+          "createdBy",
+          "cancelledBy",
+          "cancelReason",
+          "cancelMutual",
+          "cancelExpired",
+          "releaseAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "masterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "subcategoryId": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceResponse"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BookingStatus"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "cancelledBy": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Party"
+              }
+            ]
+          },
+          "cancelReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cancelMutual": {
+            "type": "boolean"
+          },
+          "cancelExpired": {
+            "type": "boolean"
+          },
+          "releaseAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "BookingChangedEvent": {
+        "required": [
+          "chatId",
+          "booking"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "booking": {
+            "required": [
+              "id",
+              "masterId",
+              "clientUserId",
+              "subcategoryId",
+              "serviceName",
+              "price",
+              "start",
+              "durationMin",
+              "status",
+              "createdBy",
+              "cancelledBy",
+              "cancelReason",
+              "cancelMutual",
+              "cancelExpired",
+              "releaseAt"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "masterId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "clientUserId": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "format": "uuid"
+              },
+              "subcategoryId": {
+                "type": "string"
+              },
+              "serviceName": {
+                "type": "string"
+              },
+              "price": {
+                "required": [
+                  "kind",
+                  "amount"
+                ],
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "exact",
+                      "from",
+                      "free"
+                    ]
+                  },
+                  "amount": {
+                    "type": [
+                      "null",
+                      "number"
+                    ],
+                    "format": "double"
+                  }
+                }
+              },
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "durationMin": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "status": {
+                "enum": [
+                  "pending",
+                  "confirmed",
+                  "cancelled",
+                  "completed",
+                  "noShow"
+                ]
+              },
+              "createdBy": {
+                "enum": [
+                  "client",
+                  "master"
+                ]
+              },
+              "cancelledBy": {
+                "enum": [
+                  "client",
+                  "master",
+                  null
+                ]
+              },
+              "cancelReason": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "cancelMutual": {
+                "type": "boolean"
+              },
+              "cancelExpired": {
+                "type": "boolean"
+              },
+              "releaseAt": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
       "BookingResponse": {
         "required": [
           "id",
@@ -1083,6 +1851,170 @@
           }
         }
       },
+      "ChatChangedEvent": {
+        "required": [
+          "chatId",
+          "blockedBy"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "blockedBy": {
+            "enum": [
+              "client",
+              "master",
+              null
+            ]
+          }
+        }
+      },
+      "ChatReadEvent": {
+        "required": [
+          "chatId",
+          "role",
+          "readAt"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "enum": [
+              "client",
+              "master"
+            ]
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatResponse": {
+        "required": [
+          "id",
+          "blockedBy",
+          "otherReadAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "blockedBy": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatRole"
+              }
+            ]
+          },
+          "otherReadAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatRole": {
+        "enum": [
+          "client",
+          "master",
+          null
+        ]
+      },
+      "ChatSummaryResponse": {
+        "required": [
+          "chatId",
+          "counterpart",
+          "lastMessage",
+          "lastMessagePreview",
+          "lastActivityAt",
+          "unread",
+          "blockedBy"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "counterpart": {
+            "$ref": "#/components/schemas/CounterpartResponse"
+          },
+          "lastMessage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MessageResponse"
+              }
+            ]
+          },
+          "lastMessagePreview": {
+            "type": "string"
+          },
+          "lastActivityAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unread": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "blockedBy": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatRole"
+              }
+            ]
+          }
+        }
+      },
+      "ChatThreadResponse": {
+        "required": [
+          "chat",
+          "counterpart",
+          "messages",
+          "bookings",
+          "hasOlder"
+        ],
+        "type": "object",
+        "properties": {
+          "chat": {
+            "$ref": "#/components/schemas/ChatResponse"
+          },
+          "counterpart": {
+            "$ref": "#/components/schemas/CounterpartResponse"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageResponse"
+            }
+          },
+          "bookings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingCard"
+            }
+          },
+          "hasOlder": {
+            "type": "boolean"
+          }
+        }
+      },
       "ConflictsRequest": {
         "required": [
           "slotId"
@@ -1152,6 +2084,48 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "CounterpartResponse": {
+        "required": [
+          "id",
+          "name",
+          "photoUrl",
+          "isMaster",
+          "online",
+          "subtitle",
+          "deleted"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isMaster": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "subtitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "deleted": {
+            "type": "boolean"
           }
         }
       },
@@ -1251,6 +2225,16 @@
           "ticketId": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "EditMessageRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": "string"
           }
         }
       },
@@ -1479,6 +2463,10 @@
           }
         }
       },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
       "MapPinResponse": {
         "required": [
           "id",
@@ -1649,7 +2637,8 @@
           "headlinePrice",
           "bookingsCount",
           "isFavorite",
-          "isOwn"
+          "isOwn",
+          "replyMinutes"
         ],
         "type": "object",
         "properties": {
@@ -1760,6 +2749,13 @@
           },
           "isOwn": {
             "type": "boolean"
+          },
+          "replyMinutes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
           }
         }
       },
@@ -1794,12 +2790,30 @@
           }
         }
       },
+      "MediaResponse": {
+        "required": [
+          "id",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "MeResponse": {
         "required": [
           "id",
           "name",
           "phone",
-          "masterId"
+          "masterId",
+          "mode",
+          "heartbeatSeconds"
         ],
         "type": "object",
         "properties": {
@@ -1822,6 +2836,296 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/UserMode"
+          },
+          "heartbeatSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MessageCreatedEvent": {
+        "required": [
+          "chatId",
+          "message",
+          "preview",
+          "masterUserId",
+          "clientUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "required": [
+              "id",
+              "kind",
+              "authorRole",
+              "text",
+              "mediaUrl",
+              "bookingId",
+              "sentAt",
+              "editedAt",
+              "deleted"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "enum": [
+                  "text",
+                  "booking",
+                  "system"
+                ]
+              },
+              "authorRole": {
+                "enum": [
+                  "client",
+                  "master",
+                  null
+                ]
+              },
+              "text": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "mediaUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "bookingId": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "format": "uuid"
+              },
+              "sentAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "editedAt": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "format": "date-time"
+              },
+              "deleted": {
+                "type": "boolean"
+              }
+            }
+          },
+          "preview": {
+            "type": "string"
+          },
+          "masterUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientUserId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MessageKind": {
+        "enum": [
+          "text",
+          "booking",
+          "system"
+        ]
+      },
+      "MessageResponse": {
+        "required": [
+          "id",
+          "kind",
+          "authorRole",
+          "text",
+          "mediaUrl",
+          "bookingId",
+          "sentAt",
+          "editedAt",
+          "deleted"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MessageKind"
+          },
+          "authorRole": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatRole"
+              }
+            ]
+          },
+          "text": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mediaUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bookingId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "editedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MessagesPageResponse": {
+        "required": [
+          "items",
+          "hasOlder"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageResponse"
+            }
+          },
+          "hasOlder": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MessageUpdatedEvent": {
+        "required": [
+          "chatId",
+          "message",
+          "preview"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "required": [
+              "id",
+              "kind",
+              "authorRole",
+              "text",
+              "mediaUrl",
+              "bookingId",
+              "sentAt",
+              "editedAt",
+              "deleted"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "enum": [
+                  "text",
+                  "booking",
+                  "system"
+                ]
+              },
+              "authorRole": {
+                "enum": [
+                  "client",
+                  "master",
+                  null
+                ]
+              },
+              "text": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "mediaUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "bookingId": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "format": "uuid"
+              },
+              "sentAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "editedAt": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "format": "date-time"
+              },
+              "deleted": {
+                "type": "boolean"
+              }
+            }
+          },
+          "preview": {
+            "type": "string"
+          }
+        }
+      },
+      "ModeChangedEvent": {
+        "required": [
+          "mode"
+        ],
+        "type": "object",
+        "properties": {
+          "mode": {
+            "enum": [
+              "client",
+              "master"
+            ]
           }
         }
       },
@@ -1997,6 +3301,18 @@
           }
         }
       },
+      "ReadResponse": {
+        "required": [
+          "readAt"
+        ],
+        "type": "object",
+        "properties": {
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ReviewResponse": {
         "required": [
           "id",
@@ -2051,6 +3367,38 @@
           "weekend",
           null
         ]
+      },
+      "SendMessageRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mediaUrl": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "SetModeRequest": {
+        "required": [
+          "mode"
+        ],
+        "type": "object",
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/UserMode"
+          }
+        }
       },
       "SignInRequest": {
         "required": [
@@ -2144,6 +3492,37 @@
           }
         }
       },
+      "StartChatRequest": {
+        "type": "object",
+        "properties": {
+          "masterId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "StartChatResponse": {
+        "required": [
+          "chatId"
+        ],
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "SubcategoryResponse": {
         "required": [
           "id",
@@ -2195,12 +3574,52 @@
             "type": "string"
           }
         }
+      },
+      "UnreadChangedEvent": {
+        "required": [
+          "role",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "client",
+              "master"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UnreadResponse": {
+        "required": [
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UserMode": {
+        "enum": [
+          "client",
+          "master"
+        ]
       }
     }
   },
   "tags": [
     {
       "name": "Nails.Api"
+    },
+    {
+      "name": "MediaEndpoints"
     },
     {
       "name": "Tickets"
@@ -2219,6 +3638,12 @@
     },
     {
       "name": "Help"
+    },
+    {
+      "name": "Chats"
+    },
+    {
+      "name": "Messages"
     },
     {
       "name": "Catalog"

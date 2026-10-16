@@ -25,4 +25,20 @@ public static class ErrorCodes
     public const string SameSideConfirm = "same-side-confirm";
     public const string CannotCancel = "cannot-cancel";
     public const string NotBookingParty = "not-booking-party";
+    public const string MediaType = "media-type";
+    public const string MediaTooLarge = "media-too-large";
+    public const string MediaNotFound = "media-not-found";
+    public const string MediaNotOwned = "media-not-owned";
+    public const string NotAMaster = "not-a-master";
+    public const string OtherRole = "other-role";
+    public const string ChatNotFound = "chat-not-found";
+    public const string SelfChat = "self-chat";
+    public const string NotOwnClient = "not-own-client";
+    public const string EmptyMessage = "empty-message";
+    public const string ChatBlocked = "chat-blocked";
+    public const string MessageNotFound = "message-not-found";
+    public const string NotAuthor = "not-author";
+    public const string MessageDeleted = "message-deleted";
+    public const string AlreadyBlocked = "already-blocked";
+    public const string NotBlocker = "not-blocker";
 }

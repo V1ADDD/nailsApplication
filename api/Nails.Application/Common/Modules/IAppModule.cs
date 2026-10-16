@@ -9,5 +9,7 @@ public interface IAppModule
 
     bool AlwaysOn { get; }
 
+    IReadOnlyList<string> DependsOn { get; }
+
     void Register(IServiceCollection services, IConfiguration configuration);
 }

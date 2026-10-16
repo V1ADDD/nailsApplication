@@ -1,7 +1,10 @@
 export { appLocale } from './lib/app-locale';
 export { formatCountdown } from './lib/countdown';
 export {
+  formatChatTime,
   formatDateTime,
+  formatDateTimeWithYear,
+  formatDayPill,
   formatDayChip,
   formatDayHeading,
   formatLongDate,

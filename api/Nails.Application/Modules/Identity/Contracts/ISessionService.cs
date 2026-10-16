@@ -12,4 +12,6 @@ public interface ISessionService
     Task SignOutAsync();
 
     Task<MeResponse> MeAsync(CancellationToken cancellationToken);
+
+    Task<MeResponse> SetModeAsync(SetModeRequest request, CancellationToken cancellationToken);
 }

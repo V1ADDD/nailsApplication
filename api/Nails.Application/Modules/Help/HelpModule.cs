@@ -16,6 +16,8 @@ public sealed class HelpModule : IAppModule
 
     public bool AlwaysOn => false;
 
+    public IReadOnlyList<string> DependsOn => [];
+
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddValidatedOptions<HelpOptions>(configuration, HelpOptions.SectionName);
