@@ -51,6 +51,9 @@ public sealed class MastersDemoSeeder(AppDbContext dbContext, TimeProvider clock
             .Where(favorite => masterIds.Contains(favorite.MasterId) || userIds.Contains(favorite.UserId))
             .ExecuteDeleteAsync(cancellationToken);
         await dbContext.Set<Review>().Where(review => masterIds.Contains(review.MasterId)).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Set<BookingMove>()
+            .Where(move => dbContext.Set<Booking>().Any(booking => booking.Id == move.BookingId && masterIds.Contains(booking.MasterId)))
+            .ExecuteDeleteAsync(cancellationToken);
         await dbContext.Set<Booking>().Where(booking => masterIds.Contains(booking.MasterId)).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Set<Slot>().Where(slot => masterIds.Contains(slot.MasterId)).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Set<Schedule>().Where(schedule => masterIds.Contains(schedule.MasterId)).ExecuteDeleteAsync(cancellationToken);
@@ -101,7 +104,8 @@ public sealed class MastersDemoSeeder(AppDbContext dbContext, TimeProvider clock
 
         dbContext.Set<Slot>().AddRange(slots);
         dbContext.Set<Booking>().AddRange(bookings);
-        dbContext.Set<Review>().AddRange(Reviews(now));
+        var linked = new HashSet<(Guid, Party)>();
+        dbContext.Set<Review>().AddRange(Reviews(now).Select(review => LinkToVisit(review, bookings, linked)));
         dbContext.Set<Favorite>().AddRange(MastersDemoScenario.Favorites.Select(slug => new Favorite
         {
             UserId = DemoIds.User(MastersDemoScenario.Me),
@@ -352,6 +356,24 @@ public sealed class MastersDemoSeeder(AppDbContext dbContext, TimeProvider clock
     {
         var texts = MastersDemoScenario.ReviewTexts.Where(text => text.Rating == Math.Max(rating, 3)).ToList();
         return texts[seed % texts.Count].Text;
+    }
+
+    private static Review LinkToVisit(Review review, List<Booking> bookings, HashSet<(Guid, Party)> linked)
+    {
+        var visit = bookings.FirstOrDefault(booking => booking.MasterId == review.MasterId
+            && booking.ClientUserId == review.ClientUserId
+            && booking.SubcategoryId == review.SubcategoryId
+            && booking.Status == BookingStatus.Completed
+            && booking.StartAt < review.CreatedAt
+            && !linked.Contains((booking.Id, review.AuthorRole)));
+
+        if (visit is not null)
+        {
+            linked.Add((visit.Id, review.AuthorRole));
+            review.BookingId = visit.Id;
+        }
+
+        return review;
     }
 
     private static Review ToReview(DemoReview review) => new()

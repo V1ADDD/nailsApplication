@@ -8,6 +8,16 @@ import type { LatLng, MasterCard } from './search-criteria';
 export const mastersPaths = {
   search: '/api/masters/search',
   favoriteIds: '/api/masters/favorites/ids',
+  favorites: '/api/masters/favorites',
+  myBookings: '/api/masters/bookings/mine',
+  myReviews: '/api/masters/reviews/mine',
+  cities: '/api/masters/cities',
+  becomeMaster: '/api/masters/me',
+  booking: (id: string) => `/api/masters/bookings/${id}`,
+  confirm: (id: string) => `/api/masters/bookings/${id}/confirm`,
+  cancel: (id: string) => `/api/masters/bookings/${id}/cancel`,
+  review: (id: string) => `/api/masters/bookings/${id}/reviews`,
+  move: (id: string) => `/api/masters/bookings/${id}/move`,
   conflicts: '/api/masters/bookings/conflicts',
   bookings: '/api/masters/bookings',
   profile: (id: string) => `/api/masters/${id}`,
@@ -57,6 +67,56 @@ export class MastersApi {
     return firstValueFrom(
       this.http.get<Schemas['SuggestionResponse'][]>(apiPaths.catalogSuggestions, { params: { q: query } })
     );
+  }
+
+  myBookings(scope: Schemas['MyBookingsScope'], page: number): Promise<Schemas['PagedResponseOfMyBookingResponse']> {
+    return firstValueFrom(
+      this.http.get<Schemas['PagedResponseOfMyBookingResponse']>(mastersPaths.myBookings, { params: { scope, page } })
+    );
+  }
+
+  myBooking(id: string): Promise<Schemas['MyBookingResponse']> {
+    return firstValueFrom(this.http.get<Schemas['MyBookingResponse']>(mastersPaths.booking(id)));
+  }
+
+  confirmBooking(id: string): Promise<Schemas['BookingResponse']> {
+    return firstValueFrom(this.http.post<Schemas['BookingResponse']>(mastersPaths.confirm(id), null));
+  }
+
+  cancelBooking(id: string, request: Schemas['CancelBookingRequest']): Promise<Schemas['BookingResponse']> {
+    return firstValueFrom(this.http.post<Schemas['BookingResponse']>(mastersPaths.cancel(id), request));
+  }
+
+  writeReview(id: string, request: Schemas['WriteReviewRequest']): Promise<Schemas['ReviewResponse']> {
+    return firstValueFrom(this.http.post<Schemas['ReviewResponse']>(mastersPaths.review(id), request));
+  }
+
+  requestMove(id: string, request: Schemas['MoveBookingRequest']): Promise<Schemas['MyBookingResponse']> {
+    return firstValueFrom(this.http.post<Schemas['MyBookingResponse']>(mastersPaths.move(id), request));
+  }
+
+  withdrawMove(id: string): Promise<Schemas['MyBookingResponse']> {
+    return firstValueFrom(this.http.delete<Schemas['MyBookingResponse']>(mastersPaths.move(id)));
+  }
+
+  myReviews(about: boolean, page: number): Promise<Schemas['MyReviewsResponse']> {
+    return firstValueFrom(
+      this.http.get<Schemas['MyReviewsResponse']>(mastersPaths.myReviews, { params: { about, page } })
+    );
+  }
+
+  favoriteMasters(page: number): Promise<Schemas['PagedResponseOfFavoriteMasterResponse']> {
+    return firstValueFrom(
+      this.http.get<Schemas['PagedResponseOfFavoriteMasterResponse']>(mastersPaths.favorites, { params: { page } })
+    );
+  }
+
+  cities(): Promise<string[]> {
+    return firstValueFrom(this.http.get<string[]>(mastersPaths.cities));
+  }
+
+  becomeMaster(request: Schemas['BecomeMasterRequest']): Promise<Schemas['MeResponse']> {
+    return firstValueFrom(this.http.post<Schemas['MeResponse']>(mastersPaths.becomeMaster, request));
   }
 
   setFavorite(id: string, favorite: boolean): Promise<unknown> {

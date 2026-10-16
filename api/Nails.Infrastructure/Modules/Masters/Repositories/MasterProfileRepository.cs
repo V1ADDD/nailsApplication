@@ -9,14 +9,15 @@ namespace Nails.Infrastructure.Modules.Masters.Repositories;
 
 public sealed class MasterProfileRepository(AppDbContext dbContext) : IMasterProfileRepository
 {
-    public Task<MasterProfileRow?> FindAsync(Guid masterId, CancellationToken cancellationToken)
+    public Task<MasterProfileRow?> FindAsync(Guid masterId, Guid viewerUserId, CancellationToken cancellationToken)
     {
         var reviews = dbContext.Set<Review>().Where(review => review.AuthorRole == Party.Client);
         var completed = dbContext.Set<Booking>().Where(booking => booking.Status == BookingStatus.Completed);
 
         return dbContext.Set<Master>()
             .AsNoTracking()
-            .Where(master => master.Id == masterId && master.DeletedAt == null)
+            .VisibleTo(dbContext, viewerUserId)
+            .Where(master => master.Id == masterId)
             .Select(master => new MasterProfileRow
             {
                 Id = master.Id,
@@ -69,8 +70,8 @@ public sealed class MasterProfileRepository(AppDbContext dbContext) : IMasterPro
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public Task<bool> ExistsAsync(Guid masterId, CancellationToken cancellationToken) =>
-        dbContext.Set<Master>().AnyAsync(master => master.Id == masterId && master.DeletedAt == null, cancellationToken);
+    public Task<bool> ExistsAsync(Guid masterId, Guid viewerUserId, CancellationToken cancellationToken) =>
+        dbContext.Set<Master>().VisibleTo(dbContext, viewerUserId).AnyAsync(master => master.Id == masterId, cancellationToken);
 
     public async Task<IReadOnlyList<Slot>> SlotsAsync(
         Guid masterId,

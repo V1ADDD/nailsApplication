@@ -14,26 +14,25 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
-import { formatCountdown, formatPhone, formatPhoneInput } from '@nails/shared/common/util';
+import { formatCountdown, formatPhone } from '@nails/shared/common/util';
 import { IdentityApi, SessionStore, toProblem, type Schemas } from '@nails/shared/core/data-access';
 import { Toasts } from '@nails/web/common/overlays';
 import { appPaths } from '../bootstrap/app-paths';
 import { frameSlots, injectFrameActionRunner } from '../modules/frame';
 import { CodeInput } from './code-input';
+import { PhoneField, phoneCountryCode, phoneDigits } from './phone-field';
 import { safeReturnTo } from './safe-return-to';
 import { SignInCard } from './sign-in-card';
 
 type SignInStep = 'phone' | 'code' | 'name';
 
-const countryCode = '+375';
-const phoneDigits = 9;
 const millisecondsPerSecond = 1000;
 const nameMaxLength = 120;
 const errorId = 'sign-in-error';
 
 @Component({
   selector: 'app-sign-in-page',
-  imports: [MatButtonModule, CodeInput, SignInCard],
+  imports: [MatButtonModule, CodeInput, PhoneField, SignInCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -49,20 +48,6 @@ const errorId = 'sign-in-error';
     .lead strong {
       color: var(--app-color-text);
       white-space: nowrap;
-    }
-    .phone {
-      position: relative;
-      display: block;
-    }
-    .phone .prefix {
-      position: absolute;
-      top: 50%;
-      left: var(--app-space-4);
-      transform: translateY(-50%);
-      pointer-events: none;
-    }
-    .phone .app-input {
-      padding-left: 3.75rem;
     }
     .lead .app-link {
       min-height: auto;
@@ -98,28 +83,18 @@ const errorId = 'sign-in-error';
             том же аккаунте.
           </p>
           <form (submit)="requestCode($event)">
-            <label class="app-field">
+            <div class="app-field">
               <span class="app-field-label">Телефон</span>
-              <span class="phone">
-                <span class="prefix" aria-hidden="true">+375</span>
-                <input
-                  #phoneField
-                  class="app-input"
-                  type="tel"
-                  inputmode="tel"
-                  autocomplete="tel-national"
-                  placeholder="(29) 123-45-67"
-                  aria-label="Телефон, после +375"
-                  [attr.aria-invalid]="error() !== null"
-                  [attr.aria-describedby]="error() ? errorId : null"
-                  [value]="phoneText()"
-                  (input)="phoneChanged($event)"
-                />
-              </span>
+              <app-phone-field
+                [digits]="digits()"
+                [invalid]="error() !== null"
+                [describedBy]="error() ? errorId : null"
+                (digitsChange)="phoneChanged($event)"
+              />
               @if (error(); as message) {
                 <span class="app-field-error" role="alert" [id]="errorId">{{ message }}</span>
               }
-            </label>
+            </div>
             <button mat-flat-button class="app-large app-block" type="submit" [disabled]="busy() || !phoneComplete()">
               {{ busy() ? 'Отправляем…' : 'Получить код' }}
             </button>
@@ -211,12 +186,11 @@ export class SignInPage {
   private readonly code = signal('');
   private readonly resendAt = signal(0);
   private readonly now = signal(Date.now());
-  protected readonly phoneText = computed(() => formatPhoneInput(this.digits()));
   protected readonly phoneComplete = computed(() => this.digits().length === phoneDigits);
   protected readonly shownPhone = computed(() => formatPhone(this.phone()));
   protected readonly resendIn = computed(() => Math.max(0, (this.resendAt() - this.now()) / millisecondsPerSecond));
   protected readonly countdown = computed(() => formatCountdown(this.resendIn()));
-  private readonly phoneField = viewChild<ElementRef<HTMLInputElement>>('phoneField');
+  private readonly phoneField = viewChild(PhoneField);
   private readonly nameField = viewChild<ElementRef<HTMLInputElement>>('nameField');
   private readonly codeInput = viewChild(CodeInput);
 
@@ -231,12 +205,8 @@ export class SignInPage {
     this.focusStep();
   }
 
-  protected phoneChanged(event: Event): void {
-    const field = event.target as HTMLInputElement;
-    const raw = field.value.replace(/\D/g, '');
-    const local = raw.length > phoneDigits && raw.startsWith('375') ? raw.slice(3) : raw;
-    this.digits.set(local.slice(0, phoneDigits));
-    field.value = this.phoneText();
+  protected phoneChanged(digits: string): void {
+    this.digits.set(digits);
     this.error.set(null);
   }
 
@@ -329,7 +299,7 @@ export class SignInPage {
   }
 
   private phone(): string {
-    return countryCode + this.digits();
+    return phoneCountryCode + this.digits();
   }
 
   private destination(): string {
@@ -339,7 +309,7 @@ export class SignInPage {
   private focusStep(): void {
     afterNextRender(
       () => {
-        this.phoneField()?.nativeElement.focus();
+        this.phoneField()?.focus();
         this.nameField()?.nativeElement.focus();
         this.codeInput()?.focus();
       },

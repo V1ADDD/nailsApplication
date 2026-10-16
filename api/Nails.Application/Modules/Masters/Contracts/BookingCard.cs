@@ -18,4 +18,5 @@ public sealed record BookingCard(
     string? CancelReason,
     bool CancelMutual,
     bool CancelExpired,
-    DateTimeOffset? ReleaseAt);
+    DateTimeOffset? ReleaseAt,
+    BookingMoveCard? Move);

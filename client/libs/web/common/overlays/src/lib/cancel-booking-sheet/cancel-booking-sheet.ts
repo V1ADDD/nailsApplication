@@ -2,15 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { type Schemas, toProblem } from '@nails/shared/core/data-access';
-import { SheetLayout } from '@nails/web/common/overlays';
+import { SheetLayout } from '../sheet/sheet-layout';
+import type { CancelBookingData } from './cancel-booking-texts';
 
-export interface CancelBookingData {
-  submit: (request: Schemas['CancelBookingRequest']) => Promise<void>;
-}
-
-const otherReason = 'Другое';
-const reasons = ['Изменились планы', 'Заболела', 'Не успеваю', otherReason] as const;
 const reasonMaxLength = 300;
 
 @Component({
@@ -18,6 +12,13 @@ const reasonMaxLength = 300;
   imports: [MatButtonModule, MatDialogClose, MatSlideToggleModule, SheetLayout],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
+    .summary {
+      margin: 0 0 var(--app-space-4);
+      color: var(--app-color-text-secondary);
+    }
+    .summary strong {
+      color: var(--app-color-text);
+    }
     .chips {
       display: flex;
       flex-wrap: wrap;
@@ -53,15 +54,20 @@ const reasonMaxLength = 300;
     }
   `,
   template: `
-    <app-sheet-layout heading="Отмена записи">
+    <app-sheet-layout [heading]="texts.heading">
+      @if (texts.summary; as summary) {
+        <p class="summary">
+          <strong>{{ summary.name }}</strong> · {{ summary.details }}
+        </p>
+      }
       <div class="chips" role="group" aria-label="Причина отмены">
-        @for (item of reasons; track item) {
+        @for (item of texts.reasons; track item) {
           <button type="button" [attr.aria-pressed]="reason() === item" (click)="reason.set(item)">{{ item }}</button>
         }
       </div>
-      @if (reason() === otherReason) {
+      @if (reason() === texts.otherReason) {
         <label class="app-field">
-          <span class="app-field-label">Опишите причину</span>
+          <span class="app-field-label">{{ texts.otherPlaceholder }}</span>
           <textarea
             class="app-input"
             rows="3"
@@ -72,18 +78,18 @@ const reasonMaxLength = 300;
         </label>
       }
       <mat-slide-toggle [checked]="mutual()" (change)="mutual.set($event.checked)">
-        Отмена по договорённости (без последствий)
+        {{ texts.mutualLabel }}
       </mat-slide-toggle>
       @if (!mutual()) {
-        <p class="warning">Отмена без взаимного согласия снижает рейтинг</p>
+        <p class="warning">{{ texts.warning }}</p>
       }
       @if (error(); as message) {
         <p class="app-field-error" role="alert">{{ message }}</p>
       }
       <div class="actions" sheetFooter>
-        <button mat-stroked-button type="button" mat-dialog-close>Назад</button>
+        <button mat-stroked-button type="button" mat-dialog-close>{{ texts.backLabel }}</button>
         <button mat-flat-button class="app-danger-soft" type="button" [disabled]="!text() || busy()" (click)="submit()">
-          Отменить запись
+          {{ texts.submitLabel }}
         </button>
       </div>
     </app-sheet-layout>
@@ -92,16 +98,15 @@ const reasonMaxLength = 300;
 export class CancelBookingSheet {
   private readonly data = inject<CancelBookingData>(MAT_DIALOG_DATA);
   private readonly ref = inject(MatDialogRef);
-  protected readonly reasons = reasons;
-  protected readonly otherReason = otherReason;
+  protected readonly texts = this.data.texts;
   protected readonly reasonMaxLength = reasonMaxLength;
   protected readonly reason = signal<string | null>(null);
   protected readonly details = signal('');
-  protected readonly mutual = signal(false);
+  protected readonly mutual = signal(this.data.texts.mutualDefault);
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly text = computed(() =>
-    this.reason() === otherReason ? this.details().trim() : (this.reason() ?? '')
+    this.reason() === this.texts.otherReason ? this.details().trim() : (this.reason() ?? '')
   );
 
   protected detailsChanged(event: Event): void {
@@ -115,7 +120,7 @@ export class CancelBookingSheet {
       await this.data.submit({ reason: this.text(), mutual: this.mutual() });
       this.ref.close(true);
     } catch (error) {
-      this.error.set(toProblem(error).title);
+      this.error.set(this.data.describeError(error));
     } finally {
       this.busy.set(false);
     }

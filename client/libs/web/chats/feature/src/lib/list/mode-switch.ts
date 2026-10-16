@@ -1,31 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Router } from '@angular/router';
 import { SessionStore, toProblem } from '@nails/shared/core/data-access';
 import { Toasts } from '@nails/web/common/overlays';
+import { type SegmentedOption, SegmentedToggle } from '@nails/web/common/ui';
 import type { ChatRole } from '@nails/shared/chats/data-access';
+
+const modeOptions: readonly SegmentedOption[] = [
+  { value: 'client', label: 'Как клиент' },
+  { value: 'master', label: 'Как мастер' }
+];
 
 @Component({
   selector: 'app-mode-switch',
-  imports: [MatButtonToggleModule],
+  imports: [SegmentedToggle],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: `
-    mat-button-toggle-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      width: 100%;
-    }
-  `,
   template: `
-    <mat-button-toggle-group
-      aria-label="Режим чатов"
+    <app-segmented-toggle
+      label="Режим чатов"
+      [options]="options"
       [value]="session.mode()"
       [disabled]="busy()"
-      (change)="switch($event.value)"
-    >
-      <mat-button-toggle value="client">Как клиент</mat-button-toggle>
-      <mat-button-toggle value="master">Как мастер</mat-button-toggle>
-    </mat-button-toggle-group>
+      (changed)="switch($event)"
+    />
   `
 })
 export class ModeSwitch {
@@ -33,8 +29,10 @@ export class ModeSwitch {
   private readonly router = inject(Router);
   private readonly toasts = inject(Toasts);
   protected readonly busy = signal(false);
+  protected readonly options = modeOptions;
 
-  protected async switch(mode: ChatRole): Promise<void> {
+  protected async switch(value: string): Promise<void> {
+    const mode: ChatRole = value === 'master' ? 'master' : 'client';
     this.busy.set(true);
     try {
       await this.session.setMode(mode);

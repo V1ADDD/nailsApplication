@@ -24,8 +24,12 @@ export class SessionStore {
   readonly status = computed(() => this.state().status);
   readonly me = computed(() => this.state().me);
   readonly mode = computed<Schemas['UserMode']>(() => this.state().me?.mode ?? 'client');
+  readonly meError = computed(() => this.state().status === 'unreachable');
 
   constructor() {
+    this.realtime.connectionLost$.subscribe(() => {
+      void this.verify();
+    });
     this.realtime.on('modeChanged').subscribe(({ mode }) => {
       const me = this.state().me;
       if (me && me.mode !== mode) {
@@ -59,6 +63,33 @@ export class SessionStore {
     }
   }
 
+  patchMe(me: Schemas['MeResponse']): void {
+    this.state.set({ status: 'signed-in', me });
+  }
+
+  async setNotifications(notifications: Schemas['NotificationSettingsResponse']): Promise<void> {
+    const before = this.state().me;
+    if (!before) {
+      return;
+    }
+    this.patchMe({ ...before, notifications });
+    try {
+      const saved = await firstValueFrom(
+        this.http.put<Schemas['NotificationSettingsResponse']>(apiPaths.notifications, notifications)
+      );
+      const current = this.state().me;
+      if (current) {
+        this.patchMe({ ...current, notifications: saved });
+      }
+    } catch (error) {
+      const current = this.state().me;
+      if (current) {
+        this.patchMe({ ...current, notifications: before.notifications });
+      }
+      throw error;
+    }
+  }
+
   markSignedOut(): void {
     this.realtime.stop();
     this.state.set({ status: 'signed-out', me: null });
@@ -71,6 +102,19 @@ export class SessionStore {
     const request: Schemas['SetModeRequest'] = { mode };
     const me = await firstValueFrom(this.http.put<Schemas['MeResponse']>(apiPaths.mode, request));
     this.state.set({ status: 'signed-in', me });
+  }
+
+  private async verify(): Promise<void> {
+    if (this.state().status !== 'signed-in') {
+      return;
+    }
+    try {
+      this.patchMe(await firstValueFrom(this.http.get<Schemas['MeResponse']>(apiPaths.me)));
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === unauthorized) {
+        this.markSignedOut();
+      }
+    }
   }
 
   private async fetchMe(): Promise<void> {

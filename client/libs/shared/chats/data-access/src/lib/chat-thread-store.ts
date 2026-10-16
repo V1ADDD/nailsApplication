@@ -87,9 +87,9 @@ export class ChatThreadStore {
     this.realtime
       .on('bookingChanged')
       .pipe(takeUntilDestroyed(destroyRef))
-      .subscribe(({ chatId, booking }) => {
+      .subscribe(({ booking }) => {
         const state = this.stateSignal();
-        if (state && (chatId === this.chatId || state.bookings.some((item) => item.id === booking.id))) {
+        if (state && (state.bookings.some((item) => item.id === booking.id) || this.belongsToPair(state, booking))) {
           this.upsertBooking(booking);
         }
       });
@@ -212,6 +212,14 @@ export class ChatThreadStore {
     await this.api.cancelBooking(bookingId, request);
   }
 
+  async acceptMove(bookingId: string): Promise<void> {
+    await this.api.acceptMove(bookingId);
+  }
+
+  async declineMove(bookingId: string): Promise<void> {
+    await this.api.declineMove(bookingId);
+  }
+
   private async deliver(local: ThreadMessage): Promise<void> {
     const chatId = this.chatId;
     if (!chatId) {
@@ -239,6 +247,12 @@ export class ChatThreadStore {
 
   private patchChat(change: Partial<Schemas['ChatResponse']>): void {
     this.stateSignal.update((state) => (state ? { ...state, chat: { ...state.chat, ...change } } : state));
+  }
+
+  private belongsToPair(state: ThreadState, booking: BookingCard): boolean {
+    return this.role === 'client'
+      ? booking.masterId === state.counterpart.id
+      : booking.clientUserId === state.counterpart.id;
   }
 
   private upsertBooking(booking: BookingCard): void {

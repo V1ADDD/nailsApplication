@@ -10,4 +10,9 @@ public sealed class AccountDirectory(IAccountDirectoryRepository accounts) : IAc
 
     public Task<IReadOnlyDictionary<Guid, string>> PhonesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
         accounts.PhonesAsync([.. userIds.Distinct()], cancellationToken);
+
+    public async Task<AccountProfile?> ProfileAsync(Guid userId, CancellationToken cancellationToken) =>
+        await accounts.FindAsync(userId, cancellationToken) is { PhoneNumber: { } phone } user
+            ? new AccountProfile(user.DisplayName, phone, user.Email, user.PhotoUrl, user.Telegram, user.Viber)
+            : null;
 }

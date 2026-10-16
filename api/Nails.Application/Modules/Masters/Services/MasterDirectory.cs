@@ -40,10 +40,16 @@ public sealed class MasterDirectory(IMasterDirectoryRepository directory, IPrese
 
     public async Task<IReadOnlyList<BookingCard>> BookingCardsAsync(
         IReadOnlyCollection<Guid> bookingIds,
-        CancellationToken cancellationToken) =>
-        [.. (await directory.BookingsAsync([.. bookingIds.Distinct()], cancellationToken))
+        CancellationToken cancellationToken)
+    {
+        var ids = bookingIds.Distinct().ToList();
+        var bookings = await directory.BookingsAsync(ids, cancellationToken);
+        var moves = (await directory.OpenMovesAsync(ids, cancellationToken)).ToDictionary(move => move.BookingId);
+
+        return [.. bookings
             .OrderBy(booking => booking.CreatedAt)
-            .Select(ToCard)];
+            .Select(booking => ToCard(booking, moves.GetValueOrDefault(booking.Id)))];
+    }
 
     public async Task<IReadOnlyList<PairBooking>> BookingsOfPairAsync(
         Guid masterId,
@@ -52,7 +58,7 @@ public sealed class MasterDirectory(IMasterDirectoryRepository directory, IPrese
         [.. (await directory.BookingsOfPairAsync(masterId, clientUserId, cancellationToken))
             .Select(booking => new PairBooking(booking.Id, booking.CreatedBy == Party.Master, booking.CreatedAt))];
 
-    private BookingCard ToCard(Booking booking) => new(
+    private BookingCard ToCard(Booking booking, BookingMove? move) => new(
         booking.Id,
         booking.MasterId,
         booking.ClientUserId,
@@ -67,5 +73,6 @@ public sealed class MasterDirectory(IMasterDirectoryRepository directory, IPrese
         booking.CancelReason,
         booking.CancelMutual,
         booking.CancelExpired,
-        booking.Status == BookingStatus.Pending ? Bookings.PendingReleaseAt(booking.StartAt, booking.CreatedAt) : null);
+        booking.Status == BookingStatus.Pending ? Bookings.PendingReleaseAt(booking.StartAt, booking.CreatedAt) : null,
+        BookingMoveCards.From(move));
 }

@@ -21,8 +21,10 @@ export class RealtimeService {
   private retry: ReturnType<typeof setTimeout> | null = null;
   private readonly streams = new Map<RealtimeEventName, Subject<unknown>>();
   private readonly reconnectedSubject = new Subject<void>();
+  private readonly connectionLostSubject = new Subject<void>();
 
   readonly reconnected$: Observable<void> = this.reconnectedSubject.asObservable();
+  readonly connectionLost$: Observable<void> = this.connectionLostSubject.asObservable();
 
   start(heartbeatSeconds: number): void {
     if (this.connection) {
@@ -42,6 +44,9 @@ export class RealtimeService {
     }
     connection.onreconnected(() => {
       this.reconnectedSubject.next();
+    });
+    connection.onreconnecting(() => {
+      this.connectionLostSubject.next();
     });
 
     this.connection = connection;
@@ -87,6 +92,9 @@ export class RealtimeService {
         this.reconnectedSubject.next();
       }
     } catch {
+      if (attempt === 0) {
+        this.connectionLostSubject.next();
+      }
       if (this.connection === connection) {
         this.retry = setTimeout(() => void this.connect(connection, attempt + 1), retryDelay(attempt + 1));
       }

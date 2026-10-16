@@ -1,20 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {
-  formatDayChip,
-  formatDuration,
-  formatPrice,
-  formatShortDate,
-  formatTime,
-  minskDateKey,
-  plural
-} from '@nails/shared/common/util';
+import { formatDuration, formatPrice } from '@nails/shared/common/util';
 import { toProblem, type Schemas } from '@nails/shared/core/data-access';
 import { MastersApi, type MasterProfile, type MasterSlots, type SlotEntry } from '@nails/shared/masters/data-access';
 import { SheetLayout, Toasts } from '@nails/web/common/overlays';
-import { windowForms } from '../texts';
-import { BookingCheck, type ConflictCheck } from './booking-check';
+import { BookingCheck } from './booking-check';
+import type { ConflictCheck } from './conflict-check';
+import { SlotPicker } from './slot-picker';
 
 export interface BookingSheetData {
   profile: MasterProfile;
@@ -23,19 +16,9 @@ export interface BookingSheetData {
   subcategoryId?: string;
 }
 
-interface BookingDay {
-  key: string;
-  label: string;
-  shortDate: string;
-  slots: SlotEntry[];
-  free: number;
-}
-
-const dayMs = 86_400_000;
-
 @Component({
   selector: 'app-booking-sheet',
-  imports: [MatButtonModule, SheetLayout, BookingCheck],
+  imports: [MatButtonModule, SheetLayout, BookingCheck, SlotPicker],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     section + section {
@@ -104,86 +87,6 @@ const dayMs = 86_400_000;
     .toggle {
       justify-self: start;
     }
-    .days {
-      display: flex;
-      gap: var(--app-space-2);
-      overflow-x: auto;
-      padding-bottom: var(--app-space-1);
-      scroll-snap-type: x proximity;
-      scrollbar-width: none;
-    }
-    .day {
-      display: grid;
-      flex: 0 0 auto;
-      gap: var(--app-space-0-5);
-      min-width: 4.75rem;
-      padding: var(--app-space-2);
-      border: 1px solid var(--app-color-border);
-      border-radius: var(--app-radius-md);
-      background: var(--app-color-surface);
-      color: var(--app-color-text);
-      font: inherit;
-      text-align: center;
-      scroll-snap-align: start;
-      cursor: pointer;
-    }
-    .day[aria-pressed='true'] {
-      border-color: var(--app-color-primary);
-      background: var(--app-color-primary);
-      color: var(--app-color-primary-contrast);
-    }
-    .day[aria-pressed='true'] .muted {
-      color: inherit;
-    }
-    .day-label {
-      font-weight: var(--app-font-weight-semibold);
-    }
-    .times {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--app-space-2);
-      margin-top: var(--app-space-3);
-    }
-    .time {
-      display: grid;
-      min-width: 4.5rem;
-      padding: var(--app-space-2) var(--app-space-3);
-      border: 1px solid var(--app-color-border-strong);
-      border-radius: var(--app-radius-md);
-      background: var(--app-color-surface);
-      color: var(--app-color-text);
-      font: inherit;
-      font-weight: var(--app-font-weight-semibold);
-      cursor: pointer;
-    }
-    .time[aria-pressed='true'] {
-      border-color: var(--app-color-primary);
-      background: var(--app-color-primary);
-      color: var(--app-color-primary-contrast);
-    }
-    .time:disabled {
-      cursor: default;
-      border-color: var(--app-color-border);
-      background: var(--app-color-surface-muted);
-      color: var(--app-color-text-muted);
-    }
-    .time small {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--app-space-1);
-      font-size: var(--app-font-size-2xs);
-      font-weight: var(--app-font-weight-regular);
-    }
-    .dot {
-      width: 0.4rem;
-      height: 0.4rem;
-      border-radius: var(--app-radius-full);
-      background: var(--app-color-warning);
-    }
-    .empty {
-      margin: var(--app-space-3) 0 0;
-      color: var(--app-color-text-secondary);
-    }
     .error {
       margin: 0 0 var(--app-space-2);
       color: var(--app-color-danger);
@@ -226,39 +129,7 @@ const dayMs = 86_400_000;
 
       <section aria-labelledby="booking-time">
         <h3 id="booking-time"><span class="step" aria-hidden="true">2</span>Дата и время</h3>
-        <div class="days" role="group" aria-label="Дата">
-          @for (day of days(); track day.key) {
-            <button type="button" class="day" [attr.aria-pressed]="day.key === dayKey()" (click)="chooseDay(day.key)">
-              <span class="day-label">{{ day.label }}</span>
-              <span class="muted">{{ day.shortDate }}</span>
-              <span class="muted">{{ day.free > 0 ? windows(day.free) : 'нет окон' }}</span>
-            </button>
-          }
-        </div>
-        @if (selectedDay(); as day) {
-          @if (day.slots.length === 0) {
-            <p class="empty">В этот день мастер не работает. Выберите другую дату.</p>
-          } @else {
-            <div class="times" role="group" aria-label="Время">
-              @for (slot of day.slots; track slot.start) {
-                <button
-                  type="button"
-                  class="time"
-                  [disabled]="slot.status !== 'free'"
-                  [attr.aria-pressed]="slot.slotId !== null && slot.slotId === slotId()"
-                  (click)="chooseTime(slot)"
-                >
-                  <span>{{ time(slot.start) }}</span>
-                  @if (slot.status === 'busy') {
-                    <small>занято</small>
-                  } @else if (slot.status === 'pending') {
-                    <small><span class="dot" aria-hidden="true"></span>ожидает подтверждения</small>
-                  }
-                </button>
-              }
-            </div>
-          }
-        }
+        <app-slot-picker [slots]="slots()" [selected]="slotId()" (picked)="chooseTime($event)" />
       </section>
 
       <section aria-labelledby="booking-check">
@@ -285,8 +156,6 @@ export class BookingSheet {
 
   protected readonly price = formatPrice;
   protected readonly duration = formatDuration;
-  protected readonly time = formatTime;
-  protected readonly windows = (count: number): string => plural(count, windowForms);
 
   private readonly requested =
     this.data.profile.services.find((item) => item.subcategoryId === this.data.subcategoryId) ?? null;
@@ -311,28 +180,10 @@ export class BookingSheet {
   protected readonly service = computed(
     () => this.data.profile.services.find((item) => item.subcategoryId === this.subcategoryId()) ?? null
   );
-  protected readonly days = computed<BookingDay[]>(() => {
-    const now = new Date();
-    const { days, items } = this.slots();
-    return Array.from({ length: days }, (_, index) => {
-      const date = new Date(now.getTime() + index * dayMs);
-      const key = minskDateKey(date);
-      const slots = items.filter((slot) => minskDateKey(slot.start) === key);
-      return {
-        key,
-        label: formatDayChip(date, now),
-        shortDate: formatShortDate(date),
-        slots,
-        free: slots.filter((slot) => slot.status === 'free').length
-      };
-    });
-  });
   protected readonly slot = computed(() => {
     const id = this.slotId();
     return id ? (this.slots().items.find((item) => item.slotId === id) ?? null) : null;
   });
-  protected readonly dayKey = signal(this.initialDay());
-  protected readonly selectedDay = computed(() => this.days().find((day) => day.key === this.dayKey()) ?? null);
   protected readonly canSubmit = computed(() => !this.submitting() && this.service() !== null && this.slot() !== null);
   protected readonly submitLabel = computed(() => {
     if (this.submitting()) {
@@ -347,10 +198,6 @@ export class BookingSheet {
     if (slot) {
       void this.runCheck(slot);
     }
-  }
-
-  protected chooseDay(key: string): void {
-    this.dayKey.set(key);
   }
 
   protected chooseTime(slot: SlotEntry): void {
@@ -391,15 +238,6 @@ export class BookingSheet {
     } finally {
       this.submitting.set(false);
     }
-  }
-
-  private initialDay(): string {
-    const days = this.days();
-    const chosen = this.slot();
-    if (chosen) {
-      return minskDateKey(chosen.start);
-    }
-    return (days.find((day) => day.free > 0) ?? days[0])?.key ?? minskDateKey(new Date());
   }
 
   private async runCheck(slot: SlotEntry): Promise<void> {

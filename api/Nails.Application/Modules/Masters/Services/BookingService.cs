@@ -13,10 +13,11 @@ namespace Nails.Application.Modules.Masters.Services;
 
 public sealed class BookingService(
     IBookingRepository bookings,
+    IBookingMoveRepository moves,
     BookingChanges changes,
     IUnitOfWork unitOfWork,
     IBookingEvents events,
-    IAccountDirectory accounts,
+    BookingResponses responses,
     ICatalog catalog,
     ICurrentUser currentUser,
     TimeProvider clock) : IBookingService
@@ -42,12 +43,15 @@ public sealed class BookingService(
         Booking? booking = null;
         var conflicts = new BookingConflicts([], []);
         List<Booking> autoCancelled = [];
+        List<Guid> withdrawnMoves = [];
 
         await unitOfWork.InTransactionAsync(
             async token =>
             {
                 autoCancelled.Clear();
+                withdrawnMoves.Clear();
                 master = await bookings.FindMasterAsync(request.MasterId, token) is { DeletedAt: null } found
+                    && await bookings.MasterListedAsync(found.Id, token)
                     ? found
                     : throw MastersErrors.MasterNotFound();
                 var slot = await bookings.FindSlotAsync(request.SlotId, token);
@@ -66,7 +70,17 @@ public sealed class BookingService(
                     ?? throw MastersErrors.ServiceNotOffered();
                 var duration = Math.Max(service.DurationMin, slot.DurationMin);
                 var active = await bookings.ClientActiveBookingsAsync(caller, now, token);
-                conflicts = Bookings.Conflicts(new TimeRange(slot.StartAt, duration), active.Select(Window));
+                var range = new TimeRange(slot.StartAt, duration);
+                conflicts = Bookings.Conflicts(range, active.Select(Window));
+
+                foreach (var held in await moves.OpenMovesOfClientAsync(caller, now, token))
+                {
+                    if (Bookings.Overlaps(range, new TimeRange(held.StartAt, held.DurationMin)))
+                    {
+                        await changes.EndMoveAsync(held, BookingMoveStatus.Withdrawn, now, token);
+                        withdrawnMoves.Add(held.BookingId);
+                    }
+                }
 
                 foreach (var overlapping in active.Where(item => conflicts.Overlapping.Contains(item.Id)))
                 {
@@ -104,12 +118,13 @@ public sealed class BookingService(
         await events.PublishAsync(
             [
                 BookingChanges.Change(booking!, BookingChangeKind.Created, Party.Client),
-                .. autoCancelled.Select(cancelled => BookingChanges.Change(cancelled, BookingChangeKind.AutoCancelled, Party.Client))
+                .. autoCancelled.Select(cancelled => BookingChanges.Change(cancelled, BookingChangeKind.AutoCancelled, Party.Client)),
+                .. await WithdrawnChangesAsync(withdrawnMoves, cancellationToken)
             ],
             cancellationToken);
 
         return new CreateBookingResponse(
-            await ToResponseAsync(booking!, master!, cancellationToken),
+            await responses.FromAsync(booking!, master!, cancellationToken),
             await SummariesAsync(conflicts.Overlapping, cancellationToken),
             await SummariesAsync(conflicts.TooClose, cancellationToken));
     }
@@ -130,7 +145,7 @@ public sealed class BookingService(
         }
 
         await events.PublishAsync([BookingChanges.Change(booking, BookingChangeKind.Confirmed, side)], cancellationToken);
-        return await ToResponseAsync(booking, master, cancellationToken);
+        return await responses.FromAsync(booking, master, cancellationToken);
     }
 
     public async Task<BookingResponse> CancelAsync(Guid bookingId, CancelBookingRequest request, CancellationToken cancellationToken)
@@ -150,7 +165,7 @@ public sealed class BookingService(
         }
 
         await events.PublishAsync([BookingChanges.Change(booking, BookingChangeKind.Cancelled, side)], cancellationToken);
-        return await ToResponseAsync(booking, master, cancellationToken);
+        return await responses.FromAsync(booking, master, cancellationToken);
     }
 
     private async Task<(Booking Booking, Master Master, Party Side)> LoadAsync(Guid bookingId, CancellationToken cancellationToken)
@@ -167,42 +182,6 @@ public sealed class BookingService(
         return master.UserId == caller ? (booking, master, Party.Master) : throw MastersErrors.NotBookingParty();
     }
 
-    private async Task<BookingResponse> ToResponseAsync(Booking booking, Master master, CancellationToken cancellationToken)
-    {
-        var clientName = booking.ExternalClientName;
-
-        if (booking.ClientUserId is { } clientId)
-        {
-            var names = await accounts.NamesAsync([clientId], cancellationToken);
-            clientName = names.GetValueOrDefault(clientId);
-        }
-
-        return new BookingResponse(
-            booking.Id,
-            booking.MasterId,
-            booking.ClientUserId,
-            booking.SlotId,
-            booking.SubcategoryId,
-            catalog.SubcategoryName(booking.SubcategoryId),
-            new PriceResponse(booking.PriceKind, booking.PriceAmount),
-            booking.StartAt,
-            booking.DurationMin,
-            booking.Address,
-            booking.Status,
-            booking.Source,
-            booking.CreatedBy,
-            booking.ConfirmedAt,
-            booking.Status == BookingStatus.Pending ? Bookings.PendingReleaseAt(booking.StartAt, booking.CreatedAt) : null,
-            booking.CancelledAt,
-            booking.CancelledBy,
-            booking.CancelReason,
-            booking.CancelMutual,
-            booking.CancelExpired,
-            master.Name,
-            master.PhotoUrl,
-            clientName ?? ReviewerName.Anonymous);
-    }
-
     private async Task<IReadOnlyList<BookingSummaryResponse>> SummariesAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken) =>
         [.. (await bookings.SummariesAsync(ids, cancellationToken)).Select(row => new BookingSummaryResponse(
             row.Id,
@@ -211,6 +190,21 @@ public sealed class BookingService(
             row.StartAt,
             row.DurationMin,
             row.Address))];
+
+    private async Task<IReadOnlyList<BookingChanged>> WithdrawnChangesAsync(IReadOnlyList<Guid> bookingIds, CancellationToken cancellationToken)
+    {
+        var result = new List<BookingChanged>();
+
+        foreach (var bookingId in bookingIds)
+        {
+            if (await bookings.FindBookingAsync(bookingId, cancellationToken) is { } moved)
+            {
+                result.Add(BookingChanges.Change(moved, BookingChangeKind.MoveWithdrawn, Party.Client));
+            }
+        }
+
+        return result;
+    }
 
     private static BookingWindow Window(Booking booking) =>
         new(booking.Id, new TimeRange(booking.StartAt, booking.DurationMin), booking.Status);

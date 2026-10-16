@@ -14,7 +14,9 @@ const chatsPaths = {
   messages: (id: string) => `/api/chats/${id}/messages`,
   message: (id: string) => `/api/chats/messages/${id}`,
   confirmBooking: (id: string) => `/api/masters/bookings/${id}/confirm`,
-  cancelBooking: (id: string) => `/api/masters/bookings/${id}/cancel`
+  cancelBooking: (id: string) => `/api/masters/bookings/${id}/cancel`,
+  acceptMove: (id: string) => `/api/masters/bookings/${id}/move/accept`,
+  declineMove: (id: string) => `/api/masters/bookings/${id}/move/decline`
 } as const;
 
 function roleParams(role: ChatRole, extra: Record<string, string | number> = {}): HttpParams {
@@ -93,5 +95,13 @@ export class ChatsApi {
 
   cancelBooking(id: string, request: Schemas['CancelBookingRequest']): Promise<Schemas['BookingResponse']> {
     return firstValueFrom(this.http.post<Schemas['BookingResponse']>(chatsPaths.cancelBooking(id), request));
+  }
+
+  acceptMove(id: string): Promise<Schemas['BookingResponse']> {
+    return firstValueFrom(this.http.post<Schemas['BookingResponse']>(chatsPaths.acceptMove(id), null));
+  }
+
+  declineMove(id: string): Promise<Schemas['BookingResponse']> {
+    return firstValueFrom(this.http.post<Schemas['BookingResponse']>(chatsPaths.declineMove(id), null));
   }
 }

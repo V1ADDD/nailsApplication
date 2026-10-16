@@ -8,7 +8,7 @@ public sealed class SignInRequest
 {
     public const int NameMaxLength = 120;
 
-    private const int CodeMaxLength = 8;
+    public const int CodeMaxLength = 8;
 
     [Required]
     [MaxLength(BelarusPhone.MaxInputLength)]

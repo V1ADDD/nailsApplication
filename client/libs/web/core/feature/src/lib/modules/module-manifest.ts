@@ -1,4 +1,4 @@
-import type { Injector, ProviderToken, Signal } from '@angular/core';
+import type { Injector, ProviderToken, Signal, Type } from '@angular/core';
 import type { Routes } from '@angular/router';
 import type { IconName } from '@nails/web/common/ui';
 
@@ -27,11 +27,27 @@ export interface FrameAction {
   open: (injector: Injector) => Promise<void>;
 }
 
+export interface ProfileSection {
+  path: string;
+  label: string;
+  title: string;
+  icon: IconName;
+  order: number;
+  loadComponent: () => Promise<Type<unknown>>;
+}
+
+interface ProfileContribution {
+  clientSections?: readonly ProfileSection[];
+  masterRoutes?: Routes;
+  settingsActions?: readonly Type<unknown>[];
+}
+
 export interface ModuleManifest {
   key: string;
   frameItem?: FrameItem;
   accountLink?: AccountLink;
   frameAction?: FrameAction;
+  profile?: ProfileContribution;
   publicRoutes: Routes;
   routes: Routes;
 }

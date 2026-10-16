@@ -6,9 +6,9 @@ namespace Nails.Infrastructure.Modules.Masters.Contracts;
 
 public interface IMasterProfileRepository
 {
-    Task<MasterProfileRow?> FindAsync(Guid masterId, CancellationToken cancellationToken);
+    Task<MasterProfileRow?> FindAsync(Guid masterId, Guid viewerUserId, CancellationToken cancellationToken);
 
-    Task<bool> ExistsAsync(Guid masterId, CancellationToken cancellationToken);
+    Task<bool> ExistsAsync(Guid masterId, Guid viewerUserId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Slot>> SlotsAsync(Guid masterId, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken);
 

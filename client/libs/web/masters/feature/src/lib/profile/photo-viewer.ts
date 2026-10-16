@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import type { Schemas } from '@nails/shared/core/data-access';
 import { SheetLayout } from '@nails/web/common/overlays';
-import { Icon } from '@nails/web/common/ui';
+import { Icon, Swipe } from '@nails/web/common/ui';
 import { PhotoTile } from './photo-tile';
 
 export interface PhotoViewerData {
@@ -12,11 +12,9 @@ export interface PhotoViewerData {
   altOf: (index: number) => string;
 }
 
-const swipeDistance = 50;
-
 @Component({
   selector: 'app-photo-viewer',
-  imports: [MatButtonModule, SheetLayout, Icon, PhotoTile],
+  imports: [MatButtonModule, SheetLayout, Icon, PhotoTile, Swipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(keydown.arrowleft)': 'step(-1)', '(keydown.arrowright)': 'step(1)' },
   styles: `
@@ -42,7 +40,7 @@ const swipeDistance = 50;
   template: `
     <app-sheet-layout [heading]="heading()">
       @if (photo(); as current) {
-        <div class="frame" (pointerdown)="swipeStart($event)" (pointerup)="swipeEnd($event)">
+        <div class="frame" appSwipe swipeAnyPointer (swipeLeft)="step(1)" (swipeRight)="step(-1)">
           <app-photo-tile [url]="current.url" [hue]="current.hue" [alt]="data.altOf(index())" />
         </div>
         @if (current.caption) {
@@ -67,25 +65,9 @@ export class PhotoViewer {
   protected readonly index = signal(this.data.index);
   protected readonly photo = computed(() => this.data.photos[this.index()]);
   protected readonly heading = computed(() => `Фото ${this.index() + 1} из ${this.data.photos.length}`);
-  private startX: number | null = null;
 
   protected step(delta: number): void {
     const count = this.data.photos.length;
     this.index.update((index) => (index + delta + count) % count);
-  }
-
-  protected swipeStart(event: PointerEvent): void {
-    this.startX = event.clientX;
-  }
-
-  protected swipeEnd(event: PointerEvent): void {
-    if (this.startX === null) {
-      return;
-    }
-    const distance = event.clientX - this.startX;
-    this.startX = null;
-    if (Math.abs(distance) >= swipeDistance) {
-      this.step(distance < 0 ? 1 : -1);
-    }
   }
 }

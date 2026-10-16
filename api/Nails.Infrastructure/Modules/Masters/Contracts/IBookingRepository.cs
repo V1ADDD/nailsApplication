@@ -7,6 +7,8 @@ public interface IBookingRepository
 {
     Task<Master?> FindMasterAsync(Guid masterId, CancellationToken cancellationToken);
 
+    Task<bool> MasterListedAsync(Guid masterId, CancellationToken cancellationToken);
+
     Task<MasterService?> FindServiceAsync(Guid masterId, string subcategoryId, CancellationToken cancellationToken);
 
     Task<Slot?> FindSlotAsync(Guid slotId, CancellationToken cancellationToken);

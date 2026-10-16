@@ -8,5 +8,10 @@ public enum BookingChangeKind
     AutoConfirmed,
     Cancelled,
     Expired,
-    Completed
+    Completed,
+    MoveRequested,
+    MoveAccepted,
+    MoveDeclined,
+    MoveWithdrawn,
+    MoveLapsed
 }

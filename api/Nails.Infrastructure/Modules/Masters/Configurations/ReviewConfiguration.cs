@@ -13,6 +13,7 @@ public sealed class ReviewConfiguration : IEntityTypeConfiguration<Review>
         builder.HasKey(review => review.Id);
         builder.HasIndex(review => new { review.BookingId, review.AuthorRole }).IsUnique();
         builder.HasIndex(review => new { review.MasterId, review.AuthorRole, review.CreatedAt });
+        builder.HasIndex(review => new { review.ClientUserId, review.AuthorRole, review.CreatedAt });
         builder.Property(review => review.AuthorRole).HasConversion<string>().HasMaxLength(MastersColumns.EnumMaxLength);
         builder.Property(review => review.SubcategoryId).HasMaxLength(MasterService.SubcategoryMaxLength);
         builder.Property(review => review.Text).HasMaxLength(Review.TextMaxLength);

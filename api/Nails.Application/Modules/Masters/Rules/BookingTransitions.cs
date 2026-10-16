@@ -18,6 +18,9 @@ public static class BookingTransitions
     public static string? Cancel(BookingState state) =>
         state.Status is BookingStatus.Pending or BookingStatus.Confirmed ? null : ErrorCodes.CannotCancel;
 
+    public static string? Move(BookingState state, DateTimeOffset now) =>
+        state.Status is BookingStatus.Pending or BookingStatus.Confirmed && state.Start > now ? null : ErrorCodes.CannotMove;
+
     public static string? Expire(BookingState state) =>
         state.Status == BookingStatus.Pending ? null : ErrorCodes.NotPending;
 

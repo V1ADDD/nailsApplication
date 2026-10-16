@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nails.Infrastructure.Common;
 using Nails.Infrastructure.Modules.Masters.Contracts;
 using Nails.Infrastructure.Modules.Masters.Entities;
 using Nails.Infrastructure.Modules.Masters.Models;
@@ -10,6 +11,9 @@ public sealed class BookingRepository(AppDbContext dbContext) : IBookingReposito
 {
     public Task<Master?> FindMasterAsync(Guid masterId, CancellationToken cancellationToken) =>
         dbContext.Set<Master>().AsNoTracking().FirstOrDefaultAsync(master => master.Id == masterId, cancellationToken);
+
+    public Task<bool> MasterListedAsync(Guid masterId, CancellationToken cancellationToken) =>
+        dbContext.Set<Master>().Listed(dbContext).AnyAsync(master => master.Id == masterId, cancellationToken);
 
     public Task<MasterService?> FindServiceAsync(Guid masterId, string subcategoryId, CancellationToken cancellationToken) =>
         dbContext.Set<MasterService>()
@@ -91,12 +95,21 @@ public sealed class BookingRepository(AppDbContext dbContext) : IBookingReposito
         }
         catch (DbUpdateConcurrencyException)
         {
-            foreach (var entry in dbContext.ChangeTracker.Entries().Where(entry => entry.State != EntityState.Unchanged).ToList())
-            {
-                entry.State = EntityState.Detached;
-            }
-
+            Discard();
             return false;
+        }
+        catch (DbUpdateException exception) when (DatabaseErrors.IsUniqueViolation(exception))
+        {
+            Discard();
+            return false;
+        }
+    }
+
+    private void Discard()
+    {
+        foreach (var entry in dbContext.ChangeTracker.Entries().Where(entry => entry.State != EntityState.Unchanged).ToList())
+        {
+            entry.State = EntityState.Detached;
         }
     }
 }

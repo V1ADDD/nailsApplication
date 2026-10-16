@@ -86,6 +86,42 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/masters/bookings/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MyBookingResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/masters/bookings/conflicts': {
     parameters: {
       query?: never;
@@ -224,6 +260,180 @@ export interface paths {
           'application/*+json': components['schemas']['CancelBookingRequest'];
         };
       };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['BookingResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/bookings/{id}/reviews': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['WriteReviewRequest'];
+          'application/*+json': components['schemas']['WriteReviewRequest'];
+        };
+      };
+      responses: {
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ReviewResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/bookings/{id}/move': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['MoveBookingRequest'];
+          'application/*+json': components['schemas']['MoveBookingRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MyBookingResponse'];
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MyBookingResponse'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/bookings/{id}/move/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['BookingResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/bookings/{id}/move/decline': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
       responses: {
         200: {
           headers: {
@@ -531,6 +741,398 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/masters/cities': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': string[];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['BecomeMasterRequest'];
+          'application/*+json': components['schemas']['BecomeMasterRequest'];
+        };
+      };
+      responses: {
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MeResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/bookings/mine': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          scope?: components['schemas']['MyBookingsScope'];
+          page?: number;
+          pageSize?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['PagedResponseOfMyBookingResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/reviews/mine': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          about?: boolean;
+          page?: number;
+          pageSize?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MyReviewsResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/masters/favorites': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          page?: number;
+          pageSize?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['PagedResponseOfFavoriteMasterResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/identity/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MeResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateProfileRequest'];
+          'application/*+json': components['schemas']['UpdateProfileRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MeResponse'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  '/api/identity/me/notifications': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['NotificationSettingsRequest'];
+          'application/*+json': components['schemas']['NotificationSettingsRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['NotificationSettingsResponse'];
+          };
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/identity/me/phone/code': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['PhoneChangeCodeRequest'];
+          'application/*+json': components['schemas']['PhoneChangeCodeRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['PhoneCodeResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/identity/me/phone': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['PhoneChangeRequest'];
+          'application/*+json': components['schemas']['PhoneChangeRequest'];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['MeResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/identity/sign-out/others': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/identity/sign-in/code': {
     parameters: {
       query?: never;
@@ -635,40 +1237,6 @@ export interface paths {
         };
       };
     };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/identity/me': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['MeResponse'];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1239,6 +1807,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    BecomeMasterRequest: {
+      categoryId: null | string;
+      city: null | string;
+      address: null | string;
+    };
     BookingCard: {
       id: string;
       masterId: string;
@@ -1255,9 +1828,9 @@ export interface components {
       cancelMutual: boolean;
       cancelExpired: boolean;
       releaseAt: null | string;
+      move: null | components['schemas']['BookingMoveCard'];
     };
     BookingChangedEvent: {
-      chatId: null | string;
       booking: {
         id: string;
         masterId: string;
@@ -1277,8 +1850,21 @@ export interface components {
         cancelMutual: boolean;
         cancelExpired: boolean;
         releaseAt: null | string;
+        move: {
+          start: string;
+          durationMin: number;
+          lapsesAt: string;
+          status: 'open' | 'accepted' | 'declined' | 'withdrawn' | 'cancelled' | 'lapsed';
+        };
       };
     };
+    BookingMoveCard: {
+      start: string;
+      durationMin: number;
+      lapsesAt: string;
+      status: components['schemas']['BookingMoveStatus'];
+    };
+    BookingMoveStatus: 'open' | 'accepted' | 'declined' | 'withdrawn' | 'cancelled' | 'lapsed';
     BookingResponse: {
       id: string;
       masterId: string;
@@ -1409,6 +1995,15 @@ export interface components {
     EditMessageRequest: {
       text?: string;
     };
+    FavoriteMasterResponse: {
+      id: string;
+      name: string;
+      photoUrl: null | string;
+      specialty: string;
+      rating: null | number;
+      reviewsCount: number;
+      verified: boolean;
+    };
     HelpArticleResponse: {
       id: string;
       title: string;
@@ -1525,6 +2120,12 @@ export interface components {
       masterId: null | string;
       mode: components['schemas']['UserMode'];
       heartbeatSeconds: number;
+      email: null | string;
+      photoUrl: null | string;
+      telegram: null | string;
+      viber: null | string;
+      preferredContact: components['schemas']['PreferredContact'];
+      notifications: components['schemas']['NotificationSettingsResponse'];
     };
     MessageCreatedEvent: {
       chatId: string;
@@ -1580,6 +2181,64 @@ export interface components {
     ModulesResponse: {
       enabled: string[];
     };
+    MoveBookingRequest: {
+      slotId: null | string;
+    };
+    MyBookingResponse: {
+      booking: components['schemas']['BookingResponse'];
+      upcoming: boolean;
+      canReview: boolean;
+      myReview: null | components['schemas']['MyReview'];
+      move: null | components['schemas']['BookingMoveCard'];
+    };
+    MyBookingsScope: 'upcoming' | 'past';
+    MyReview: {
+      rating: number;
+      text: string;
+      date: string;
+    };
+    MyReviewResponse: {
+      id: string;
+      masterId: string;
+      masterName: string;
+      masterPhotoUrl: null | string;
+      serviceName: string;
+      rating: number;
+      text: string;
+      date: string;
+    };
+    MyReviewsResponse: {
+      writtenCount: number;
+      aboutCount: number;
+      items: components['schemas']['MyReviewResponse'][];
+      page: number;
+      pageSize: number;
+      totalCount: number;
+    };
+    NotificationSettingsRequest: {
+      push?: boolean;
+      email?: boolean;
+      site?: boolean;
+      reminders?: boolean;
+    };
+    NotificationSettingsResponse: {
+      push: boolean;
+      email: boolean;
+      site: boolean;
+      reminders: boolean;
+    };
+    PagedResponseOfFavoriteMasterResponse: {
+      items: components['schemas']['FavoriteMasterResponse'][];
+      page: number;
+      pageSize: number;
+      totalCount: number;
+    };
+    PagedResponseOfMyBookingResponse: {
+      items: components['schemas']['MyBookingResponse'][];
+      page: number;
+      pageSize: number;
+      totalCount: number;
+    };
     PagedResponseOfReviewResponse: {
       items: components['schemas']['ReviewResponse'][];
       page: number;
@@ -1587,6 +2246,13 @@ export interface components {
       totalCount: number;
     };
     Party: 'client' | 'master';
+    PhoneChangeCodeRequest: {
+      phone: string;
+    };
+    PhoneChangeRequest: {
+      phone: string;
+      code?: null | string;
+    };
     PhoneCodeRequest: {
       phone: string;
     };
@@ -1601,6 +2267,7 @@ export interface components {
       hue: number;
       caption: null | string;
     };
+    PreferredContact: 'messages' | 'phone';
     PriceKind: 'exact' | 'from' | 'free';
     PriceResponse: {
       kind: components['schemas']['PriceKind'];
@@ -1681,7 +2348,19 @@ export interface components {
     UnreadResponse: {
       count: number;
     };
+    UpdateProfileRequest: {
+      name?: null | string;
+      email?: null | string;
+      photoUrl?: null | string;
+      telegram?: null | string;
+      viber?: null | string;
+      preferredContact?: null | components['schemas']['PreferredContact'];
+    };
     UserMode: 'client' | 'master';
+    WriteReviewRequest: {
+      rating: null | number;
+      text?: null | string;
+    };
   };
   responses: never;
   parameters: never;

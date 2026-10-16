@@ -30,7 +30,7 @@ public sealed class MasterProfileService(
 {
     public async Task<MasterProfileResponse> ProfileAsync(Guid masterId, CardRequest request, CancellationToken cancellationToken)
     {
-        var master = await profiles.FindAsync(masterId, cancellationToken) ?? throw MastersErrors.MasterNotFound();
+        var master = await profiles.FindAsync(masterId, currentUser.UserId, cancellationToken) ?? throw MastersErrors.MasterNotFound();
         var settings = searchOptions.Value;
         var signedIn = currentUser.UserId != Guid.Empty;
         var online = master.ShowOnline
@@ -122,7 +122,7 @@ public sealed class MasterProfileService(
 
     private async Task EnsureMasterAsync(Guid masterId, CancellationToken cancellationToken)
     {
-        if (!await profiles.ExistsAsync(masterId, cancellationToken))
+        if (!await profiles.ExistsAsync(masterId, currentUser.UserId, cancellationToken))
         {
             throw MastersErrors.MasterNotFound();
         }
