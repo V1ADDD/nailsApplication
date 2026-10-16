@@ -6,7 +6,11 @@ using Nails.Infrastructure.Modules.Masters.Entities;
 
 namespace Nails.Application.Modules.Masters.Services;
 
-public sealed class BookingTimeRules(IBookingRepository bookings, BookingChanges changes, IBookingEvents events) : IBookingTimeRules
+public sealed class BookingTimeRules(
+    IBookingRepository bookings,
+    IBookingMoveRepository moves,
+    BookingChanges changes,
+    IBookingEvents events) : IBookingTimeRules
 {
     private const string ReleaseReason = "Запись не подтверждена вовремя — окно освободилось";
 
@@ -16,6 +20,17 @@ public sealed class BookingTimeRules(IBookingRepository bookings, BookingChanges
         {
             await changes.ConfirmAsync(booking, now, cancellationToken);
             await SaveAsync(booking, BookingChangeKind.AutoConfirmed, null, cancellationToken);
+        }
+
+        foreach (var move in await moves.LapseCandidatesAsync(now, cancellationToken))
+        {
+            if (await bookings.FindBookingAsync(move.BookingId, cancellationToken) is not { } moved)
+            {
+                continue;
+            }
+
+            await changes.EndMoveAsync(move, BookingMoveStatus.Lapsed, now, cancellationToken);
+            await SaveAsync(moved, BookingChangeKind.MoveLapsed, null, cancellationToken);
         }
 
         foreach (var booking in await bookings.ReleaseCandidatesAsync(now.AddHours(Bookings.LongLeadHours), cancellationToken))

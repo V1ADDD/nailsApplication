@@ -1,21 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { formatDateTime, formatDuration, formatPrice, formatTime } from '@nails/shared/common/util';
-import type { Schemas } from '@nails/shared/core/data-access';
+import { formatDateTime, formatDuration, formatPrice } from '@nails/shared/common/util';
 import {
   pendingReleaseAt,
   type MasterProfile,
   type ProfileService,
   type SlotEntry
 } from '@nails/shared/masters/data-access';
-
-export type ConflictCheck =
-  | { state: 'idle' }
-  | { state: 'checking' }
-  | { state: 'failed' }
-  | { state: 'done'; result: Schemas['ConflictsResponse'] };
+import type { ConflictCheck } from './conflict-check';
+import { ConflictNotes } from './conflict-notes';
 
 @Component({
   selector: 'app-booking-check',
+  imports: [ConflictNotes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -24,26 +20,6 @@ export type ConflictCheck =
     }
     p {
       margin: 0;
-    }
-    .checking {
-      color: var(--app-color-text-muted);
-      font-size: var(--app-font-size-sm);
-    }
-    .alert {
-      padding: var(--app-space-3);
-      border: 1px solid;
-      border-radius: var(--app-radius-md);
-      font-size: var(--app-font-size-sm);
-    }
-    .overlap {
-      border-color: var(--app-color-danger-border);
-      background: var(--app-color-danger-soft);
-      color: var(--app-color-danger);
-    }
-    .close {
-      border-color: var(--app-color-warning-border);
-      background: var(--app-color-warning-soft);
-      color: var(--app-color-warning-text);
     }
     dl {
       display: grid;
@@ -71,25 +47,7 @@ export type ConflictCheck =
     }
   `,
   template: `
-    @switch (check().state) {
-      @case ('checking') {
-        <p class="checking" role="status">Проверяем ваши записи на это время…</p>
-      }
-      @case ('done') {
-        @for (booking of overlapping(); track booking.id) {
-          <p class="alert overlap" role="alert">
-            У вас уже есть запись на это время: {{ booking.masterName }}, {{ booking.serviceName }},
-            {{ dateTime(booking.start) }}. Она будет отменена автоматически.
-          </p>
-        }
-        @for (booking of tooClose(); track booking.id) {
-          <p class="alert close" role="status">
-            В этот день у вас есть запись в {{ time(booking.start) }} ({{ booking.masterName }}, {{ booking.address }})
-            — проверьте, успеете ли доехать.
-          </p>
-        }
-      }
-    }
+    <app-conflict-notes [check]="check()" overlapNote="Она будет отменена автоматически." />
     <dl>
       <dt>Мастер</dt>
       <dd>{{ profile().name }}</dd>
@@ -111,16 +69,6 @@ export class BookingCheck {
   readonly slot = input<SlotEntry | null>(null);
   readonly check = input.required<ConflictCheck>();
 
-  protected readonly time = formatTime;
-  protected readonly dateTime = formatDateTime;
-  protected readonly overlapping = computed(() => {
-    const check = this.check();
-    return check.state === 'done' ? check.result.overlapping : [];
-  });
-  protected readonly tooClose = computed(() => {
-    const check = this.check();
-    return check.state === 'done' ? check.result.tooClose : [];
-  });
   protected readonly serviceText = computed(() => {
     const service = this.service();
     return service ? `${service.name}, ${formatDuration(service.durationMin)}` : 'не выбрана';

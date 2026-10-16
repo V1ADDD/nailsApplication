@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Nails.Infrastructure.Common;
 using Nails.Infrastructure.Modules.Chats.Contracts;
 using Nails.Infrastructure.Modules.Chats.Entities;
 using Nails.Infrastructure.Modules.Chats.Models;
 using Nails.Infrastructure.Persistence;
-using Npgsql;
 
 namespace Nails.Infrastructure.Modules.Chats.Repositories;
 
@@ -38,7 +38,7 @@ public sealed class ChatRepository(AppDbContext dbContext) : IChatRepository
             await dbContext.SaveChangesAsync(cancellationToken);
             return chat;
         }
-        catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (DbUpdateException exception) when (DatabaseErrors.IsUniqueViolation(exception))
         {
             dbContext.Entry(chat).State = EntityState.Detached;
             return await FindPairAsync(masterId, clientUserId, cancellationToken)

@@ -5,7 +5,7 @@ using Nails.Infrastructure.Modules.Masters.Entities;
 
 namespace Nails.Application.Modules.Masters.Services;
 
-public sealed class BookingChanges(IBookingRepository bookings)
+public sealed class BookingChanges(IBookingRepository bookings, IBookingMoveRepository moves)
 {
     public static BookingState State(Booking booking) => new(booking.Status, booking.CreatedBy, booking.StartAt, booking.DurationMin);
 
@@ -16,10 +16,10 @@ public sealed class BookingChanges(IBookingRepository bookings)
     {
         booking.Status = BookingStatus.Confirmed;
         booking.ConfirmedAt = now;
-        return SetSlotAsync(booking, SlotStatus.Booked, cancellationToken);
+        return SetSlotAsync(booking.SlotId, booking.Id, SlotStatus.Booked, cancellationToken);
     }
 
-    public Task CancelAsync(Booking booking, BookingCancellation cancellation, DateTimeOffset now, CancellationToken cancellationToken)
+    public async Task CancelAsync(Booking booking, BookingCancellation cancellation, DateTimeOffset now, CancellationToken cancellationToken)
     {
         booking.Status = BookingStatus.Cancelled;
         booking.CancelledAt = now;
@@ -27,17 +27,42 @@ public sealed class BookingChanges(IBookingRepository bookings)
         booking.CancelReason = cancellation.Reason;
         booking.CancelMutual = cancellation.Mutual;
         booking.CancelExpired = cancellation.Expired;
-        return SetSlotAsync(booking, SlotStatus.Free, cancellationToken);
+        await SetSlotAsync(booking.SlotId, booking.Id, SlotStatus.Free, cancellationToken);
+
+        if (await moves.FindOpenAsync(booking.Id, cancellationToken) is { } move)
+        {
+            await EndMoveAsync(move, BookingMoveStatus.Cancelled, now, cancellationToken);
+        }
     }
 
-    private async Task SetSlotAsync(Booking booking, SlotStatus status, CancellationToken cancellationToken)
+    public async Task EndMoveAsync(BookingMove move, BookingMoveStatus status, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        if (booking.SlotId is not { } slotId || await bookings.FindSlotAsync(slotId, cancellationToken) is not { } slot)
+        move.Status = status;
+        move.ResolvedAt = now;
+        await SetSlotAsync(move.SlotId, move.BookingId, SlotStatus.Free, cancellationToken);
+    }
+
+    public async Task AcceptMoveAsync(Booking booking, BookingMove move, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        await SetSlotAsync(booking.SlotId, booking.Id, SlotStatus.Free, cancellationToken);
+        booking.StartAt = move.StartAt;
+        booking.DurationMin = move.DurationMin;
+        booking.SlotId = move.SlotId;
+        booking.Status = BookingStatus.Confirmed;
+        booking.ConfirmedAt = now;
+        move.Status = BookingMoveStatus.Accepted;
+        move.ResolvedAt = now;
+        await SetSlotAsync(move.SlotId, booking.Id, SlotStatus.Booked, cancellationToken);
+    }
+
+    private async Task SetSlotAsync(Guid? slotId, Guid bookingId, SlotStatus status, CancellationToken cancellationToken)
+    {
+        if (slotId is not { } id || await bookings.FindSlotAsync(id, cancellationToken) is not { } slot)
         {
             return;
         }
 
         slot.Status = status;
-        slot.BookingId = status == SlotStatus.Free ? null : booking.Id;
+        slot.BookingId = status == SlotStatus.Free ? null : bookingId;
     }
 }

@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 import { ChatThreadStore } from '@nails/shared/chats/data-access';
 import { formatDateTimeWithYear, formatPrice, formatShortDate, formatTime } from '@nails/shared/common/util';
 import { type Schemas, toProblem } from '@nails/shared/core/data-access';
-import { Sheets, Toasts } from '@nails/web/common/overlays';
-import { type CancelBookingData, CancelBookingSheet } from './cancel-booking-sheet';
+import { type CancelBookingData, CancelBookingSheet, Sheets, Toasts } from '@nails/web/common/overlays';
+import { chatCancelTexts } from '../texts';
 
 type BookingCard = Schemas['BookingCard'];
 
@@ -90,6 +90,19 @@ const statusLabels: Record<Schemas['BookingStatus'], string> = {
         >
       }
     }
+    @if (booking().move) {
+      <p class="muted">Перенос на {{ moveWhen() }} ждёт ответа мастера</p>
+      @if (role() === 'master') {
+        <div class="actions">
+          <button mat-flat-button class="app-small" type="button" [disabled]="busy()" (click)="acceptMove()">
+            Принять перенос
+          </button>
+          <button mat-stroked-button class="app-small" type="button" [disabled]="busy()" (click)="declineMove()">
+            Отклонить перенос
+          </button>
+        </div>
+      }
+    }
     @if (canConfirm() || canCancel()) {
       <div class="actions">
         @if (canConfirm()) {
@@ -127,17 +140,33 @@ export class BookingCardView {
       ? `${label} · освободится, если не подтвердить до ${formatShortDate(booking.releaseAt)}, ${formatTime(booking.releaseAt)}`
       : label;
   });
+  protected readonly moveWhen = computed(() => {
+    const move = this.booking().move;
+    return move ? `${formatShortDate(move.start)}, ${formatTime(move.start)}` : '';
+  });
   protected readonly canConfirm = computed(() => this.booking().status === 'pending' && !this.mine());
   protected readonly canCancel = computed(() => {
     const booking = this.booking();
     return (booking.status === 'pending' || booking.status === 'confirmed') && Date.parse(booking.start) > Date.now();
   });
 
-  protected async confirm(): Promise<void> {
+  protected confirm(): Promise<void> {
+    return this.run(() => this.store.confirmBooking(this.booking().id), 'Запись подтверждена');
+  }
+
+  protected acceptMove(): Promise<void> {
+    return this.run(() => this.store.acceptMove(this.booking().id), 'Запись перенесена');
+  }
+
+  protected declineMove(): Promise<void> {
+    return this.run(() => this.store.declineMove(this.booking().id), 'Перенос отклонён');
+  }
+
+  private async run(action: () => Promise<void>, success: string): Promise<void> {
     this.busy.set(true);
     try {
-      await this.store.confirmBooking(this.booking().id);
-      this.toasts.success('Запись подтверждена');
+      await action();
+      this.toasts.success(success);
     } catch (error) {
       this.toasts.error(toProblem(error).title);
     } finally {
@@ -147,7 +176,9 @@ export class BookingCardView {
 
   protected cancel(): void {
     const data: CancelBookingData = {
-      submit: (request) => this.store.cancelBooking(this.booking().id, request)
+      texts: chatCancelTexts,
+      submit: (request) => this.store.cancelBooking(this.booking().id, request),
+      describeError: (error) => toProblem(error).title
     };
     this.sheets
       .open(CancelBookingSheet, data)

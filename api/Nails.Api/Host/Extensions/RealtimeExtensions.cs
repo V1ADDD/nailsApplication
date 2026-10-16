@@ -23,6 +23,8 @@ public static class RealtimeExtensions
                 hub.ClientTimeoutInterval = realtime.Value.ClientTimeoutInterval;
             });
         services.AddSingleton<IRealtimePublisher, HubRealtimePublisher>();
+        services.AddSingleton<HubRealtimeConnections>();
+        services.AddSingleton<IRealtimeConnections>(provider => provider.GetRequiredService<HubRealtimeConnections>());
 
         return services;
     }

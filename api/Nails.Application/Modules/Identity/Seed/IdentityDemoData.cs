@@ -4,7 +4,7 @@ public static class IdentityDemoData
 {
     public static IReadOnlyList<DemoAccount> Accounts { get; } =
     [
-        new DemoAccount("c-me", "Анна Новикова", "+375291234567", "m-me", true),
+        new DemoAccount("c-me", "Анна Новикова", "+375291234567", "m-me", true, 32, "@anna_nails", "+375291234567"),
         new DemoAccount("c-alina", "Алина Кравец", "+375296112033", null, false),
         new DemoAccount("c-viktoria", "Виктория Маслова", "+375337024518", null, false),
         new DemoAccount("c-olga", "Ольга Сенько", "+375445551209", null, false),

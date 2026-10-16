@@ -1,5 +1,4 @@
 using Nails.Application.Modules.Chats.Rules;
-using Nails.Application.Modules.Masters.Events;
 using Nails.Infrastructure.Modules.Chats.Entities;
 
 namespace Nails.Application.Modules.Chats.Seed;
@@ -25,7 +24,7 @@ public static class ChatsDemoData
         [
             Client((26 * Hour) + 5, "Добрый день! Можно на ламинирование бровей?"),
             Booking(26 * Hour),
-            new(MessageKind.System, null, 25 * Hour, ChatTexts.For(BookingChangeKind.Confirmed, true, null)),
+            new(MessageKind.System, null, 25 * Hour, ChatTexts.Confirmed(true)),
             Master((24 * Hour) + 30, "Спасибо за доверие!")
         ]),
         new("m-yulia-pavlova", Me,

@@ -1,4 +1,6 @@
 export { Avatar } from './lib/avatar/avatar';
+export { Swipe } from './lib/gestures/swipe';
+export { type SegmentedOption, SegmentedToggle } from './lib/segmented/segmented-toggle';
 export { Logo } from './lib/brand/logo';
 export { Icon } from './lib/icons/icon';
 export type { IconName } from './lib/icons/icon-paths';

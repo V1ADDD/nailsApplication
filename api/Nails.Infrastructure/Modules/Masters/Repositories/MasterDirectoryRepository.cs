@@ -40,6 +40,14 @@ public sealed class MasterDirectoryRepository(AppDbContext dbContext) : IMasterD
             ? []
             : await dbContext.Set<Booking>().AsNoTracking().Where(booking => bookingIds.Contains(booking.Id)).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<BookingMove>> OpenMovesAsync(IReadOnlyCollection<Guid> bookingIds, CancellationToken cancellationToken) =>
+        bookingIds.Count == 0
+            ? []
+            : await dbContext.Set<BookingMove>()
+                .AsNoTracking()
+                .Where(move => bookingIds.Contains(move.BookingId) && move.Status == BookingMoveStatus.Open)
+                .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Booking>> BookingsOfPairAsync(Guid masterId, Guid clientUserId, CancellationToken cancellationToken) =>
         await dbContext.Set<Booking>()
             .AsNoTracking()

@@ -343,6 +343,30 @@ namespace Nails.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("normalized_user_name");
 
+                    b.Property<bool>("NotifyEmail")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("notify_email");
+
+                    b.Property<bool>("NotifyPush")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("notify_push");
+
+                    b.Property<bool>("NotifyReminders")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("notify_reminders");
+
+                    b.Property<bool>("NotifySite")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("notify_site");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
@@ -355,6 +379,19 @@ namespace Nails.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
 
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("photo_url");
+
+                    b.Property<string>("PreferredContact")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Messages")
+                        .HasColumnName("preferred_contact");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -364,6 +401,11 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
+
+                    b.Property<string>("Telegram")
+                        .HasMaxLength(33)
+                        .HasColumnType("character varying(33)")
+                        .HasColumnName("telegram");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -378,11 +420,18 @@ namespace Nails.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("user_name");
 
+                    b.Property<string>("Viber")
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)")
+                        .HasColumnName("viber");
+
                     b.HasKey("Id")
                         .HasName("pk_users");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                        .IsUnique()
+                        .HasDatabaseName("EmailIndex")
+                        .HasFilter("\"normalized_email\" IS NOT NULL");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
@@ -392,6 +441,59 @@ namespace Nails.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_users_tenant_id");
 
                     b.ToTable("users", "identity");
+                });
+
+            modelBuilder.Entity("Nails.Infrastructure.Modules.Identity.Entities.PhoneChangeCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("code_hash");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)")
+                        .HasColumnName("phone");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_phone_change_codes");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_phone_change_codes_user_id");
+
+                    b.ToTable("phone_change_codes", "identity");
                 });
 
             modelBuilder.Entity("Nails.Infrastructure.Modules.Identity.Entities.PhoneCode", b =>
@@ -602,6 +704,70 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.ToTable("bookings", "masters");
                 });
 
+            modelBuilder.Entity("Nails.Infrastructure.Modules.Masters.Entities.BookingMove", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("booking_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DurationMin")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_min");
+
+                    b.Property<DateTimeOffset>("LapsesAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lapses_at");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<Guid>("SlotId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("slot_id");
+
+                    b.Property<DateTimeOffset>("StartAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_booking_moves");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_booking_moves_booking_id")
+                        .HasFilter("\"status\" = 'Open'");
+
+                    b.HasIndex("Status", "LapsesAt")
+                        .HasDatabaseName("ix_booking_moves_status_lapses_at");
+
+                    b.ToTable("booking_moves", "masters");
+                });
+
             modelBuilder.Entity("Nails.Infrastructure.Modules.Masters.Entities.Course", b =>
                 {
                     b.Property<Guid>("Id")
@@ -738,6 +904,12 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.Property<double>("Lng")
                         .HasColumnType("double precision")
                         .HasColumnName("lng");
+
+                    b.Property<bool>("LocationSet")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("location_set");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -973,6 +1145,9 @@ namespace Nails.Infrastructure.Persistence.Migrations
                     b.HasIndex("BookingId", "AuthorRole")
                         .IsUnique()
                         .HasDatabaseName("ix_reviews_booking_id_author_role");
+
+                    b.HasIndex("ClientUserId", "AuthorRole", "CreatedAt")
+                        .HasDatabaseName("ix_reviews_client_user_id_author_role_created_at");
 
                     b.HasIndex("MasterId", "AuthorRole", "CreatedAt")
                         .HasDatabaseName("ix_reviews_master_id_author_role_created_at");

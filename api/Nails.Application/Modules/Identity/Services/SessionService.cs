@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -31,10 +29,6 @@ public sealed partial class SessionService(
     IRealtimePublisher realtime,
     ILogger<SessionService> logger) : ISessionService
 {
-    private const int DecimalBase = 10;
-
-    private static readonly PasswordHasher<PhoneCode> Hasher = new();
-
     public async Task<PhoneCodeResponse> RequestCodeAsync(PhoneCodeRequest request, CancellationToken cancellationToken)
     {
         var phone = BelarusPhone.Normalize(request.Phone) ?? throw IdentityErrors.PhoneInvalid();
@@ -60,12 +54,12 @@ public sealed partial class SessionService(
 
             if (wait > TimeSpan.Zero)
             {
-                throw IdentityErrors.CodeTooSoon(WholeSeconds(wait));
+                throw IdentityErrors.CodeTooSoon(PhoneCodes.WholeSeconds(wait));
             }
         }
 
-        var code = Generate(settings.Length);
-        entry.CodeHash = Hasher.HashPassword(entry, code);
+        var code = PhoneCodes.Generate(settings.Length);
+        entry.CodeHash = PhoneCodes.Hash(code);
         entry.SentAt = now;
         entry.ExpiresAt = now + settings.Lifetime;
         entry.Attempts = 0;
@@ -73,7 +67,7 @@ public sealed partial class SessionService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await sms.SendAsync(phone, $"Код для входа в «Мастера рядом»: {code}. Никому его не сообщайте.", cancellationToken);
 
-        return new PhoneCodeResponse(CodeRequired: true, settings.Length, WholeSeconds(settings.ResendInterval));
+        return new PhoneCodeResponse(CodeRequired: true, settings.Length, PhoneCodes.WholeSeconds(settings.ResendInterval));
     }
 
     public async Task<SignInResponse> SignInAsync(SignInRequest request, CancellationToken cancellationToken)
@@ -140,13 +134,7 @@ public sealed partial class SessionService(
         await users.FindByIdAsync(currentUser.UserId.ToString())
             ?? throw new UnauthorizedException(ErrorCodes.SessionEnded, "Сеанс завершён. Войдите снова.");
 
-    private MeResponse Me(ApplicationUser user) => new(
-        user.Id,
-        user.DisplayName,
-        user.PhoneNumber,
-        user.MasterId,
-        user.MasterId is null ? UserMode.Client : user.ActiveMode,
-        WholeSeconds(presence.Value.TouchInterval));
+    private MeResponse Me(ApplicationUser user) => MeResponses.From(user, presence.Value.TouchInterval);
 
     private async Task<PhoneCode?> VerifyCodeAsync(string phone, string? code, CancellationToken cancellationToken)
     {
@@ -164,7 +152,7 @@ public sealed partial class SessionService(
             throw IdentityErrors.CodeExpired();
         }
 
-        if (code is null || Hasher.VerifyHashedPassword(entry, entry.CodeHash, code.Trim()) == PasswordVerificationResult.Failed)
+        if (!PhoneCodes.Matches(entry.CodeHash, code))
         {
             entry.Attempts++;
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -173,14 +161,6 @@ public sealed partial class SessionService(
 
         return entry;
     }
-
-    private static string Generate(int length)
-    {
-        var upper = (int)Math.Pow(DecimalBase, length);
-        return RandomNumberGenerator.GetInt32(upper).ToString(new string('0', length), CultureInfo.InvariantCulture);
-    }
-
-    private static int WholeSeconds(TimeSpan duration) => (int)Math.Ceiling(duration.TotalSeconds);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Phone verification is switched off: signing in without an SMS code.")]
     private static partial void LogVerificationOff(ILogger logger);

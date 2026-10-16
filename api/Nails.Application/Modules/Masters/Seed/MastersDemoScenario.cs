@@ -35,6 +35,7 @@ public static class MastersDemoScenario
             new("m-marina-kovaleva", Me, "brows-lamination", At(4, 14, 0), BookingStatus.Confirmed, CreatedMinutesAgo: 26 * MinutesPerHour),
             new("m-anna-serova", Me, "manicure-gel", At(-50, 11, 30), BookingStatus.Completed),
             new("m-oksana-lebed", Me, "lashes-classic", At(-75, 16, 0), BookingStatus.Completed),
+            new("m-marina-kovaleva", Me, "brows-correction", At(-5, 12, 0), BookingStatus.Completed),
             new("m-yulia-pavlova", Me, "cosmetology-cleansing", At(-20, 12, 0), BookingStatus.Cancelled, CancelReason: "Заболела, перенесу позже", CancelMutual: true),
             new(MeMaster, "c-alina", "manicure-hardware", Soon(now, 1), BookingStatus.Confirmed),
             new(MeMaster, "c-viktoria", "manicure-gel", Soon(now, 2.5), BookingStatus.Pending, CreatedMinutesAgo: 40),

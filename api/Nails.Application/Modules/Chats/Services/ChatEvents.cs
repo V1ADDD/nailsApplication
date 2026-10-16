@@ -65,17 +65,6 @@ public sealed class ChatEvents(IRealtimePublisher realtime, IMasterDirectory mas
             cancellationToken);
     }
 
-    public async Task BookingChangedAsync(Guid? chatId, BookingCard booking, Guid clientUserId, CancellationToken cancellationToken)
-    {
-        var masterUserId = await MasterUserIdAsync(booking.MasterId, cancellationToken);
-
-        await realtime.ToUsersAsync(
-            [masterUserId, clientUserId],
-            RealtimeEvents.BookingChanged,
-            new BookingChangedEvent(chatId, booking),
-            cancellationToken);
-    }
-
     public async Task UnreadChangedAsync(Chat chat, ChatRole role, CancellationToken cancellationToken)
     {
         var userId = role == ChatRole.Client ? chat.ClientUserId : await MasterUserIdAsync(chat.MasterId, cancellationToken);

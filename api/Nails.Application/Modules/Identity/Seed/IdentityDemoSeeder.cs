@@ -1,11 +1,14 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Nails.Infrastructure.Modules.Identity.Entities;
+using Nails.Infrastructure.Options;
 using Nails.Infrastructure.Persistence;
 using Nails.Infrastructure.Persistence.Contracts;
 
 namespace Nails.Application.Modules.Identity.Seed;
 
-public sealed class IdentityDemoSeeder(AppDbContext dbContext, TimeProvider clock) : IDemoSeeder
+public sealed class IdentityDemoSeeder(AppDbContext dbContext, TimeProvider clock, IOptions<DemoOptions> options) : IDemoSeeder
 {
     private const string TenantPrefix = "tenant:";
     private static readonly TimeSpan OnlineFor = TimeSpan.FromDays(365);
@@ -51,7 +54,10 @@ public sealed class IdentityDemoSeeder(AppDbContext dbContext, TimeProvider cloc
                 Role = TenantRole.Owner,
                 CreatedAt = now,
                 LastSeenAt = account.Online ? now + OnlineFor : null,
-                MasterId = account.MasterSlug is { } master ? DemoIds.For(master) : null
+                MasterId = account.MasterSlug is { } master ? DemoIds.For(master) : null,
+                PhotoUrl = account.Photo is { } photo ? string.Format(CultureInfo.InvariantCulture, options.Value.PhotoUrlFormat, photo) : null,
+                Telegram = account.Telegram,
+                Viber = account.Viber
             });
         }
 

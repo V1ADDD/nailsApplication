@@ -22,6 +22,9 @@ public sealed class AccountDirectoryRepository(AppDbContext dbContext) : IAccoun
             .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
     }
 
+    public Task<ApplicationUser?> FindAsync(Guid userId, CancellationToken cancellationToken) =>
+        dbContext.Set<ApplicationUser>().AsNoTracking().FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
     public async Task<IReadOnlyDictionary<Guid, string>> PhonesAsync(
         IReadOnlyCollection<Guid> userIds,
         CancellationToken cancellationToken)

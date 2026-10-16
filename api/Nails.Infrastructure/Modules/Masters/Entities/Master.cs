@@ -58,6 +58,8 @@ public sealed class Master : IAuditable, IVersioned
 
     public DateTimeOffset? DeletedAt { get; set; }
 
+    public bool LocationSet { get; set; } = true;
+
     public long Version { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }

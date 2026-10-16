@@ -28,6 +28,7 @@ public sealed class MasterConfiguration : IEntityTypeConfiguration<Master>
         builder.Property(master => master.Viber).HasMaxLength(Master.HandleMaxLength);
         builder.Property(master => master.Instagram).HasMaxLength(Master.HandleMaxLength);
         builder.Property(master => master.VerificationStatus).HasConversion<string>().HasMaxLength(MastersColumns.EnumMaxLength);
+        builder.Property(master => master.LocationSet).HasDefaultValue(true).HasSentinel(true);
         builder.Property(master => master.Version).IsConcurrencyToken();
     }
 }

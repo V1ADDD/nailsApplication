@@ -41,4 +41,15 @@ public static class ErrorCodes
     public const string MessageDeleted = "message-deleted";
     public const string AlreadyBlocked = "already-blocked";
     public const string NotBlocker = "not-blocker";
+    public const string EmailTaken = "email-taken";
+    public const string PhoneSame = "phone-same";
+    public const string PhoneTaken = "phone-taken";
+    public const string NotCompleted = "not-completed";
+    public const string ReviewWindowClosed = "review-window-closed";
+    public const string ReviewExists = "review-exists";
+    public const string CannotMove = "cannot-move";
+    public const string MoveExists = "move-exists";
+    public const string MoveNotOpen = "move-not-open";
+    public const string MoveOverlaps = "move-overlaps";
+    public const string MasterExists = "master-exists";
 }

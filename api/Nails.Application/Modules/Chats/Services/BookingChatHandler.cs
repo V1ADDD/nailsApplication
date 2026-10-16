@@ -35,13 +35,11 @@ public sealed class BookingChatHandler(
                 var author = change.ByMaster == true ? ChatRole.Master : ChatRole.Client;
                 await PostAsync(chat, MessageKind.Booking, author, null, change.BookingId, now, cancellationToken);
             }
-            else if (ChatTexts.For(change.Kind, change.ByMaster, card.CancelReason) is { } text)
+            else if (ChatTexts.For(change.Kind, change.ByMaster, card) is { } text)
             {
                 await PostAsync(chat, MessageKind.System, null, text, change.BookingId, now, cancellationToken);
             }
         }
-
-        await events.BookingChangedAsync(chat?.Id, card, clientUserId, cancellationToken);
     }
 
     private async Task PostAsync(

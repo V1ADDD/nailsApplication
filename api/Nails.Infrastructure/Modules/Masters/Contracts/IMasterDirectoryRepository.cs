@@ -12,5 +12,7 @@ public interface IMasterDirectoryRepository
 
     Task<IReadOnlyList<Booking>> BookingsAsync(IReadOnlyCollection<Guid> bookingIds, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<BookingMove>> OpenMovesAsync(IReadOnlyCollection<Guid> bookingIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<Booking>> BookingsOfPairAsync(Guid masterId, Guid clientUserId, CancellationToken cancellationToken);
 }

@@ -6,7 +6,45 @@ import { NotFoundPage } from '../layout/not-found-page';
 import { StartupFailedPage } from '../layout/startup-failed-page';
 import { buildFrameSlots, frameSlots } from '../modules/frame';
 import type { ModuleManifest } from '../modules/module-manifest';
+import { clientSectionRedirect } from '../profile/client-section-redirect';
+import { profilePaths } from '../profile/profile-paths';
+import { buildProfileSlots, profileSlots } from '../profile/profile-slots';
+import { requireMasterSide } from '../profile/require-master-side';
 import { appPaths } from './app-paths';
+
+function profileRoutes(manifests: readonly ModuleManifest[]): Routes {
+  const slots = buildProfileSlots(manifests);
+
+  return [
+    {
+      path: appPaths.profile,
+      loadComponent: () => import('../profile/profile-shell').then((m) => m.ProfileShell),
+      providers: [{ provide: profileSlots, useValue: slots }],
+      children: [
+        { path: '', pathMatch: 'full', redirectTo: profilePaths.client },
+        {
+          path: profilePaths.client,
+          loadComponent: () => import('../profile/client-account').then((m) => m.ClientAccount),
+          children: [
+            { path: '', pathMatch: 'full', redirectTo: clientSectionRedirect },
+            ...slots.clientSections.map((section) => ({
+              path: section.path,
+              loadComponent: section.loadComponent,
+              title: section.title
+            })),
+            {
+              path: profilePaths.settings,
+              loadComponent: () => import('../profile/settings/settings-panel').then((m) => m.SettingsPanel),
+              title: 'Настройки'
+            },
+            { path: '**', redirectTo: clientSectionRedirect }
+          ]
+        },
+        { path: profilePaths.master, canActivate: [requireMasterSide], children: slots.masterRoutes }
+      ]
+    }
+  ];
+}
 
 export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
   return [
@@ -26,14 +64,7 @@ export function buildRoutes(manifests: readonly ModuleManifest[]): Routes {
         {
           path: '',
           canActivateChild: [requireSession],
-          children: [
-            {
-              path: appPaths.profile,
-              loadComponent: () => import('../account/account-page').then((m) => m.AccountPage),
-              title: 'Профиль'
-            },
-            ...manifests.flatMap((manifest) => manifest.routes)
-          ]
+          children: [...profileRoutes(manifests), ...manifests.flatMap((manifest) => manifest.routes)]
         },
         { path: '**', component: NotFoundPage, title: 'Страница не найдена' }
       ]

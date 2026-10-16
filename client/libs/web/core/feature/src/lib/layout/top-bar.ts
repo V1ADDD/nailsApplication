@@ -103,7 +103,7 @@ import { FrameBadgeView } from './frame-badge-view';
         }
         @if (session.me(); as me) {
           <a class="account" [routerLink]="['/', paths.profile]" aria-label="Профиль">
-            <app-avatar [name]="me.name" [size]="36" />
+            <app-avatar [name]="me.name" [photoUrl]="me.photoUrl" [size]="36" />
           </a>
         } @else if (session.status() === 'signed-out') {
           <a mat-flat-button class="app-small" [routerLink]="['/', paths.signIn]">Войти</a>

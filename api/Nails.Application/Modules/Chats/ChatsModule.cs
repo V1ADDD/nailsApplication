@@ -42,7 +42,6 @@ public sealed class ChatsModule : IAppModule
         services.AddRealtimeEvent<MessageUpdatedEvent>();
         services.AddRealtimeEvent<ChatReadEvent>();
         services.AddRealtimeEvent<ChatChangedEvent>();
-        services.AddRealtimeEvent<BookingChangedEvent>();
         services.AddRealtimeEvent<UnreadChangedEvent>();
     }
 }

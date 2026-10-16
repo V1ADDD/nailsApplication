@@ -10,13 +10,11 @@ public sealed class MasterSearchRepository(AppDbContext dbContext) : IMasterSear
 {
     public async Task<IReadOnlyList<MasterCandidate>> FindCandidatesAsync(CandidateQuery query, CancellationToken cancellationToken)
     {
-        var masters = dbContext.Set<Master>().AsNoTracking().Where(master => master.DeletedAt == null);
+        var masters = dbContext.Set<Master>().AsNoTracking().Listed(dbContext);
         var services = dbContext.Set<MasterService>();
         var reviews = dbContext.Set<Review>().Where(review => review.AuthorRole == Party.Client);
         var bookings = dbContext.Set<Booking>().Where(booking => booking.Status == BookingStatus.Completed);
         var freeSlots = dbContext.Set<Slot>().Where(slot => slot.Status == SlotStatus.Free && slot.StartAt > query.Now);
-
-        masters = masters.Where(master => services.Any(service => service.MasterId == master.Id));
 
         if (query.MasterIds is { } ids)
         {

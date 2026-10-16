@@ -11,4 +11,7 @@ public sealed class ReviewOptions
 
     [Range(1, 100)]
     public int MaxPageSize { get; set; }
+
+    [Range(1, 365)]
+    public int WindowDays { get; set; }
 }
