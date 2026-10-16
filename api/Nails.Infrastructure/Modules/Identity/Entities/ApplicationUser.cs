@@ -17,4 +17,6 @@ public sealed class ApplicationUser : IdentityUser<Guid>
     public DateTimeOffset? LastSeenAt { get; set; }
 
     public Guid? MasterId { get; set; }
+
+    public UserMode ActiveMode { get; set; }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nails.Application.Common.Exceptions;
+using Nails.Application.Common.Realtime;
 using Nails.Application.Modules.Identity.Contracts;
 using Nails.Application.Modules.Identity.Options;
 using Nails.Application.Modules.Identity.Requests;
@@ -25,6 +26,9 @@ public sealed partial class SessionService(
     UserFactory userFactory,
     TimeProvider clock,
     IOptions<PhoneCodeOptions> options,
+    IOptions<PresenceOptions> presence,
+    IUserModeRepository modes,
+    IRealtimePublisher realtime,
     ILogger<SessionService> logger) : ISessionService
 {
     private const int DecimalBase = 10;
@@ -113,11 +117,36 @@ public sealed partial class SessionService(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var user = await users.FindByIdAsync(currentUser.UserId.ToString())
+        return Me(await CurrentAsync());
+    }
+
+    public async Task<MeResponse> SetModeAsync(SetModeRequest request, CancellationToken cancellationToken)
+    {
+        var user = await CurrentAsync();
+
+        if (request.Mode == UserMode.Master && user.MasterId is null)
+        {
+            throw AccessErrors.NotAMaster();
+        }
+
+        await modes.SetAsync(user.Id, request.Mode, cancellationToken);
+        user.ActiveMode = request.Mode;
+        await realtime.ToUsersAsync([user.Id], RealtimeEvents.ModeChanged, new ModeChangedEvent(request.Mode), cancellationToken);
+
+        return Me(user);
+    }
+
+    private async Task<ApplicationUser> CurrentAsync() =>
+        await users.FindByIdAsync(currentUser.UserId.ToString())
             ?? throw new UnauthorizedException(ErrorCodes.SessionEnded, "Сеанс завершён. Войдите снова.");
 
-        return new MeResponse(user.Id, user.DisplayName, user.PhoneNumber, user.MasterId);
-    }
+    private MeResponse Me(ApplicationUser user) => new(
+        user.Id,
+        user.DisplayName,
+        user.PhoneNumber,
+        user.MasterId,
+        user.MasterId is null ? UserMode.Client : user.ActiveMode,
+        WholeSeconds(presence.Value.TouchInterval));
 
     private async Task<PhoneCode?> VerifyCodeAsync(string phone, string? code, CancellationToken cancellationToken)
     {

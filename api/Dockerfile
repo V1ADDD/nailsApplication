@@ -14,6 +14,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 ENV ASPNETCORE_ENVIRONMENT=Docker
 COPY --from=build /app ./
+RUN mkdir -p /app/storage && chown $APP_UID /app/storage
 USER $APP_UID
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Nails.Api.dll"]

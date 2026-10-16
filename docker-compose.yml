@@ -36,6 +36,8 @@ services:
         condition: service_started
     environment:
       ConnectionStrings__Database: "Host=postgres;Port=5432;Database=nails;Username=nails;Password=${POSTGRES_PASSWORD}"
+    volumes:
+      - api-storage:/app/storage
     restart: unless-stopped
 
   web:
@@ -50,3 +52,4 @@ services:
 
 volumes:
   postgres-data:
+  api-storage:

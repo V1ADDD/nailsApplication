@@ -13,6 +13,7 @@ var modules = builder.Services.AddNailsApplication(builder.Configuration);
 builder.Services.AddNailsControllers(modules);
 builder.Services.AddNailsSecurity(builder.Configuration);
 builder.Services.AddNailsRateLimiting();
+builder.Services.AddNailsRealtime(builder.Configuration);
 builder.Services.AddNailsOpenApi(builder.Configuration);
 builder.Services.AddNailsHealthChecks();
 
@@ -35,8 +36,8 @@ app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseStatusCodePages();
 app.UseRouting();
-app.UseRateLimiter();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseMiddleware<TenantMiddleware>();
 app.UseMiddleware<PresenceMiddleware>();
 app.UseMiddleware<AntiforgeryMiddleware>();
@@ -44,6 +45,8 @@ app.UseAuthorization();
 app.UseNailsOpenApi();
 app.MapControllers();
 app.MapNailsModules();
+app.MapNailsMedia();
+app.MapNailsRealtime();
 app.MapNailsHealthChecks();
 
 await app.RunAsync();

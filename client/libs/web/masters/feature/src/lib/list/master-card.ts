@@ -8,6 +8,7 @@ import { Avatar, Icon, Rating } from '@nails/web/common/ui';
 import { FavoriteToggle } from '../favorite-toggle';
 import { goToSignIn } from '../sign-in';
 import { experienceLabel, serviceForms } from '../texts';
+import { chatQuery, injectChatsEnabled, startChatPath } from '../write-to-master';
 
 @Component({
   selector: 'app-master-card',
@@ -154,6 +155,9 @@ import { experienceLabel, serviceForms } from '../texts';
     }
     .actions {
       display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: var(--app-space-2);
     }
     .own {
       margin: 0;
@@ -233,6 +237,9 @@ import { experienceLabel, serviceForms } from '../texts';
     } @else {
       <div class="actions">
         <button mat-flat-button type="button" (click)="book()">Записаться</button>
+        @if (chatsEnabled()) {
+          <a mat-stroked-button [routerLink]="startChatPath" [queryParams]="chatQuery(card.id)">Написать</a>
+        }
       </div>
     }
   `
@@ -245,6 +252,9 @@ export class MasterCard {
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
   private readonly favoriteToggle = inject(FavoriteToggle);
+  protected readonly chatsEnabled = injectChatsEnabled();
+  protected readonly startChatPath = startChatPath;
+  protected readonly chatQuery = chatQuery;
 
   protected readonly expanded = signal(false);
   protected readonly price = formatPrice;

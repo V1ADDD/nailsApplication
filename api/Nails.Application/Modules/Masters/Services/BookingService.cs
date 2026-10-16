@@ -41,10 +41,12 @@ public sealed class BookingService(
         Master? master = null;
         Booking? booking = null;
         var conflicts = new BookingConflicts([], []);
+        List<Booking> autoCancelled = [];
 
         await unitOfWork.InTransactionAsync(
             async token =>
             {
+                autoCancelled.Clear();
                 master = await bookings.FindMasterAsync(request.MasterId, token) is { DeletedAt: null } found
                     ? found
                     : throw MastersErrors.MasterNotFound();
@@ -69,6 +71,7 @@ public sealed class BookingService(
                 foreach (var overlapping in active.Where(item => conflicts.Overlapping.Contains(item.Id)))
                 {
                     await changes.CancelAsync(overlapping, new BookingCancellation(Party.Client, AutoCancelReason, true, false), now, token);
+                    autoCancelled.Add(overlapping);
                 }
 
                 booking = new Booking
@@ -101,7 +104,7 @@ public sealed class BookingService(
         await events.PublishAsync(
             [
                 BookingChanges.Change(booking!, BookingChangeKind.Created, Party.Client),
-                .. conflicts.Overlapping.Select(id => new BookingChanged(id, master!.Id, caller, BookingChangeKind.AutoCancelled, Party.Client))
+                .. autoCancelled.Select(cancelled => BookingChanges.Change(cancelled, BookingChangeKind.AutoCancelled, Party.Client))
             ],
             cancellationToken);
 

@@ -12,6 +12,8 @@ public sealed class CatalogModule : IAppModule
 
     public bool AlwaysOn => true;
 
+    public IReadOnlyList<string> DependsOn => [];
+
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<ICatalog, Services.Catalog>();

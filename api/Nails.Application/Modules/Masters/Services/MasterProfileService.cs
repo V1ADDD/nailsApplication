@@ -4,6 +4,7 @@ using Nails.Application.Common.Time;
 using Nails.Application.Modules.Catalog.Contracts;
 using Nails.Application.Modules.Identity.Contracts;
 using Nails.Application.Modules.Masters.Contracts;
+using Nails.Application.Modules.Masters.ExtensionPoints;
 using Nails.Application.Modules.Masters.Options;
 using Nails.Application.Modules.Masters.Requests;
 using Nails.Application.Modules.Masters.Responses;
@@ -24,7 +25,8 @@ public sealed class MasterProfileService(
     TimeProvider clock,
     IOptions<MasterSearchOptions> searchOptions,
     IOptions<BookingOptions> bookingOptions,
-    IOptions<ReviewOptions> reviewOptions) : IMasterProfileService
+    IOptions<ReviewOptions> reviewOptions,
+    IEnumerable<IReplyTimeSource> replyTimes) : IMasterProfileService
 {
     public async Task<MasterProfileResponse> ProfileAsync(Guid masterId, CardRequest request, CancellationToken cancellationToken)
     {
@@ -35,6 +37,9 @@ public sealed class MasterProfileService(
             ? await presence.OnlineUsersAsync([master.UserId], cancellationToken)
             : new HashSet<Guid>();
         var isFavorite = signedIn && await favorites.ExistsAsync(currentUser.UserId, master.Id, cancellationToken);
+        var replyMinutes = replyTimes.FirstOrDefault() is { } replyTime
+            ? await replyTime.MedianMinutesAsync(master.Id, cancellationToken)
+            : null;
         var prices = master.Services.Select(service => (service.SubcategoryId, Price: new Price(service.PriceKind, service.PriceAmount))).ToList();
 
         return new MasterProfileResponse(
@@ -68,7 +73,8 @@ public sealed class MasterProfileService(
             MasterFacts.ToResponse(facts.Headline(prices)),
             master.CompletedBookings,
             isFavorite,
-            signedIn && master.UserId == currentUser.UserId);
+            signedIn && master.UserId == currentUser.UserId,
+            replyMinutes);
     }
 
     public async Task<SlotsResponse> SlotsAsync(Guid masterId, CancellationToken cancellationToken)

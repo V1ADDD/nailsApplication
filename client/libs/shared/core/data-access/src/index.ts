@@ -5,4 +5,6 @@ export { apiPaths } from './lib/http/api-paths';
 export { provideCoreHttp } from './lib/http/provide-core-http';
 export { IdentityApi } from './lib/identity/identity-api';
 export { SessionStore } from './lib/identity/session-store';
+export { MediaApi } from './lib/media/media-api';
 export { EnabledModules } from './lib/modules/enabled-modules';
+export { RealtimeService } from './lib/realtime/realtime-service';

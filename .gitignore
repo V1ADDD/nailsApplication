@@ -28,6 +28,8 @@ tmp/
 .angular/
 *.tsbuildinfo
 
+api/Nails.Api/storage/
+
 .env
 !.env.example
 

@@ -21,4 +21,19 @@ public sealed class AccountDirectoryRepository(AppDbContext dbContext) : IAccoun
             .Where(user => userIds.Contains(user.Id))
             .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
     }
+
+    public async Task<IReadOnlyDictionary<Guid, string>> PhonesAsync(
+        IReadOnlyCollection<Guid> userIds,
+        CancellationToken cancellationToken)
+    {
+        if (userIds.Count == 0)
+        {
+            return new Dictionary<Guid, string>();
+        }
+
+        return await dbContext.Set<ApplicationUser>()
+            .AsNoTracking()
+            .Where(user => userIds.Contains(user.Id) && user.PhoneNumber != null)
+            .ToDictionaryAsync(user => user.Id, user => user.PhoneNumber!, cancellationToken);
+    }
 }

@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 import { formatDistance, plural } from '@nails/shared/common/util';
 import type { MasterProfile } from '@nails/shared/masters/data-access';
 import { Avatar, Icon, Rating } from '@nails/web/common/ui';
-import { experienceLabel, reviewForms } from '../texts';
+import { experienceLabel, replyTimeLabel, reviewForms } from '../texts';
+import { chatQuery, injectChatsEnabled, startChatPath } from '../write-to-master';
 
 @Component({
   selector: 'app-profile-hero',
-  imports: [MatButtonModule, Avatar, Icon, Rating],
+  imports: [MatButtonModule, RouterLink, Avatar, Icon, Rating],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -96,7 +98,8 @@ import { experienceLabel, reviewForms } from '../texts';
       grid-template-columns: 1fr;
       gap: var(--app-space-2);
     }
-    .actions button {
+    .actions button,
+    .actions a {
       height: 3rem;
     }
     .own {
@@ -146,6 +149,8 @@ import { experienceLabel, reviewForms } from '../texts';
     <ul>
       @if (master.online) {
         <li class="online">● онлайн</li>
+      } @else if (master.replyMinutes !== null && chatsEnabled()) {
+        <li><app-icon name="clock" [size]="16" />{{ replyTime(master.replyMinutes) }}</li>
       }
       <li><app-icon name="briefcase" [size]="16" />{{ experience() }}</li>
       <li><app-icon name="map-pin" [size]="16" />{{ place() }}</li>
@@ -158,6 +163,12 @@ import { experienceLabel, reviewForms } from '../texts';
           <app-icon name="calendar" [size]="18" />
           Записаться
         </button>
+        @if (chatsEnabled()) {
+          <a mat-stroked-button [routerLink]="startChatPath" [queryParams]="chatQuery(master.id)">
+            <app-icon name="message-square" [size]="18" />
+            Написать
+          </a>
+        }
       </div>
     }
   `
@@ -167,6 +178,10 @@ export class ProfileHero {
   readonly favorite = input(false);
   readonly book = output();
   readonly toggleFavorite = output();
+  protected readonly chatsEnabled = injectChatsEnabled();
+  protected readonly startChatPath = startChatPath;
+  protected readonly chatQuery = chatQuery;
+  protected readonly replyTime = replyTimeLabel;
 
   protected readonly reviewsLabel = computed(() => `· ${plural(this.profile().reviewsCount, reviewForms)}`);
   protected readonly experience = computed(() => experienceLabel(this.profile().experienceYears));

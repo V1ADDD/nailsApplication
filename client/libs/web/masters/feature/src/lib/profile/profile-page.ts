@@ -28,6 +28,7 @@ import { PortfolioSection } from './portfolio-section';
 import { ProfileHero } from './profile-hero';
 import { ReviewsSection } from './reviews-section';
 import { ServicesSection } from './services-section';
+import { chatQuery, injectChatsEnabled, startChatPath } from '../write-to-master';
 
 const notFound = 404;
 const firstNavigation = 1;
@@ -204,6 +205,7 @@ export class ProfilePage {
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly chatsEnabled = injectChatsEnabled();
   private readonly location = inject(Location);
   private readonly title = inject(Title);
   private readonly sheets = inject(Sheets);
@@ -277,9 +279,14 @@ export class ProfilePage {
       .open(BookingSheet, data)
       .afterClosed()
       .subscribe((result) => {
-        if (result) {
-          this.slots.reload();
+        if (!result) {
+          return;
         }
+        if (this.chatsEnabled()) {
+          void this.router.navigate([startChatPath], { queryParams: chatQuery(this.id()) });
+          return;
+        }
+        this.slots.reload();
       });
   }
 

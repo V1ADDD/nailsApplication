@@ -1,0 +1,9 @@
+{
+  "name": "web-chats-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/chats/feature/src",
+  "projectType": "library",
+  "prefix": "app",
+  "tags": ["scope:web", "type:feature", "name:chats"],
+  "targets": {}
+}

@@ -71,7 +71,7 @@ public static class ControllerExtensions
         messages.SetNonPropertyValueMustBeANumberAccessor(() => ValidationMessages.InvalidValue);
     }
 
-    private static void ConfigureJson(JsonSerializerOptions options)
+    public static void ConfigureJson(JsonSerializerOptions options)
     {
         options.NumberHandling = JsonNumberHandling.Strict;
         options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
